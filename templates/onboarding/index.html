@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}Profil yaratish - NIKOH{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto px-4 py-8">
+    <div class="bg-white rounded-lg shadow-lg p-8">
+        <h1 class="text-3xl font-bold text-gray-800 mb-2">Xush kelibsiz!</h1>
+        <p class="text-gray-600 mb-6">
+            Platformadan foydalanish uchun profilingizni to'ldiring.
+        </p>
+
+        <!-- Progress -->
+        <div class="mb-6">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-sm text-gray-600">To'ldirilganlik</span>
+                <span class="text-sm font-semibold text-blue-600">{{ profile.completion_percentage }}%</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="bg-blue-600 h-2 rounded-full" style="width: {{ profile.completion_percentage }}%"></div>
+            </div>
+        </div>
+
+        <!-- Steps -->
+        <div class="space-y-3 mb-8">
+            <div class="flex items-center">
+                <div class="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-semibold">1</div>
+                <span class="ml-3 text-gray-700">Shaxsiy ma'lumotlar</span>
+            </div>
+            <div class="flex items-center">
+                <div class="w-8 h-8 bg-gray-300 text-white rounded-full flex items-center justify-center font-semibold">2</div>
+                <span class="ml-3 text-gray-500">Jismoniy ma'lumotlar</span>
+            </div>
+            <div class="flex items-center">
+                <div class="w-8 h-8 bg-gray-300 text-white rounded-full flex items-center justify-center font-semibold">3</div>
+                <span class="ml-3 text-gray-500">Diniy ma'lumotlar</span>
+            </div>
+            <div class="flex items-center">
+                <div class="w-8 h-8 bg-gray-300 text-white rounded-full flex items-center justify-center font-semibold">4</div>
+                <span class="ml-3 text-gray-500">Ta'lim va kasb</span>
+            </div>
+            <div class="flex items-center">
+                <div class="w-8 h-8 bg-gray-300 text-white rounded-full flex items-center justify-center font-semibold">5</div>
+                <span class="ml-3 text-gray-500">Juftga talablar</span>
+            </div>
+        </div>
+
+        <a href="{{ url_for('profile.onboarding_step1') }}"
+           class="block w-full bg-blue-600 text-white text-center py-3 rounded-lg hover:bg-blue-700 font-semibold">
+            Boshlash
+        </a>
+    </div>
+</div>
+{% endblock %}

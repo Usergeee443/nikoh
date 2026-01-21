@@ -1,0 +1,252 @@
+from flask import Blueprint, render_template, request, redirect, url_for, session, jsonify
+from models import User, Profile
+from database import db
+from routes.auth import login_required
+from datetime import datetime
+
+profile_bp = Blueprint('profile', __name__, url_prefix='/profile')
+
+
+@profile_bp.route('/onboarding')
+@login_required
+def onboarding():
+    """Onboarding asosiy sahifa"""
+    user = User.query.get(session['user_id'])
+
+    if user.profile_completed:
+        return redirect(url_for('feed.index'))
+
+    return render_template('onboarding/index.html',
+                         user=user,
+                         profile=user.profile)
+
+
+@profile_bp.route('/onboarding/step1', methods=['GET', 'POST'])
+@login_required
+def onboarding_step1():
+    """Qadam 1: Shaxsiy ma'lumotlar"""
+    user = User.query.get(session['user_id'])
+
+    if request.method == 'POST':
+        profile = user.profile
+        profile.name = request.form.get('name')
+        profile.gender = request.form.get('gender')
+        profile.birth_year = int(request.form.get('birth_year'))
+        profile.region = request.form.get('region')
+        profile.nationality = request.form.get('nationality')
+        profile.marital_status = request.form.get('marital_status')
+
+        db.session.commit()
+        return redirect(url_for('profile.onboarding_step2'))
+
+    return render_template('onboarding/step1.html',
+                         user=user,
+                         profile=user.profile)
+
+
+@profile_bp.route('/onboarding/step2', methods=['GET', 'POST'])
+@login_required
+def onboarding_step2():
+    """Qadam 2: Jismoniy ma'lumotlar"""
+    user = User.query.get(session['user_id'])
+
+    if request.method == 'POST':
+        profile = user.profile
+        profile.height = int(request.form.get('height'))
+        profile.weight = int(request.form.get('weight'))
+
+        db.session.commit()
+        return redirect(url_for('profile.onboarding_step3'))
+
+    return render_template('onboarding/step2.html',
+                         user=user,
+                         profile=user.profile)
+
+
+@profile_bp.route('/onboarding/step3', methods=['GET', 'POST'])
+@login_required
+def onboarding_step3():
+    """Qadam 3: Diniy ma'lumotlar"""
+    user = User.query.get(session['user_id'])
+
+    if request.method == 'POST':
+        profile = user.profile
+        profile.prays = request.form.get('prays')
+        profile.fasts = request.form.get('fasts')
+        profile.religious_level = request.form.get('religious_level')
+
+        db.session.commit()
+        return redirect(url_for('profile.onboarding_step4'))
+
+    return render_template('onboarding/step3.html',
+                         user=user,
+                         profile=user.profile)
+
+
+@profile_bp.route('/onboarding/step4', methods=['GET', 'POST'])
+@login_required
+def onboarding_step4():
+    """Qadam 4: Ta'lim va kasb"""
+    user = User.query.get(session['user_id'])
+
+    if request.method == 'POST':
+        profile = user.profile
+        profile.education = request.form.get('education')
+        profile.profession = request.form.get('profession')
+        profile.is_working = request.form.get('is_working') == 'true'
+
+        db.session.commit()
+        return redirect(url_for('profile.onboarding_step5'))
+
+    return render_template('onboarding/step4.html',
+                         user=user,
+                         profile=user.profile)
+
+
+@profile_bp.route('/onboarding/step5', methods=['GET', 'POST'])
+@login_required
+def onboarding_step5():
+    """Qadam 5: Juftga qo'yiladigan talablar"""
+    user = User.query.get(session['user_id'])
+
+    if request.method == 'POST':
+        profile = user.profile
+        profile.partner_age_min = int(request.form.get('partner_age_min'))
+        profile.partner_age_max = int(request.form.get('partner_age_max'))
+        profile.partner_region = request.form.get('partner_region')
+        profile.partner_religious_level = request.form.get('partner_religious_level')
+        profile.partner_marital_status = request.form.get('partner_marital_status')
+
+        db.session.commit()
+        return redirect(url_for('profile.onboarding_complete'))
+
+    return render_template('onboarding/step5.html',
+                         user=user,
+                         profile=user.profile)
+
+
+@profile_bp.route('/onboarding/complete', methods=['GET', 'POST'])
+@login_required
+def onboarding_complete():
+    """Onboarding tugallandi"""
+    user = User.query.get(session['user_id'])
+
+    if not user.profile_completed:
+        return redirect(url_for('profile.onboarding'))
+
+    if request.method == 'POST':
+        bio = request.form.get('bio')
+        user.profile.bio = bio
+        db.session.commit()
+
+        return redirect(url_for('profile.activate_profile'))
+
+    return render_template('onboarding/complete.html',
+                         user=user,
+                         profile=user.profile)
+
+
+@profile_bp.route('/activate', methods=['GET', 'POST'])
+@login_required
+def activate_profile():
+    """E'lonni faollashtirish"""
+    user = User.query.get(session['user_id'])
+
+    if not user.profile_completed:
+        return redirect(url_for('profile.onboarding'))
+
+    if request.method == 'POST':
+        # E'lonni faollashtirish uchun tarif kerak
+        if not user.has_active_tariff:
+            return redirect(url_for('tariff.purchase'))
+
+        user.profile.activate()
+        return redirect(url_for('feed.index'))
+
+    return render_template('profile/activate.html',
+                         user=user,
+                         profile=user.profile)
+
+
+@profile_bp.route('/edit', methods=['GET', 'POST'])
+@login_required
+def edit():
+    """Profilni tahrirlash"""
+    user = User.query.get(session['user_id'])
+
+    if request.method == 'POST':
+        profile = user.profile
+
+        # Yangilanadigan maydonlar
+        profile.name = request.form.get('name')
+        profile.region = request.form.get('region')
+        profile.height = int(request.form.get('height'))
+        profile.weight = int(request.form.get('weight'))
+        profile.prays = request.form.get('prays')
+        profile.fasts = request.form.get('fasts')
+        profile.religious_level = request.form.get('religious_level')
+        profile.education = request.form.get('education')
+        profile.profession = request.form.get('profession')
+        profile.is_working = request.form.get('is_working') == 'true'
+        profile.bio = request.form.get('bio')
+
+        # Juftga qo'yiladigan talablar
+        profile.partner_age_min = int(request.form.get('partner_age_min'))
+        profile.partner_age_max = int(request.form.get('partner_age_max'))
+        profile.partner_region = request.form.get('partner_region')
+        profile.partner_religious_level = request.form.get('partner_religious_level')
+        profile.partner_marital_status = request.form.get('partner_marital_status')
+
+        db.session.commit()
+
+        return redirect(url_for('profile.view'))
+
+    return render_template('profile/edit.html',
+                         user=user,
+                         profile=user.profile)
+
+
+@profile_bp.route('/view')
+@login_required
+def view():
+    """O'z profilini ko'rish"""
+    user = User.query.get(session['user_id'])
+
+    return render_template('profile/view.html',
+                         user=user,
+                         profile=user.profile)
+
+
+@profile_bp.route('/toggle-active', methods=['POST'])
+@login_required
+def toggle_active():
+    """E'lonni yoqish/o'chirish"""
+    user = User.query.get(session['user_id'])
+
+    if user.profile.is_active:
+        user.profile.deactivate()
+        message = "E'lon o'chirildi"
+    else:
+        if not user.has_active_tariff:
+            return jsonify({'error': 'Tarif kerak'}), 400
+
+        user.profile.activate()
+        message = "E'lon faollashtirildi"
+
+    return jsonify({
+        'success': True,
+        'message': message,
+        'is_active': user.profile.is_active
+    })
+
+
+@profile_bp.route('/api/progress')
+@login_required
+def get_progress():
+    """Profil to'ldirilganlik foizini olish"""
+    user = User.query.get(session['user_id'])
+
+    return jsonify({
+        'completion_percentage': user.profile.completion_percentage,
+        'is_complete': user.profile.is_complete
+    })
