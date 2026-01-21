@@ -131,8 +131,13 @@ def onboarding_complete():
     """Onboarding tugallandi"""
     user = User.query.get(session['user_id'])
 
-    if not user.profile_completed:
+    # Agar profil to'liq emas bo'lsa, onboarding'ga qaytarish
+    if not user.profile or not user.profile.is_complete:
         return redirect(url_for('profile.onboarding'))
+
+    # Agar bio allaqachon to'ldirilgan bo'lsa, activate sahifasiga yo'naltirish
+    if user.profile.bio:
+        return redirect(url_for('profile.activate_profile'))
 
     if request.method == 'POST':
         bio = request.form.get('bio')

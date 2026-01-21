@@ -32,6 +32,7 @@ class User(db.Model):
     @property
     def has_active_tariff(self):
         """Foydalanuvchining aktiv tarifi bormi?"""
+        from models.tariff import UserTariff
         active_tariff = self.tariffs.filter(
             UserTariff.is_active == True,
             UserTariff.expires_at > datetime.utcnow()
@@ -41,6 +42,7 @@ class User(db.Model):
     @property
     def active_tariff(self):
         """Aktiv tarifni qaytaradi"""
+        from models.tariff import UserTariff
         return self.tariffs.filter(
             UserTariff.is_active == True,
             UserTariff.expires_at > datetime.utcnow()

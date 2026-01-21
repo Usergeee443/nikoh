@@ -1,0 +1,269 @@
+{% extends "base.html" %}
+
+{% block title %}So'rovlar - NIKOH{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto">
+    <!-- Header -->
+    <div class="bg-white shadow-sm p-4">
+        <h1 class="text-2xl font-bold text-gray-800">So'rovlar</h1>
+
+        {% if user.has_active_tariff %}
+        <div class="mt-2 bg-green-50 border border-green-200 rounded-lg p-3">
+            <p class="text-sm text-green-800">
+                <span class="font-semibold">{{ user.active_tariff.requests_count }}</span> ta so'rov qoldi
+            </p>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Tabs -->
+    <div class="bg-white shadow-sm p-4 mt-2">
+        <div class="flex border-b border-gray-200">
+            <button id="receivedTab" class="flex-1 py-2 text-center font-semibold text-blue-600 border-b-2 border-blue-600">
+                Qabul qilingan
+            </button>
+            <button id="sentTab" class="flex-1 py-2 text-center text-gray-600 hover:text-gray-800">
+                Yuborilgan
+            </button>
+        </div>
+    </div>
+
+    <!-- Received Requests Container -->
+    <div id="receivedContainer" class="mt-2 space-y-2">
+        <div class="text-center py-8">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+            <p class="text-gray-500 mt-4">Yuklanmoqda...</p>
+        </div>
+    </div>
+
+    <!-- Sent Requests Container -->
+    <div id="sentContainer" class="mt-2 space-y-2 hidden">
+        <div class="text-center py-8">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+            <p class="text-gray-500 mt-4">Yuklanmoqda...</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+let currentTab = 'received';
+
+// Tab switching
+document.getElementById('receivedTab').addEventListener('click', () => {
+    switchTab('received');
+});
+
+document.getElementById('sentTab').addEventListener('click', () => {
+    switchTab('sent');
+});
+
+function switchTab(tab) {
+    currentTab = tab;
+    
+    if (tab === 'received') {
+        document.getElementById('receivedTab').classList.add('text-blue-600', 'border-b-2', 'border-blue-600');
+        document.getElementById('receivedTab').classList.remove('text-gray-600');
+        document.getElementById('sentTab').classList.remove('text-blue-600', 'border-b-2', 'border-blue-600');
+        document.getElementById('sentTab').classList.add('text-gray-600');
+        document.getElementById('receivedContainer').classList.remove('hidden');
+        document.getElementById('sentContainer').classList.add('hidden');
+        loadReceivedRequests();
+    } else {
+        document.getElementById('sentTab').classList.add('text-blue-600', 'border-b-2', 'border-blue-600');
+        document.getElementById('sentTab').classList.remove('text-gray-600');
+        document.getElementById('receivedTab').classList.remove('text-blue-600', 'border-b-2', 'border-blue-600');
+        document.getElementById('receivedTab').classList.add('text-gray-600');
+        document.getElementById('sentContainer').classList.remove('hidden');
+        document.getElementById('receivedContainer').classList.add('hidden');
+        loadSentRequests();
+    }
+}
+
+async function loadReceivedRequests() {
+    const container = document.getElementById('receivedContainer');
+    
+    try {
+        const response = await fetch('/requests/api/received');
+        const data = await response.json();
+
+        container.innerHTML = '';
+
+        if (data.requests.length === 0) {
+            container.innerHTML = '<div class="text-center py-8 text-gray-500">Qabul qilingan so\'rovlar yo\'q</div>';
+            return;
+        }
+
+        data.requests.forEach(request => {
+            const card = createReceivedRequestCard(request);
+            container.appendChild(card);
+        });
+
+    } catch (error) {
+        console.error('Error loading received requests:', error);
+        container.innerHTML = '<div class="text-center py-8 text-red-600">Xatolik yuz berdi</div>';
+    }
+}
+
+async function loadSentRequests() {
+    const container = document.getElementById('sentContainer');
+    
+    try {
+        const response = await fetch('/requests/api/sent');
+        const data = await response.json();
+
+        container.innerHTML = '';
+
+        if (data.requests.length === 0) {
+            container.innerHTML = '<div class="text-center py-8 text-gray-500">Yuborilgan so\'rovlar yo\'q</div>';
+            return;
+        }
+
+        data.requests.forEach(request => {
+            const card = createSentRequestCard(request);
+            container.appendChild(card);
+        });
+
+    } catch (error) {
+        console.error('Error loading sent requests:', error);
+        container.innerHTML = '<div class="text-center py-8 text-red-600">Xatolik yuz berdi</div>';
+    }
+}
+
+function createReceivedRequestCard(request) {
+    const div = document.createElement('div');
+    div.className = 'bg-white shadow-sm rounded-lg p-4';
+
+    const statusBadge = request.status === 'pending' 
+        ? '<span class="inline-block bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded mb-2">Kutilmoqda</span>'
+        : request.status === 'accepted'
+        ? '<span class="inline-block bg-green-100 text-green-800 text-xs px-2 py-1 rounded mb-2">Qabul qilindi</span>'
+        : '<span class="inline-block bg-red-100 text-red-800 text-xs px-2 py-1 rounded mb-2">Rad etildi</span>';
+
+    div.innerHTML = `
+        ${statusBadge}
+        <h3 class="text-xl font-semibold text-gray-800">${request.sender_name}</h3>
+        ${request.message ? `<p class="text-gray-600 mt-2">${request.message}</p>` : ''}
+        <p class="text-xs text-gray-500 mt-2">${new Date(request.created_at).toLocaleDateString('uz-UZ')}</p>
+        ${request.status === 'pending' ? `
+            <div class="flex gap-2 mt-4">
+                <button onclick="acceptRequest(${request.id})" class="flex-1 bg-green-600 text-white py-2 rounded-lg hover:bg-green-700">
+                    Qabul qilish
+                </button>
+                <button onclick="rejectRequest(${request.id})" class="flex-1 bg-red-600 text-white py-2 rounded-lg hover:bg-red-700">
+                    Rad etish
+                </button>
+            </div>
+        ` : ''}
+        ${request.chat_id ? `
+            <a href="/chats/${request.chat_id}" class="block mt-2 text-center bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700">
+                Chatga o'tish
+            </a>
+        ` : ''}
+    `;
+
+    return div;
+}
+
+function createSentRequestCard(request) {
+    const div = document.createElement('div');
+    div.className = 'bg-white shadow-sm rounded-lg p-4';
+
+    const statusBadge = request.status === 'pending' 
+        ? '<span class="inline-block bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded mb-2">Kutilmoqda</span>'
+        : request.status === 'accepted'
+        ? '<span class="inline-block bg-green-100 text-green-800 text-xs px-2 py-1 rounded mb-2">Qabul qilindi</span>'
+        : '<span class="inline-block bg-red-100 text-red-800 text-xs px-2 py-1 rounded mb-2">Rad etildi</span>';
+
+    div.innerHTML = `
+        ${statusBadge}
+        <h3 class="text-xl font-semibold text-gray-800">${request.receiver_name}</h3>
+        ${request.message ? `<p class="text-gray-600 mt-2">${request.message}</p>` : ''}
+        <p class="text-xs text-gray-500 mt-2">${new Date(request.created_at).toLocaleDateString('uz-UZ')}</p>
+        ${request.status === 'pending' ? `
+            <button onclick="cancelRequest(${request.id})" class="mt-4 w-full bg-gray-600 text-white py-2 rounded-lg hover:bg-gray-700">
+                Bekor qilish
+            </button>
+        ` : ''}
+        ${request.chat_id ? `
+            <a href="/chats/${request.chat_id}" class="block mt-2 text-center bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700">
+                Chatga o'tish
+            </a>
+        ` : ''}
+    `;
+
+    return div;
+}
+
+async function acceptRequest(requestId) {
+    if (!confirm('Ushbu so\'rovni qabul qilasizmi?')) return;
+
+    try {
+        const response = await fetch(`/requests/api/${requestId}/accept`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'}
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            alert('So\'rov qabul qilindi!');
+            loadReceivedRequests();
+        } else {
+            alert(data.error || 'Xatolik yuz berdi');
+        }
+    } catch (error) {
+        alert('Xatolik yuz berdi');
+    }
+}
+
+async function rejectRequest(requestId) {
+    if (!confirm('Ushbu so\'rovni rad qilasizmi?')) return;
+
+    try {
+        const response = await fetch(`/requests/api/${requestId}/reject`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'}
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            alert('So\'rov rad etildi');
+            loadReceivedRequests();
+        } else {
+            alert(data.error || 'Xatolik yuz berdi');
+        }
+    } catch (error) {
+        alert('Xatolik yuz berdi');
+    }
+}
+
+async function cancelRequest(requestId) {
+    if (!confirm('Ushbu so\'rovni bekor qilasizmi?')) return;
+
+    try {
+        const response = await fetch(`/requests/api/${requestId}/cancel`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'}
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            alert('So\'rov bekor qilindi');
+            loadSentRequests();
+        } else {
+            alert(data.error || 'Xatolik yuz berdi');
+        }
+    } catch (error) {
+        alert('Xatolik yuz berdi');
+    }
+}
+
+// Initial load
+loadReceivedRequests();
+</script>
+{% endblock %}
