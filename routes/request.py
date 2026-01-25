@@ -9,10 +9,9 @@ request_bp = Blueprint('request', __name__, url_prefix='/requests')
 @request_bp.route('/')
 @profile_required
 def index():
-    """So'rovlar sahifasi"""
+    """So'rovlar sahifasi - SPA ga yo'naltirish"""
     user = User.query.get(session['user_id'])
-
-    return render_template('requests.html', user=user)
+    return render_template('spa.html', user=user)
 
 
 @request_bp.route('/api/sent')

@@ -10,10 +10,9 @@ chat_bp = Blueprint('chat', __name__, url_prefix='/chat')
 @chat_bp.route('/')
 @profile_required
 def index():
-    """Chatlar ro'yxati"""
+    """Chatlar ro'yxati - SPA ga yo'naltirish"""
     user = User.query.get(session['user_id'])
-
-    return render_template('chat/index.html', user=user)
+    return render_template('spa.html', user=user)
 
 
 @chat_bp.route('/api/list')
@@ -73,7 +72,7 @@ def get_chats():
 @chat_bp.route('/<int:chat_id>')
 @profile_required
 def view_chat(chat_id):
-    """Chatni ko'rish"""
+    """Chatni ko'rish - SPA ga yo'naltirish"""
     current_user = User.query.get(session['user_id'])
 
     chat = Chat.query.get(chat_id)
@@ -88,9 +87,8 @@ def view_chat(chat_id):
     # Holatni yangilash
     chat.check_and_update_status()
 
-    return render_template('chat/view.html',
-                         user=current_user,
-                         chat=chat)
+    # SPA ga yo'naltirish
+    return render_template('spa.html', user=current_user)
 
 
 @chat_bp.route('/api/<int:chat_id>/messages')

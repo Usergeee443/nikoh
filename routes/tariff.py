@@ -10,22 +10,9 @@ tariff_bp = Blueprint('tariff', __name__, url_prefix='/tariff')
 @tariff_bp.route('/purchase')
 @login_required
 def purchase():
-    """Tarif sotib olish sahifasi"""
+    """Tarif sotib olish sahifasi - SPA ga yo'naltirish"""
     user = User.query.get(session['user_id'])
-
-    tariff_info = {
-        'name': 'KUMUSH',
-        'price': Config.KUMUSH_TARIFF_PRICE,
-        'requests': Config.KUMUSH_TARIFF_REQUESTS,
-        'days': Config.KUMUSH_TARIFF_DAYS,
-        'top_days': Config.KUMUSH_TARIFF_TOP_DAYS,
-        'card_number': Config.PAYMENT_CARD_NUMBER,
-        'card_name': Config.PAYMENT_CARD_NAME
-    }
-
-    return render_template('tariff/purchase.html',
-                         user=user,
-                         tariff=tariff_info)
+    return render_template('spa.html', user=user)
 
 
 @tariff_bp.route('/api/status')

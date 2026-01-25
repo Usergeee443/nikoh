@@ -154,7 +154,7 @@ def onboarding_complete():
 @profile_bp.route('/activate', methods=['GET', 'POST'])
 @login_required
 def activate_profile():
-    """E'lonni faollashtirish"""
+    """E'lonni faollashtirish - SPA ga yo'naltirish"""
     user = User.query.get(session['user_id'])
 
     if not user.profile_completed:
@@ -168,9 +168,8 @@ def activate_profile():
         user.profile.activate()
         return redirect(url_for('feed.index'))
 
-    return render_template('profile/activate.html',
-                         user=user,
-                         profile=user.profile)
+    # SPA ga yo'naltirish (tarif bo'lmasa ham ko'rish mumkin)
+    return render_template('spa.html', user=user)
 
 
 @profile_bp.route('/edit', methods=['GET', 'POST'])
@@ -204,22 +203,19 @@ def edit():
 
         db.session.commit()
 
-        return redirect(url_for('profile.view'))
+        # SPA da yana profilga qaytarish uchun JSON javob
+        return jsonify({'success': True, 'message': 'Profil saqlandi'})
 
-    return render_template('profile/edit.html',
-                         user=user,
-                         profile=user.profile)
+    # GET so'rovi uchun SPA ga yo'naltirish
+    return render_template('spa.html', user=user)
 
 
 @profile_bp.route('/view')
 @login_required
 def view():
-    """O'z profilini ko'rish"""
+    """O'z profilini ko'rish - SPA ga yo'naltirish"""
     user = User.query.get(session['user_id'])
-
-    return render_template('profile/view.html',
-                         user=user,
-                         profile=user.profile)
+    return render_template('spa.html', user=user)
 
 
 @profile_bp.route('/toggle-active', methods=['POST'])

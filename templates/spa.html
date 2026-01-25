@@ -1,0 +1,1290 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>NIKOH - Halol tanishuv</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        * { -webkit-tap-highlight-color: transparent; }
+        body { overscroll-behavior: none; }
+        .page { display: none; opacity: 0; transition: opacity 0.15s ease-in-out; }
+        .page.active { display: block; opacity: 1; }
+        .skeleton { background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; }
+        @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+        .nav-item { display: flex; flex-direction: column; align-items: center; padding: 8px 12px; color: #6b7280; transition: color 0.15s; }
+        .nav-item.active { color: #2563eb; }
+        .nav-item svg { transition: transform 0.15s; }
+        .nav-item.active svg { transform: scale(1.1); }
+        .fade-enter { opacity: 0; transform: translateY(10px); }
+        .fade-enter-active { opacity: 1; transform: translateY(0); transition: all 0.2s ease-out; }
+        .card-enter { opacity: 0; transform: scale(0.95); }
+        .card-enter-active { opacity: 1; transform: scale(1); transition: all 0.2s ease-out; }
+        .modal { opacity: 0; visibility: hidden; transition: opacity 0.2s, visibility 0.2s; }
+        .modal.show { opacity: 1; visibility: visible; }
+        .modal-content { transform: translateY(20px); transition: transform 0.2s; }
+        .modal.show .modal-content { transform: translateY(0); }
+        .toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(100px); background: #1f2937; color: white; padding: 12px 24px; border-radius: 8px; z-index: 1000; opacity: 0; transition: all 0.3s; }
+        .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+        input, select, textarea { font-size: 16px !important; }
+        .chat-messages { scroll-behavior: smooth; }
+        .message-bubble { max-width: 80%; word-wrap: break-word; }
+        .btn-primary { background: #2563eb; color: white; padding: 12px 24px; border-radius: 8px; font-weight: 600; transition: background 0.15s; }
+        .btn-primary:hover { background: #1d4ed8; }
+        .btn-primary:disabled { background: #9ca3af; cursor: not-allowed; }
+        .input-field { width: 100%; padding: 12px 16px; border: 1px solid #d1d5db; border-radius: 8px; outline: none; transition: border-color 0.15s, box-shadow 0.15s; }
+        .input-field:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
+    </style>
+</head>
+<body class="bg-gray-50 pb-20">
+    <!-- Toast notification -->
+    <div id="toast" class="toast"></div>
+
+    <!-- Loading overlay -->
+    <div id="loadingOverlay" class="fixed inset-0 bg-white z-50 flex items-center justify-center">
+        <div class="text-center">
+            <div class="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
+            <p class="mt-4 text-gray-600">Yuklanmoqda...</p>
+        </div>
+    </div>
+
+    <!-- ==================== FEED PAGE ==================== -->
+    <div id="page-feed" class="page">
+        <div class="max-w-md mx-auto">
+            <!-- Header with tariff info -->
+            <div class="bg-white shadow-sm p-4 sticky top-0 z-10">
+                <h1 class="text-2xl font-bold text-gray-800">E'lonlar</h1>
+                <div id="feedTariffInfo" class="mt-2"></div>
+            </div>
+
+            <!-- Filters -->
+            <div class="bg-white shadow-sm p-4 mt-2">
+                <label class="flex items-center cursor-pointer">
+                    <input type="checkbox" id="topOnlyFilter" class="w-5 h-5 text-blue-600 rounded">
+                    <span class="ml-2 text-gray-700">Faqat TOP e'lonlar</span>
+                </label>
+            </div>
+
+            <!-- Listings -->
+            <div id="listingsContainer" class="mt-2 space-y-2 px-2"></div>
+
+            <!-- Load more -->
+            <div id="loadMoreContainer" class="text-center py-4 hidden">
+                <button id="loadMoreBtn" class="btn-primary">Ko'proq yuklash</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== REQUESTS PAGE ==================== -->
+    <div id="page-requests" class="page">
+        <div class="max-w-md mx-auto">
+            <div class="bg-white shadow-sm p-4 sticky top-0 z-10">
+                <h1 class="text-2xl font-bold text-gray-800">So'rovlar</h1>
+                <div id="requestsTariffInfo" class="mt-2"></div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="bg-white shadow-sm p-4 mt-2">
+                <div class="flex border-b border-gray-200">
+                    <button id="receivedTab" class="flex-1 py-2 text-center font-semibold text-blue-600 border-b-2 border-blue-600" onclick="switchRequestTab('received')">
+                        Kelgan <span id="receivedCount" class="bg-blue-100 text-blue-800 text-xs px-2 py-0.5 rounded-full ml-1 hidden">0</span>
+                    </button>
+                    <button id="sentTab" class="flex-1 py-2 text-center text-gray-600" onclick="switchRequestTab('sent')">
+                        Yuborilgan
+                    </button>
+                </div>
+            </div>
+
+            <div id="receivedContainer" class="mt-2 space-y-2 px-2"></div>
+            <div id="sentContainer" class="mt-2 space-y-2 px-2 hidden"></div>
+        </div>
+    </div>
+
+    <!-- ==================== CHATS PAGE ==================== -->
+    <div id="page-chats" class="page">
+        <div class="max-w-md mx-auto">
+            <div class="bg-white shadow-sm p-4 sticky top-0 z-10">
+                <h1 class="text-2xl font-bold text-gray-800">Chatlar</h1>
+            </div>
+            <div id="chatsContainer" class="mt-2 space-y-2 px-2"></div>
+        </div>
+    </div>
+
+    <!-- ==================== CHAT VIEW PAGE ==================== -->
+    <div id="page-chat-view" class="page">
+        <div class="max-w-md mx-auto flex flex-col h-screen">
+            <!-- Chat header -->
+            <div class="bg-white shadow-sm p-4 flex items-center">
+                <button onclick="navigateTo('chats')" class="mr-3 p-2 -ml-2 rounded-full hover:bg-gray-100">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                    </svg>
+                </button>
+                <div>
+                    <h2 id="chatUserName" class="font-semibold text-gray-800"></h2>
+                    <p id="chatStatus" class="text-xs text-gray-500"></p>
+                </div>
+            </div>
+
+            <!-- Messages -->
+            <div id="messagesContainer" class="flex-1 overflow-y-auto p-4 chat-messages" style="padding-bottom: 80px;"></div>
+
+            <!-- Message input -->
+            <div id="chatInputArea" class="fixed bottom-16 left-0 right-0 bg-white border-t p-3 max-w-md mx-auto">
+                <div class="flex gap-2">
+                    <input type="text" id="messageInput" class="input-field flex-1" placeholder="Xabar yozing...">
+                    <button onclick="sendMessage()" class="btn-primary px-4">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== PROFILE PAGE ==================== -->
+    <div id="page-profile" class="page">
+        <div class="max-w-md mx-auto px-4 py-4">
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <h1 class="text-2xl font-bold text-gray-800">Mening profilim</h1>
+                    <button onclick="navigateTo('profile-edit')" class="text-blue-600 hover:text-blue-800">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                        </svg>
+                    </button>
+                </div>
+
+                <div id="profileContent"></div>
+
+                <!-- Profile status toggle -->
+                <div id="profileStatusSection" class="mt-6 pt-6 border-t"></div>
+
+                <!-- Tariff section -->
+                <div id="profileTariffSection" class="mt-6 pt-6 border-t"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== PROFILE EDIT PAGE ==================== -->
+    <div id="page-profile-edit" class="page">
+        <div class="max-w-md mx-auto px-4 py-4">
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <div class="flex items-center mb-6">
+                    <button onclick="navigateTo('profile')" class="mr-3 p-2 -ml-2 rounded-full hover:bg-gray-100">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                        </svg>
+                    </button>
+                    <h1 class="text-2xl font-bold text-gray-800">Profilni tahrirlash</h1>
+                </div>
+
+                <form id="editProfileForm" class="space-y-4">
+                    <div id="editFormContent"></div>
+                    <button type="submit" class="w-full btn-primary">Saqlash</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== TARIFF PAGE ==================== -->
+    <div id="page-tariff" class="page">
+        <div class="max-w-md mx-auto px-4 py-4">
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <div class="flex items-center mb-6">
+                    <button onclick="navigateTo('profile')" class="mr-3 p-2 -ml-2 rounded-full hover:bg-gray-100">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                        </svg>
+                    </button>
+                    <h1 class="text-2xl font-bold text-gray-800">Tarif sotib olish</h1>
+                </div>
+
+                <div class="bg-gradient-to-br from-blue-500 to-blue-700 rounded-xl p-6 text-white mb-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <span class="text-2xl font-bold">KUMUSH</span>
+                        <span class="bg-white/20 px-3 py-1 rounded-full text-sm">Tavsiya etiladi</span>
+                    </div>
+                    <div class="text-4xl font-bold mb-4">50,000 <span class="text-lg">so'm</span></div>
+                    <ul class="space-y-2 text-sm">
+                        <li class="flex items-center"><svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg> 5 ta so'rov yuborish</li>
+                        <li class="flex items-center"><svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg> 10 kun e'lon joylash</li>
+                        <li class="flex items-center"><svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg> 3 kun TOP e'lon</li>
+                    </ul>
+                </div>
+
+                <div class="bg-gray-50 rounded-lg p-4 mb-6">
+                    <h3 class="font-semibold text-gray-800 mb-3">To'lov qilish</h3>
+                    <div class="space-y-2 text-sm">
+                        <p class="flex justify-between"><span class="text-gray-600">Karta raqami:</span><span class="font-mono font-semibold" id="cardNumber">8600 1234 5678 9012</span></p>
+                        <p class="flex justify-between"><span class="text-gray-600">Karta egasi:</span><span class="font-semibold" id="cardName">NIKOH APP</span></p>
+                    </div>
+                </div>
+
+                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-sm text-yellow-800">
+                    <p class="font-semibold mb-2">To'lov qilish tartibi:</p>
+                    <ol class="list-decimal list-inside space-y-1">
+                        <li>Yuqoridagi kartaga pul o'tkazing</li>
+                        <li>Telegram botga qaytib, chekni yuklang</li>
+                        <li>Admin tekshirib, tarifni faollashtiradi</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== PROFILE MODAL ==================== -->
+    <div id="profileModal" class="modal fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center">
+        <div class="modal-content bg-white w-full max-w-md max-h-[90vh] overflow-y-auto rounded-t-2xl sm:rounded-2xl">
+            <div class="p-6" id="modalProfileContent"></div>
+        </div>
+    </div>
+
+    <!-- ==================== BOTTOM NAVIGATION ==================== -->
+    <nav id="bottomNav" class="bg-white shadow-lg fixed bottom-0 left-0 right-0 z-40 hidden">
+        <div class="max-w-md mx-auto px-4">
+            <div class="flex justify-around items-center h-16">
+                <button onclick="navigateTo('feed')" class="nav-item" data-page="feed">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                    </svg>
+                    <span class="text-xs mt-1">Asosiy</span>
+                </button>
+                <button onclick="navigateTo('requests')" class="nav-item" data-page="requests">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
+                    </svg>
+                    <span class="text-xs mt-1">So'rovlar</span>
+                </button>
+                <button onclick="navigateTo('chats')" class="nav-item" data-page="chats">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z"></path>
+                    </svg>
+                    <span class="text-xs mt-1">Chatlar</span>
+                </button>
+                <button onclick="navigateTo('profile')" class="nav-item" data-page="profile">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                    </svg>
+                    <span class="text-xs mt-1">Profil</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <script>
+    // ==================== GLOBAL STATE & CACHE ====================
+    const tg = window.Telegram.WebApp;
+    tg.ready();
+    tg.expand();
+
+    const APP = {
+        currentPage: 'feed',
+        currentChatId: null,
+        cache: {
+            user: null,
+            profile: null,
+            tariff: null,
+            listings: [],
+            listingsPage: 1,
+            listingsHasMore: true,
+            receivedRequests: null,
+            sentRequests: null,
+            chats: null,
+            messages: {},
+            lastFetch: {}
+        },
+        requestTab: 'received'
+    };
+
+    const CACHE_TTL = 60000; // 1 minute cache
+
+    // ==================== UTILITY FUNCTIONS ====================
+    function showToast(message, duration = 3000) {
+        const toast = document.getElementById('toast');
+        toast.textContent = message;
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), duration);
+    }
+
+    function showLoading() {
+        document.getElementById('loadingOverlay').style.display = 'flex';
+    }
+
+    function hideLoading() {
+        document.getElementById('loadingOverlay').style.display = 'none';
+    }
+
+    function skeleton(width = '100%', height = '20px', className = '') {
+        return `<div class="skeleton rounded ${className}" style="width: ${width}; height: ${height};"></div>`;
+    }
+
+    function skeletonCard() {
+        return `
+            <div class="bg-white shadow-sm rounded-lg p-4">
+                ${skeleton('40%', '12px', 'mb-3')}
+                ${skeleton('70%', '24px', 'mb-2')}
+                ${skeleton('50%', '16px', 'mb-3')}
+                ${skeleton('100%', '16px', 'mb-2')}
+                ${skeleton('80%', '16px', 'mb-4')}
+                ${skeleton('100%', '40px')}
+            </div>
+        `;
+    }
+
+    function isCacheValid(key) {
+        return APP.cache.lastFetch[key] && (Date.now() - APP.cache.lastFetch[key] < CACHE_TTL);
+    }
+
+    function updateCache(key, data) {
+        APP.cache[key] = data;
+        APP.cache.lastFetch[key] = Date.now();
+    }
+
+    async function fetchAPI(url, options = {}) {
+        try {
+            const response = await fetch(url, {
+                ...options,
+                headers: { 'Content-Type': 'application/json', ...options.headers }
+            });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.error || 'Xatolik yuz berdi');
+            return data;
+        } catch (error) {
+            showToast(error.message);
+            throw error;
+        }
+    }
+
+    // ==================== NAVIGATION ====================
+    function navigateTo(page, params = {}) {
+        // Hide all pages
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+
+        // Update nav
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.classList.toggle('active', item.dataset.page === page);
+        });
+
+        // Show target page
+        const targetPage = document.getElementById(`page-${page}`);
+        if (targetPage) {
+            targetPage.classList.add('active');
+        }
+
+        // Handle special pages
+        const showNav = !['chat-view', 'profile-edit', 'tariff'].includes(page);
+        document.getElementById('bottomNav').classList.toggle('hidden', !showNav);
+        document.getElementById('chatInputArea').classList.toggle('hidden', page !== 'chat-view');
+
+        APP.currentPage = page;
+
+        // Load page data
+        switch (page) {
+            case 'feed': loadFeedPage(); break;
+            case 'requests': loadRequestsPage(); break;
+            case 'chats': loadChatsPage(); break;
+            case 'profile': loadProfilePage(); break;
+            case 'profile-edit': loadProfileEditPage(); break;
+            case 'tariff': loadTariffPage(); break;
+            case 'chat-view':
+                if (params.chatId) {
+                    APP.currentChatId = params.chatId;
+                    loadChatView(params.chatId);
+                }
+                break;
+        }
+    }
+
+    // ==================== FEED PAGE ====================
+    async function loadFeedPage(reset = false) {
+        const container = document.getElementById('listingsContainer');
+        const tariffInfo = document.getElementById('feedTariffInfo');
+
+        // Render tariff info
+        renderTariffBadge(tariffInfo);
+
+        // Show skeleton while loading
+        if (reset || APP.cache.listings.length === 0) {
+            container.innerHTML = skeletonCard() + skeletonCard() + skeletonCard();
+            APP.cache.listings = [];
+            APP.cache.listingsPage = 1;
+            APP.cache.listingsHasMore = true;
+        }
+
+        // Load listings
+        await loadListings(reset);
+    }
+
+    async function loadListings(reset = false) {
+        if (reset) {
+            APP.cache.listings = [];
+            APP.cache.listingsPage = 1;
+        }
+
+        const topOnly = document.getElementById('topOnlyFilter').checked;
+
+        try {
+            const data = await fetchAPI(`/feed/api/listings?page=${APP.cache.listingsPage}&top_only=${topOnly}`);
+
+            if (reset) APP.cache.listings = [];
+            APP.cache.listings.push(...data.listings);
+            APP.cache.listingsHasMore = data.has_next;
+
+            renderListings();
+        } catch (error) {
+            console.error('Error loading listings:', error);
+        }
+    }
+
+    function renderListings() {
+        const container = document.getElementById('listingsContainer');
+
+        if (APP.cache.listings.length === 0) {
+            container.innerHTML = `<div class="text-center py-12 text-gray-500">E'lonlar topilmadi</div>`;
+            return;
+        }
+
+        container.innerHTML = APP.cache.listings.map((listing, idx) => `
+            <div class="bg-white shadow-sm rounded-lg p-4 cursor-pointer hover:shadow-md transition card-enter-active"
+                 style="animation-delay: ${idx * 0.05}s"
+                 onclick="showProfileModal(${listing.user_id})">
+                ${listing.is_top ? '<span class="inline-block bg-yellow-400 text-yellow-900 text-xs px-2 py-1 rounded mb-2 font-semibold">TOP</span>' : ''}
+                <h3 class="text-xl font-semibold text-gray-800">${listing.name}, ${listing.age}</h3>
+                <p class="text-sm text-gray-600 mt-1">${listing.region}</p>
+                <div class="mt-2 space-y-1 text-sm text-gray-700">
+                    <p>Bo'y: ${listing.height} sm, Vazn: ${listing.weight} kg</p>
+                    <p>Diniy daraja: ${listing.religious_level}</p>
+                    <p>Ta'lim: ${listing.education}</p>
+                </div>
+                ${listing.bio ? `<p class="mt-3 text-gray-600 text-sm line-clamp-2">${listing.bio}</p>` : ''}
+                <button class="mt-3 w-full btn-primary">Batafsil ko'rish</button>
+            </div>
+        `).join('');
+
+        // Load more button
+        document.getElementById('loadMoreContainer').classList.toggle('hidden', !APP.cache.listingsHasMore);
+    }
+
+    async function loadMoreListings() {
+        APP.cache.listingsPage++;
+        await loadListings(false);
+    }
+
+    // ==================== PROFILE MODAL ====================
+    async function showProfileModal(userId) {
+        const modal = document.getElementById('profileModal');
+        const content = document.getElementById('modalProfileContent');
+
+        content.innerHTML = `
+            <div class="text-center py-8">
+                <div class="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
+            </div>
+        `;
+        modal.classList.add('show');
+
+        try {
+            const profile = await fetchAPI(`/feed/api/listing/${userId}`);
+
+            content.innerHTML = `
+                <button onclick="closeProfileModal()" class="absolute top-4 right-4 text-gray-500 hover:text-gray-700 p-2">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+
+                ${profile.is_top ? '<span class="inline-block bg-yellow-400 text-yellow-900 text-xs px-3 py-1 rounded-full mb-3 font-semibold">TOP</span>' : ''}
+                <h2 class="text-2xl font-bold text-gray-800">${profile.name}, ${profile.age}</h2>
+
+                <div class="mt-6 space-y-4">
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <p class="text-sm text-gray-500 mb-1">Hudud</p>
+                        <p class="font-semibold">${profile.region}</p>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <p class="text-sm text-gray-500 mb-1">Jismoniy ma'lumotlar</p>
+                        <p class="font-semibold">Bo'y: ${profile.height} sm, Vazn: ${profile.weight} kg</p>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <p class="text-sm text-gray-500 mb-1">Diniy ma'lumotlar</p>
+                        <p class="font-semibold">Namoz: ${profile.prays}, Ro'za: ${profile.fasts}</p>
+                        <p class="font-semibold">Daraja: ${profile.religious_level}</p>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <p class="text-sm text-gray-500 mb-1">Ta'lim va kasb</p>
+                        <p class="font-semibold">${profile.education}</p>
+                        <p class="font-semibold">${profile.profession} - ${profile.is_working ? 'Ishlamoqda' : 'Ishlamaydi'}</p>
+                    </div>
+                    ${profile.bio ? `
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <p class="text-sm text-gray-500 mb-1">Tavsif</p>
+                        <p class="text-gray-700">${profile.bio}</p>
+                    </div>` : ''}
+                </div>
+
+                ${profile.request_sent ? `
+                    <div class="mt-6 bg-gray-100 p-4 rounded-lg text-center text-gray-600">
+                        So'rov allaqachon yuborilgan
+                        ${profile.request_status === 'accepted' ? '<br><span class="text-green-600 font-semibold">Qabul qilindi!</span>' : ''}
+                        ${profile.request_status === 'rejected' ? '<br><span class="text-red-600 font-semibold">Rad etildi</span>' : ''}
+                    </div>
+                ` : `
+                    <button onclick="sendRequest(${userId})" class="mt-6 w-full btn-primary">
+                        So'rov yuborish
+                    </button>
+                `}
+            `;
+        } catch (error) {
+            content.innerHTML = `<div class="text-center py-8 text-red-600">Xatolik yuz berdi</div>`;
+        }
+    }
+
+    function closeProfileModal() {
+        document.getElementById('profileModal').classList.remove('show');
+    }
+
+    async function sendRequest(receiverId) {
+        if (!APP.cache.tariff?.has_active_tariff) {
+            showToast('Avval tarif sotib oling');
+            closeProfileModal();
+            navigateTo('tariff');
+            return;
+        }
+
+        try {
+            await fetchAPI('/requests/api/send', {
+                method: 'POST',
+                body: JSON.stringify({ receiver_id: receiverId })
+            });
+
+            showToast('So\'rov yuborildi!');
+            closeProfileModal();
+
+            // Refresh tariff info
+            APP.cache.lastFetch.tariff = 0;
+            await loadTariffStatus();
+            renderTariffBadge(document.getElementById('feedTariffInfo'));
+
+            // Refresh listings
+            loadListings(true);
+        } catch (error) {
+            // Error already shown by fetchAPI
+        }
+    }
+
+    // ==================== REQUESTS PAGE ====================
+    async function loadRequestsPage() {
+        const tariffInfo = document.getElementById('requestsTariffInfo');
+        renderTariffBadge(tariffInfo);
+
+        if (APP.requestTab === 'received') {
+            await loadReceivedRequests();
+        } else {
+            await loadSentRequests();
+        }
+    }
+
+    function switchRequestTab(tab) {
+        APP.requestTab = tab;
+
+        document.getElementById('receivedTab').classList.toggle('text-blue-600', tab === 'received');
+        document.getElementById('receivedTab').classList.toggle('border-b-2', tab === 'received');
+        document.getElementById('receivedTab').classList.toggle('border-blue-600', tab === 'received');
+        document.getElementById('receivedTab').classList.toggle('text-gray-600', tab !== 'received');
+
+        document.getElementById('sentTab').classList.toggle('text-blue-600', tab === 'sent');
+        document.getElementById('sentTab').classList.toggle('border-b-2', tab === 'sent');
+        document.getElementById('sentTab').classList.toggle('border-blue-600', tab === 'sent');
+        document.getElementById('sentTab').classList.toggle('text-gray-600', tab !== 'sent');
+
+        document.getElementById('receivedContainer').classList.toggle('hidden', tab !== 'received');
+        document.getElementById('sentContainer').classList.toggle('hidden', tab !== 'sent');
+
+        if (tab === 'received') {
+            loadReceivedRequests();
+        } else {
+            loadSentRequests();
+        }
+    }
+
+    async function loadReceivedRequests() {
+        const container = document.getElementById('receivedContainer');
+
+        if (!isCacheValid('receivedRequests')) {
+            container.innerHTML = skeletonCard() + skeletonCard();
+
+            try {
+                const data = await fetchAPI('/requests/api/received');
+                updateCache('receivedRequests', data.requests);
+            } catch (error) {
+                container.innerHTML = `<div class="text-center py-8 text-red-600">Xatolik yuz berdi</div>`;
+                return;
+            }
+        }
+
+        renderReceivedRequests();
+    }
+
+    function renderReceivedRequests() {
+        const container = document.getElementById('receivedContainer');
+        const requests = APP.cache.receivedRequests || [];
+
+        // Update badge count
+        const countBadge = document.getElementById('receivedCount');
+        if (requests.length > 0) {
+            countBadge.textContent = requests.length;
+            countBadge.classList.remove('hidden');
+        } else {
+            countBadge.classList.add('hidden');
+        }
+
+        if (requests.length === 0) {
+            container.innerHTML = `<div class="text-center py-12 text-gray-500">Kelgan so'rovlar yo'q</div>`;
+            return;
+        }
+
+        container.innerHTML = requests.map(req => `
+            <div class="bg-white shadow-sm rounded-lg p-4">
+                <span class="inline-block bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded mb-2">Kutilmoqda</span>
+                <h3 class="text-xl font-semibold text-gray-800">${req.sender_name}</h3>
+                ${req.message ? `<p class="text-gray-600 mt-2">${req.message}</p>` : ''}
+                <p class="text-xs text-gray-500 mt-2">${new Date(req.created_at).toLocaleDateString('uz-UZ')}</p>
+                <div class="flex gap-2 mt-4">
+                    <button onclick="acceptRequest(${req.id})" class="flex-1 bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 font-semibold">
+                        Qabul qilish
+                    </button>
+                    <button onclick="rejectRequest(${req.id})" class="flex-1 bg-red-600 text-white py-2 rounded-lg hover:bg-red-700 font-semibold">
+                        Rad etish
+                    </button>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    async function loadSentRequests() {
+        const container = document.getElementById('sentContainer');
+
+        if (!isCacheValid('sentRequests')) {
+            container.innerHTML = skeletonCard() + skeletonCard();
+
+            try {
+                const data = await fetchAPI('/requests/api/sent');
+                updateCache('sentRequests', data.requests);
+            } catch (error) {
+                container.innerHTML = `<div class="text-center py-8 text-red-600">Xatolik yuz berdi</div>`;
+                return;
+            }
+        }
+
+        renderSentRequests();
+    }
+
+    function renderSentRequests() {
+        const container = document.getElementById('sentContainer');
+        const requests = APP.cache.sentRequests || [];
+
+        if (requests.length === 0) {
+            container.innerHTML = `<div class="text-center py-12 text-gray-500">Yuborilgan so'rovlar yo'q</div>`;
+            return;
+        }
+
+        container.innerHTML = requests.map(req => {
+            const statusBadge = req.status === 'pending'
+                ? '<span class="inline-block bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded mb-2">Kutilmoqda</span>'
+                : req.status === 'accepted'
+                ? '<span class="inline-block bg-green-100 text-green-800 text-xs px-2 py-1 rounded mb-2">Qabul qilindi</span>'
+                : '<span class="inline-block bg-red-100 text-red-800 text-xs px-2 py-1 rounded mb-2">Rad etildi</span>';
+
+            return `
+                <div class="bg-white shadow-sm rounded-lg p-4">
+                    ${statusBadge}
+                    <h3 class="text-xl font-semibold text-gray-800">${req.receiver_name}</h3>
+                    ${req.message ? `<p class="text-gray-600 mt-2">${req.message}</p>` : ''}
+                    <p class="text-xs text-gray-500 mt-2">${new Date(req.created_at).toLocaleDateString('uz-UZ')}</p>
+                    ${req.status === 'pending' ? `
+                        <button onclick="cancelRequest(${req.id})" class="mt-4 w-full bg-gray-600 text-white py-2 rounded-lg hover:bg-gray-700">
+                            Bekor qilish
+                        </button>
+                    ` : ''}
+                    ${req.chat_id ? `
+                        <button onclick="navigateTo('chat-view', {chatId: ${req.chat_id}})" class="mt-2 w-full btn-primary">
+                            Chatga o'tish
+                        </button>
+                    ` : ''}
+                </div>
+            `;
+        }).join('');
+    }
+
+    async function acceptRequest(requestId) {
+        try {
+            const data = await fetchAPI(`/requests/api/${requestId}/accept`, { method: 'POST' });
+            showToast('So\'rov qabul qilindi!');
+
+            // Clear cache and reload
+            APP.cache.receivedRequests = null;
+            APP.cache.chats = null;
+            loadReceivedRequests();
+
+            // Navigate to chat
+            if (data.chat_id) {
+                navigateTo('chat-view', { chatId: data.chat_id });
+            }
+        } catch (error) {
+            // Error shown by fetchAPI
+        }
+    }
+
+    async function rejectRequest(requestId) {
+        try {
+            await fetchAPI(`/requests/api/${requestId}/reject`, { method: 'POST' });
+            showToast('So\'rov rad etildi');
+
+            APP.cache.receivedRequests = null;
+            loadReceivedRequests();
+        } catch (error) {
+            // Error shown by fetchAPI
+        }
+    }
+
+    async function cancelRequest(requestId) {
+        try {
+            await fetchAPI(`/requests/api/${requestId}/cancel`, { method: 'POST' });
+            showToast('So\'rov bekor qilindi');
+
+            APP.cache.sentRequests = null;
+            loadSentRequests();
+        } catch (error) {
+            // Error shown by fetchAPI
+        }
+    }
+
+    // ==================== CHATS PAGE ====================
+    async function loadChatsPage() {
+        const container = document.getElementById('chatsContainer');
+
+        if (!isCacheValid('chats')) {
+            container.innerHTML = skeletonCard() + skeletonCard() + skeletonCard();
+
+            try {
+                const data = await fetchAPI('/chat/api/list');
+                updateCache('chats', data.chats);
+            } catch (error) {
+                container.innerHTML = `<div class="text-center py-8 text-red-600">Xatolik yuz berdi</div>`;
+                return;
+            }
+        }
+
+        renderChats();
+    }
+
+    function renderChats() {
+        const container = document.getElementById('chatsContainer');
+        const chats = APP.cache.chats || [];
+
+        if (chats.length === 0) {
+            container.innerHTML = `
+                <div class="text-center py-12 text-gray-500">
+                    <svg class="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                    </svg>
+                    <p>Chatlar yo'q</p>
+                    <p class="text-sm mt-2">So'rov qabul qilinganida chat ochiladi</p>
+                </div>
+            `;
+            return;
+        }
+
+        container.innerHTML = chats.map(chat => `
+            <div class="bg-white shadow-sm rounded-lg p-4 cursor-pointer hover:shadow-md transition ${chat.is_expired ? 'opacity-60' : ''}"
+                 onclick="navigateTo('chat-view', {chatId: ${chat.id}})">
+                <div class="flex items-center justify-between">
+                    <div class="flex-1">
+                        <div class="flex items-center">
+                            <h3 class="font-semibold text-gray-800">${chat.other_user.name}${chat.other_user.age ? ', ' + chat.other_user.age : ''}</h3>
+                            ${chat.unread_count > 0 ? `<span class="ml-2 bg-blue-600 text-white text-xs px-2 py-0.5 rounded-full">${chat.unread_count}</span>` : ''}
+                        </div>
+                        ${chat.last_message ? `
+                            <p class="text-sm text-gray-600 mt-1 truncate">
+                                ${chat.last_message.is_mine ? 'Siz: ' : ''}${chat.last_message.content}
+                            </p>
+                        ` : '<p class="text-sm text-gray-400 mt-1">Xabar yo\'q</p>'}
+                    </div>
+                    <div class="text-right ml-4">
+                        ${chat.is_expired ? `
+                            <span class="text-xs text-red-600">Tugagan</span>
+                        ` : `
+                            <span class="text-xs text-gray-500">${chat.days_remaining} kun</span>
+                        `}
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    // ==================== CHAT VIEW ====================
+    async function loadChatView(chatId) {
+        const container = document.getElementById('messagesContainer');
+        const userName = document.getElementById('chatUserName');
+        const status = document.getElementById('chatStatus');
+
+        container.innerHTML = `<div class="text-center py-8"><div class="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto"></div></div>`;
+
+        try {
+            const data = await fetchAPI(`/chat/api/${chatId}/messages`);
+            APP.cache.messages[chatId] = data.messages;
+
+            userName.textContent = data.chat.other_user.name;
+            status.textContent = data.chat.is_expired ? 'Chat tugagan' : `${data.chat.days_remaining} kun qoldi`;
+
+            renderMessages(chatId);
+
+            // Scroll to bottom
+            setTimeout(() => container.scrollTop = container.scrollHeight, 100);
+
+            // Disable input if expired
+            document.getElementById('messageInput').disabled = data.chat.is_expired;
+        } catch (error) {
+            container.innerHTML = `<div class="text-center py-8 text-red-600">Xatolik yuz berdi</div>`;
+        }
+    }
+
+    function renderMessages(chatId) {
+        const container = document.getElementById('messagesContainer');
+        const messages = APP.cache.messages[chatId] || [];
+
+        if (messages.length === 0) {
+            container.innerHTML = `<div class="text-center py-12 text-gray-500">Xabarlar yo'q. Birinchi bo'lib yozing!</div>`;
+            return;
+        }
+
+        container.innerHTML = messages.map(msg => `
+            <div class="flex ${msg.is_mine ? 'justify-end' : 'justify-start'} mb-3">
+                <div class="message-bubble ${msg.is_mine ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-800'} px-4 py-2 rounded-2xl ${msg.is_mine ? 'rounded-br-md' : 'rounded-bl-md'}">
+                    <p>${msg.content}</p>
+                    <p class="text-xs ${msg.is_mine ? 'text-blue-200' : 'text-gray-500'} mt-1">${new Date(msg.created_at).toLocaleTimeString('uz-UZ', {hour: '2-digit', minute: '2-digit'})}</p>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    async function sendMessage() {
+        const input = document.getElementById('messageInput');
+        const content = input.value.trim();
+
+        if (!content || !APP.currentChatId) return;
+
+        input.value = '';
+        input.disabled = true;
+
+        try {
+            const data = await fetchAPI(`/chat/api/${APP.currentChatId}/send`, {
+                method: 'POST',
+                body: JSON.stringify({ content })
+            });
+
+            // Add message to cache
+            if (!APP.cache.messages[APP.currentChatId]) {
+                APP.cache.messages[APP.currentChatId] = [];
+            }
+            APP.cache.messages[APP.currentChatId].push(data.message);
+
+            renderMessages(APP.currentChatId);
+
+            // Scroll to bottom
+            const container = document.getElementById('messagesContainer');
+            container.scrollTop = container.scrollHeight;
+
+            // Clear chats cache
+            APP.cache.chats = null;
+        } catch (error) {
+            // Error shown by fetchAPI
+        } finally {
+            input.disabled = false;
+            input.focus();
+        }
+    }
+
+    // ==================== PROFILE PAGE ====================
+    async function loadProfilePage() {
+        const content = document.getElementById('profileContent');
+        const statusSection = document.getElementById('profileStatusSection');
+        const tariffSection = document.getElementById('profileTariffSection');
+
+        // Show skeleton
+        content.innerHTML = `
+            ${skeleton('60%', '24px', 'mb-4')}
+            ${skeleton('100%', '60px', 'mb-3')}
+            ${skeleton('100%', '60px', 'mb-3')}
+            ${skeleton('100%', '60px', 'mb-3')}
+        `;
+
+        // Load profile if not cached
+        if (!isCacheValid('profile')) {
+            try {
+                const data = await fetchAPI('/api/user-data');
+                updateCache('profile', data.profile);
+                updateCache('user', data.user);
+                updateCache('tariff', data.tariff);
+            } catch (error) {
+                content.innerHTML = `<div class="text-center py-8 text-red-600">Xatolik yuz berdi</div>`;
+                return;
+            }
+        }
+
+        renderProfile();
+    }
+
+    function renderProfile() {
+        const content = document.getElementById('profileContent');
+        const statusSection = document.getElementById('profileStatusSection');
+        const tariffSection = document.getElementById('profileTariffSection');
+        const profile = APP.cache.profile;
+
+        if (!profile) return;
+
+        content.innerHTML = `
+            <div class="space-y-4">
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <p class="text-sm text-gray-500">Ism va yosh</p>
+                    <p class="text-xl font-semibold">${profile.name}, ${profile.age}</p>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <p class="text-sm text-gray-500">Hudud</p>
+                        <p class="font-semibold">${profile.region}</p>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <p class="text-sm text-gray-500">Millat</p>
+                        <p class="font-semibold">${profile.nationality}</p>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <p class="text-sm text-gray-500">Bo'y / Vazn</p>
+                        <p class="font-semibold">${profile.height} sm / ${profile.weight} kg</p>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <p class="text-sm text-gray-500">Oilaviy holat</p>
+                        <p class="font-semibold">${profile.marital_status}</p>
+                    </div>
+                </div>
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <p class="text-sm text-gray-500">Diniy ma'lumotlar</p>
+                    <p class="font-semibold">Namoz: ${profile.prays}, Ro'za: ${profile.fasts}</p>
+                    <p class="font-semibold">Daraja: ${profile.religious_level}</p>
+                </div>
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <p class="text-sm text-gray-500">Ta'lim va kasb</p>
+                    <p class="font-semibold">${profile.education}</p>
+                    <p class="font-semibold">${profile.profession} - ${profile.is_working ? 'Ishlamoqda' : 'Ishlamaydi'}</p>
+                </div>
+                ${profile.bio ? `
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <p class="text-sm text-gray-500">Tavsif</p>
+                    <p class="text-gray-700">${profile.bio}</p>
+                </div>
+                ` : ''}
+            </div>
+        `;
+
+        // Status section
+        statusSection.innerHTML = `
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="font-semibold text-gray-800">E'lon holati</p>
+                    <p class="text-sm ${profile.is_active ? 'text-green-600' : 'text-gray-500'}">
+                        ${profile.is_active ? 'Faol' : 'Faol emas'}
+                    </p>
+                </div>
+                <button onclick="toggleProfileStatus()" class="px-4 py-2 rounded-lg ${profile.is_active ? 'bg-gray-200 text-gray-700' : 'bg-green-600 text-white'}">
+                    ${profile.is_active ? 'O\'chirish' : 'Yoqish'}
+                </button>
+            </div>
+        `;
+
+        // Tariff section
+        const tariff = APP.cache.tariff;
+        if (tariff?.has_active_tariff) {
+            tariffSection.innerHTML = `
+                <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="font-semibold text-green-800">${tariff.tariff.name} tarif</p>
+                            <p class="text-sm text-green-700">${tariff.tariff.requests_count} ta so'rov qoldi</p>
+                            <p class="text-xs text-green-600">${tariff.tariff.days_remaining} kun qoldi</p>
+                        </div>
+                        ${tariff.tariff.is_top ? '<span class="bg-yellow-400 text-yellow-900 px-3 py-1 rounded-full text-sm font-semibold">TOP</span>' : ''}
+                    </div>
+                </div>
+            `;
+        } else {
+            tariffSection.innerHTML = `
+                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                    <p class="font-semibold text-yellow-800">Tarif yo'q</p>
+                    <p class="text-sm text-yellow-700 mb-3">So'rov yuborish uchun tarif kerak</p>
+                    <button onclick="navigateTo('tariff')" class="w-full btn-primary">
+                        Tarif sotib olish
+                    </button>
+                </div>
+            `;
+        }
+    }
+
+    async function toggleProfileStatus() {
+        const profile = APP.cache.profile;
+
+        if (!profile.is_active && !APP.cache.tariff?.has_active_tariff) {
+            showToast('Avval tarif sotib oling');
+            navigateTo('tariff');
+            return;
+        }
+
+        try {
+            const data = await fetchAPI('/profile/toggle-active', { method: 'POST' });
+
+            APP.cache.profile.is_active = data.is_active;
+            showToast(data.message);
+            renderProfile();
+
+            // Clear listings cache
+            APP.cache.listings = [];
+        } catch (error) {
+            // Error shown by fetchAPI
+        }
+    }
+
+    // ==================== PROFILE EDIT PAGE ====================
+    async function loadProfileEditPage() {
+        const content = document.getElementById('editFormContent');
+
+        if (!APP.cache.profile) {
+            await loadProfilePage();
+        }
+
+        const profile = APP.cache.profile;
+        const regions = ['Toshkent shahar', 'Toshkent viloyati', 'Samarqand', 'Buxoro', 'Andijon', "Farg'ona", 'Namangan', 'Qashqadaryo', 'Surxondaryo', 'Xorazm', "Qoraqalpog'iston"];
+        const praysOptions = ['Doimiy', "Ba'zan", "O'qimaydi"];
+        const religiousLevels = ['Past', "O'rtacha", 'Yuqori'];
+        const maritalStatuses = ["Bo'ydoq", 'Ajrashgan'];
+
+        content.innerHTML = `
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Ism</label>
+                    <input type="text" name="name" value="${profile.name || ''}" class="input-field" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Hudud</label>
+                    <select name="region" class="input-field" required>
+                        ${regions.map(r => `<option value="${r}" ${profile.region === r ? 'selected' : ''}>${r}</option>`).join('')}
+                    </select>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Bo'y (sm)</label>
+                        <input type="number" name="height" value="${profile.height || ''}" class="input-field" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Vazn (kg)</label>
+                        <input type="number" name="weight" value="${profile.weight || ''}" class="input-field" required>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Namoz</label>
+                    <select name="prays" class="input-field" required>
+                        ${praysOptions.map(p => `<option value="${p}" ${profile.prays === p ? 'selected' : ''}>${p}</option>`).join('')}
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Ro'za</label>
+                    <select name="fasts" class="input-field" required>
+                        <option value="Ha" ${profile.fasts === 'Ha' ? 'selected' : ''}>Ha</option>
+                        <option value="Yo'q" ${profile.fasts === "Yo'q" ? 'selected' : ''}>Yo'q</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Diniy daraja</label>
+                    <select name="religious_level" class="input-field" required>
+                        ${religiousLevels.map(l => `<option value="${l}" ${profile.religious_level === l ? 'selected' : ''}>${l}</option>`).join('')}
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Ta'lim</label>
+                    <input type="text" name="education" value="${profile.education || ''}" class="input-field" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Kasb</label>
+                    <input type="text" name="profession" value="${profile.profession || ''}" class="input-field" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Ishlaydimi?</label>
+                    <select name="is_working" class="input-field" required>
+                        <option value="true" ${profile.is_working ? 'selected' : ''}>Ha</option>
+                        <option value="false" ${!profile.is_working ? 'selected' : ''}>Yo'q</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Tavsif</label>
+                    <textarea name="bio" class="input-field" rows="3">${profile.bio || ''}</textarea>
+                </div>
+
+                <hr class="my-6">
+                <h3 class="font-semibold text-gray-800">Juftga talablar</h3>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Yosh (min)</label>
+                        <input type="number" name="partner_age_min" value="${profile.partner_age_min || 18}" class="input-field" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Yosh (max)</label>
+                        <input type="number" name="partner_age_max" value="${profile.partner_age_max || 45}" class="input-field" required>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Hudud</label>
+                    <select name="partner_region" class="input-field">
+                        <option value="Farqi yo'q" ${profile.partner_region === "Farqi yo'q" ? 'selected' : ''}>Farqi yo'q</option>
+                        ${regions.map(r => `<option value="${r}" ${profile.partner_region === r ? 'selected' : ''}>${r}</option>`).join('')}
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Diniy daraja</label>
+                    <select name="partner_religious_level" class="input-field">
+                        <option value="Farqi yo'q" ${profile.partner_religious_level === "Farqi yo'q" ? 'selected' : ''}>Farqi yo'q</option>
+                        ${religiousLevels.map(l => `<option value="${l}" ${profile.partner_religious_level === l ? 'selected' : ''}>${l}</option>`).join('')}
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Oilaviy holat</label>
+                    <select name="partner_marital_status" class="input-field">
+                        <option value="Farqi yo'q" ${profile.partner_marital_status === "Farqi yo'q" ? 'selected' : ''}>Farqi yo'q</option>
+                        ${maritalStatuses.map(s => `<option value="${s}" ${profile.partner_marital_status === s ? 'selected' : ''}>${s}</option>`).join('')}
+                    </select>
+                </div>
+            </div>
+        `;
+    }
+
+    async function saveProfile(e) {
+        e.preventDefault();
+        const form = e.target;
+        const formData = new FormData(form);
+
+        try {
+            const response = await fetch('/profile/edit', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (response.ok) {
+                showToast('Profil saqlandi!');
+
+                // Clear cache
+                APP.cache.profile = null;
+                APP.cache.listings = [];
+
+                navigateTo('profile');
+            } else {
+                showToast('Xatolik yuz berdi');
+            }
+        } catch (error) {
+            showToast('Xatolik yuz berdi');
+        }
+    }
+
+    // ==================== TARIFF PAGE ====================
+    function loadTariffPage() {
+        // Static content, no API needed
+    }
+
+    // ==================== TARIFF HELPERS ====================
+    async function loadTariffStatus() {
+        if (!isCacheValid('tariff')) {
+            try {
+                const data = await fetchAPI('/tariff/api/status');
+                updateCache('tariff', data);
+            } catch (error) {
+                console.error('Error loading tariff:', error);
+            }
+        }
+    }
+
+    function renderTariffBadge(container) {
+        const tariff = APP.cache.tariff;
+
+        if (tariff?.has_active_tariff) {
+            container.innerHTML = `
+                <div class="bg-green-50 border border-green-200 rounded-lg p-3">
+                    <p class="text-sm text-green-800">
+                        <span class="font-semibold">${tariff.tariff.requests_count}</span> ta so'rov qoldi
+                    </p>
+                    <p class="text-xs text-green-600 mt-1">Muddat: ${tariff.tariff.days_remaining} kun</p>
+                </div>
+            `;
+        } else {
+            container.innerHTML = `
+                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                    <p class="text-sm text-yellow-800">Tarif yo'q</p>
+                    <button onclick="navigateTo('tariff')" class="text-xs text-blue-600 hover:underline">
+                        Tarif sotib olish
+                    </button>
+                </div>
+            `;
+        }
+    }
+
+    // ==================== INITIALIZATION ====================
+    async function initApp() {
+        try {
+            // Load initial data
+            const [userData, tariffData] = await Promise.all([
+                fetchAPI('/api/user-data'),
+                fetchAPI('/tariff/api/status')
+            ]);
+
+            updateCache('user', userData.user);
+            updateCache('profile', userData.profile);
+            updateCache('tariff', tariffData);
+
+            // Show navigation
+            document.getElementById('bottomNav').classList.remove('hidden');
+
+            // Navigate to feed
+            navigateTo('feed');
+
+            // Hide loading
+            hideLoading();
+
+        } catch (error) {
+            console.error('Init error:', error);
+            hideLoading();
+            showToast('Ilovani yuklashda xatolik');
+        }
+    }
+
+    // ==================== EVENT LISTENERS ====================
+    document.getElementById('topOnlyFilter').addEventListener('change', () => {
+        loadListings(true);
+    });
+
+    document.getElementById('loadMoreBtn').addEventListener('click', loadMoreListings);
+
+    document.getElementById('editProfileForm').addEventListener('submit', saveProfile);
+
+    document.getElementById('messageInput').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') sendMessage();
+    });
+
+    document.getElementById('profileModal').addEventListener('click', (e) => {
+        if (e.target.id === 'profileModal') closeProfileModal();
+    });
+
+    // Start app
+    initApp();
+    </script>
+</body>
+</html>

@@ -11,10 +11,10 @@ feed_bp = Blueprint('feed', __name__, url_prefix='/feed')
 @feed_bp.route('/')
 @profile_required
 def index():
-    """E'lonlar sahifasi (Feed)"""
+    """E'lonlar sahifasi (Feed) - SPA ga yo'naltirish"""
     user = User.query.get(session['user_id'])
-
-    return render_template('feed.html', user=user, profile=user.profile)
+    # SPA sahifasiga yo'naltirish
+    return render_template('spa.html', user=user)
 
 
 @feed_bp.route('/api/listings')
