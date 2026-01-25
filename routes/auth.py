@@ -44,12 +44,63 @@ def index():
     if not user.profile.is_complete:
         return redirect(url_for('profile.onboarding'))
 
-    # E'lon aktiv emasligini tekshirish
-    if not user.profile.is_active:
-        return redirect(url_for('profile.activate_profile'))
+    # E'lon aktiv emasligini tekshirish - tarif bo'lmasa ham SPA ga yo'naltirish
+    # SPA da tarif sotib olish imkoniyati bor
 
-    # Asosiy sahifaga yo'naltirish (Feed)
-    return redirect(url_for('feed.index'))
+    # SPA sahifasiga yo'naltirish (tezkor ilova)
+    return render_template('spa.html', user=user)
+
+
+@auth_bp.route('/api/user-data')
+def get_user_data():
+    """Foydalanuvchi ma'lumotlarini olish (SPA uchun)"""
+    user_id = session.get('user_id')
+
+    if not user_id:
+        return jsonify({'error': 'Avtorizatsiya kerak'}), 401
+
+    user = User.query.get(user_id)
+
+    if not user:
+        return jsonify({'error': 'Foydalanuvchi topilmadi'}), 404
+
+    profile_data = None
+    if user.profile:
+        profile_data = user.profile.to_dict()
+        profile_data['partner_age_min'] = user.profile.partner_age_min
+        profile_data['partner_age_max'] = user.profile.partner_age_max
+        profile_data['partner_region'] = user.profile.partner_region
+        profile_data['partner_religious_level'] = user.profile.partner_religious_level
+        profile_data['partner_marital_status'] = user.profile.partner_marital_status
+
+    tariff_data = None
+    if user.has_active_tariff:
+        active_tariff = user.active_tariff
+        tariff_data = {
+            'has_active_tariff': True,
+            'tariff': {
+                'name': active_tariff.tariff_name,
+                'requests_count': active_tariff.requests_count,
+                'total_requests': active_tariff.total_requests,
+                'is_top': active_tariff.is_top and not active_tariff.is_top_expired,
+                'days_remaining': active_tariff.days_remaining,
+                'expires_at': active_tariff.expires_at.isoformat() if active_tariff.expires_at else None
+            }
+        }
+    else:
+        tariff_data = {'has_active_tariff': False, 'tariff': None}
+
+    return jsonify({
+        'user': {
+            'id': user.id,
+            'telegram_id': user.telegram_id,
+            'profile_complete': user.profile_completed,
+            'profile_active': user.profile.is_active if user.profile else False,
+            'has_active_tariff': user.has_active_tariff
+        },
+        'profile': profile_data,
+        'tariff': tariff_data
+    })
 
 
 @auth_bp.route('/api/check-auth')

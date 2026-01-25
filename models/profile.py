@@ -130,5 +130,10 @@ class Profile(db.Model):
             'is_working': self.is_working,
             'bio': self.bio,
             'is_active': self.is_active,
-            'completion_percentage': self.completion_percentage
+            'completion_percentage': self.completion_percentage,
+            'partner_age_min': self.partner_age_min,
+            'partner_age_max': self.partner_age_max,
+            'partner_region': self.partner_region,
+            'partner_religious_level': self.partner_religious_level,
+            'partner_marital_status': self.partner_marital_status
         }
