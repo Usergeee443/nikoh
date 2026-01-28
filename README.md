@@ -266,8 +266,8 @@ Admin panel: `/admin`
 # Loglarni ko'rish
 tail -f app.log
 
-# Database'ni tekshirish
-sqlite3 nikoh.db
+# MySQL bilan ulanishni tekshirish (misol):
+mysql -u nikoh_user -p nikoh
 ```
 
 ## 📝 Keyingi rejalar

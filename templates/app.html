@@ -648,7 +648,7 @@
                 badge.innerHTML = `<p class="text-[10px] font-black text-primary uppercase tracking-wider">${userData.active_tariff.requests_count} SO'ROV</p>`;
             } else {
                 container.innerHTML = `
-                    <div class="glass-card rounded-2xl p-4 mb-4 border border-yellow-500/30 bg-yellow-500/10">
+                    <div>
                         <div class="flex items-center gap-3">
                             <div class="size-10 rounded-xl bg-yellow-500/20 flex items-center justify-center">
                                 <span class="material-symbols-outlined text-yellow-400 text-[22px]">info</span>
@@ -663,7 +663,7 @@
                         </div>
                     </div>
                 `;
-                badge.innerHTML = `<a href="/tariff/purchase" class="glass-card px-3 py-1.5 rounded-full text-[10px] font-black text-yellow-400 uppercase tracking-wider">Tarif</a>`;
+                badge.innerHTML = `<a href="/tariff/purchase" class="px-3 py-1.5 rounded-full text-[10px] font-black text-yellow-400 uppercase tracking-wider">Tarif</a>`;
             }
         }
 

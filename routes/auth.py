@@ -40,14 +40,8 @@ def index():
         db.session.add(profile)
         db.session.commit()
 
-    # Profil to'liqligini tekshirish
-    if not user.profile.is_complete:
-        return redirect(url_for('profile.onboarding'))
-
-    # E'lon aktiv emasligini tekshirish - tarif bo'lmasa ham SPA ga yo'naltirish
-    # SPA da tarif sotib olish imkoniyati bor
-
-    # SPA sahifasiga yo'naltirish (tezkor ilova)
+    # Endi onboarding alohida HTML sahifalarda emas,
+    # shuning uchun har doim SPA orqali ishlaymiz
     return render_template('spa.html', user=user)
 
 
@@ -159,7 +153,8 @@ def profile_required(f):
 
         user = User.query.get(session['user_id'])
         if not user or not user.profile_completed:
-            return redirect(url_for('profile.onboarding'))
+            # Onboarding endi SPA ichida bajariladi, shuning uchun profil sahifasiga yo'naltiramiz
+            return redirect(url_for('profile.view'))
 
         return f(*args, **kwargs)
 

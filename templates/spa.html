@@ -35,6 +35,20 @@
     
     <!-- Custom Styles -->
     <style type="text/tailwindcss">
+        @layer base {
+            html, body {
+                -webkit-text-size-adjust: 100%;
+                touch-action: manipulation;
+                overscroll-behavior: none;
+            }
+            body {
+                @apply select-none;
+            }
+            input, textarea {
+                -webkit-user-select: text;
+                user-select: text;
+            }
+        }
         @layer components {
             .glass-card {
                 background: rgba(255, 255, 255, 0.03);
@@ -137,6 +151,12 @@
             }
             .glow-text {
                 text-shadow: 0 0 8px rgba(64, 255, 0, 0.6);
+            }
+            .neon-text-glow {
+                text-shadow: 0 0 10px rgba(64, 255, 0, 0.5);
+            }
+            .custom-scrollbar::-webkit-scrollbar {
+                width: 0px;
             }
             .skeleton {
                 background: linear-gradient(90deg, rgba(255, 255, 255, 0.05) 25%, rgba(255, 255, 255, 0.1) 50%, rgba(255, 255, 255, 0.05) 75%);
@@ -304,6 +324,242 @@
             </div>
         </nav>
 
+        <!-- ONBOARDING OVERLAY -->
+        <div id="onboarding-overlay" class="fixed inset-0 z-50 bg-background-dark flex flex-col max-w-md mx-auto w-full">
+            <form id="onboarding-form" class="flex-1 overflow-y-auto ios-scroll-hide px-6 pt-8 pb-24 space-y-6">
+                <header class="mb-4">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="w-10 h-10"></div>
+                        <div class="flex flex-col items-center">
+                            <span class="text-[10px] font-black tracking-widest text-primary/60 uppercase">Ro'yxatdan o'tish</span>
+                            <span class="text-sm font-bold">Profil ma'lumotlari</span>
+                        </div>
+                        <div class="w-10 h-10"></div>
+                    </div>
+                    <div class="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
+                        <div class="h-full bg-primary neon-glow transition-all duration-700" style="width: 100%"></div>
+                    </div>
+                </header>
+
+                <!-- Shaxsiy ma'lumotlar -->
+                <section class="space-y-4">
+                    <h2 class="text-xs font-black uppercase tracking-[0.2em] text-white/40">Shaxsiy ma'lumotlar</h2>
+                    <div>
+                        <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-white/60 mb-2">Ism *</label>
+                        <input name="name" required class="w-full glass-card glass-input rounded-2xl px-4 py-3.5 text-sm" placeholder="Ismingizni kiriting">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-white/60 mb-2">Jins *</label>
+                        <select name="gender" required class="w-full glass-card glass-input rounded-2xl px-4 py-3.5 text-sm">
+                            <option value="">Tanlang</option>
+                            <option value="Erkak">Erkak</option>
+                            <option value="Ayol">Ayol</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-white/60 mb-2">Tug'ilgan yil *</label>
+                        <select name="birth_year" required class="w-full glass-card glass-input rounded-2xl px-4 py-3.5 text-sm">
+                            <option value="">Tanlang</option>
+                            {% for year in range(2006, 1959, -1) %}
+                            <option value="{{ year }}">{{ year }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-white/60 mb-2">Hudud *</label>
+                        <select name="region" required class="w-full glass-card glass-input rounded-2xl px-4 py-3.5 text-sm">
+                            <option value="">Tanlang</option>
+                            <option value="Toshkent shahar">Toshkent shahar</option>
+                            <option value="Toshkent viloyati">Toshkent viloyati</option>
+                            <option value="Samarqand">Samarqand</option>
+                            <option value="Buxoro">Buxoro</option>
+                            <option value="Andijon">Andijon</option>
+                            <option value="Farg'ona">Farg'ona</option>
+                            <option value="Namangan">Namangan</option>
+                            <option value="Qashqadaryo">Qashqadaryo</option>
+                            <option value="Surxondaryo">Surxondaryo</option>
+                            <option value="Xorazm">Xorazm</option>
+                            <option value="Qoraqalpog'iston">Qoraqalpog'iston</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-white/60 mb-2">Millati *</label>
+                        <select name="nationality" required class="w-full glass-card glass-input rounded-2xl px-4 py-3.5 text-sm">
+                            <option value="">Tanlang</option>
+                            <option value="O'zbek">O'zbek</option>
+                            <option value="Rus">Rus</option>
+                            <option value="Tojik">Tojik</option>
+                            <option value="Qozoq">Qozoq</option>
+                            <option value="Qoraqalpoq">Qoraqalpoq</option>
+                            <option value="Boshqa">Boshqa</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-white/60 mb-2">Oilaviy holati *</label>
+                        <select name="marital_status" required class="w-full glass-card glass-input rounded-2xl px-4 py-3.5 text-sm">
+                            <option value="">Tanlang</option>
+                            <option value="Bo'ydoq">Bo'ydoq</option>
+                            <option value="Ajrashgan">Ajrashgan</option>
+                        </select>
+                    </div>
+                </section>
+
+                <!-- Jismoniy ma'lumotlar -->
+                <section class="space-y-4">
+                    <h2 class="text-xs font-black uppercase tracking-[0.2em] text-white/40">Jismoniy ma'lumotlar</h2>
+                    <div>
+                        <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-white/60 mb-2">Bo'y (sm) *</label>
+                        <select name="height" required class="w-full glass-card glass-input rounded-2xl px-4 py-3.5 text-sm">
+                            <option value="">Tanlang</option>
+                            {% for height in range(140, 220, 1) %}
+                            <option value="{{ height }}">{{ height }} sm</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-white/60 mb-2">Vazn (kg) *</label>
+                        <select name="weight" required class="w-full glass-card glass-input rounded-2xl px-4 py-3.5 text-sm">
+                            <option value="">Tanlang</option>
+                            {% for weight in range(40, 150, 1) %}
+                            <option value="{{ weight }}">{{ weight }} kg</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </section>
+
+                <!-- Diniy ma'lumotlar -->
+                <section class="space-y-4">
+                    <h2 class="text-xs font-black uppercase tracking-[0.2em] text-white/40">Diniy ma'lumotlar</h2>
+                    <div>
+                        <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-white/60 mb-2">Namoz o'qiydimi? *</label>
+                        <select name="prays" required class="w-full glass-card glass-input rounded-2xl px-4 py-3.5 text-sm">
+                            <option value="">Tanlang</option>
+                            <option value="Ha">Ha</option>
+                            <option value="Ba'zan">Ba'zan</option>
+                            <option value="Yo'q">Yo'q</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-white/60 mb-2">Ro'za tutadimi? *</label>
+                        <select name="fasts" required class="w-full glass-card glass-input rounded-2xl px-4 py-3.5 text-sm">
+                            <option value="">Tanlang</option>
+                            <option value="Ha">Ha</option>
+                            <option value="Ba'zan">Ba'zan</option>
+                            <option value="Yo'q">Yo'q</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-white/60 mb-2">Diniy daraja *</label>
+                        <select name="religious_level" required class="w-full glass-card glass-input rounded-2xl px-4 py-3.5 text-sm">
+                            <option value="">Tanlang</option>
+                            <option value="Jiddiy">Jiddiy</option>
+                            <option value="O'rtacha">O'rtacha</option>
+                            <option value="Yengil">Yengil</option>
+                        </select>
+                    </div>
+                </section>
+
+                <!-- Ta'lim va kasb -->
+                <section class="space-y-4">
+                    <h2 class="text-xs font-black uppercase tracking-[0.2em] text-white/40">Ta'lim va kasb</h2>
+                    <div>
+                        <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-white/60 mb-2">Ta'lim *</label>
+                        <select name="education" required class="w-full glass-card glass-input rounded-2xl px-4 py-3.5 text-sm">
+                            <option value="">Tanlang</option>
+                            <option value="Oliy">Oliy</option>
+                            <option value="O'rta maxsus">O'rta maxsus</option>
+                            <option value="O'rta">O'rta</option>
+                            <option value="O'rta bo'lmagan">O'rta bo'lmagan</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-white/60 mb-2">Kasb *</label>
+                        <input name="profession" required class="w-full glass-card glass-input rounded-2xl px-4 py-3.5 text-sm" placeholder="Kasbingizni yozing">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-white/60 mb-2">Ishlaydimi? *</label>
+                        <select name="is_working" required class="w-full glass-card glass-input rounded-2xl px-4 py-3.5 text-sm">
+                            <option value="">Tanlang</option>
+                            <option value="true">Ha</option>
+                            <option value="false">Yo'q</option>
+                        </select>
+                    </div>
+                </section>
+
+                <!-- Juftga qo'yiladigan talablar -->
+                <section class="space-y-4">
+                    <h2 class="text-xs font-black uppercase tracking-[0.2em] text-white/40">Juftga qo'yiladigan talablar</h2>
+                    <div>
+                        <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-white/60 mb-2">Yosh oralig'i *</label>
+                        <div class="flex gap-2">
+                            <select name="partner_age_min" required class="flex-1 glass-card glass-input rounded-2xl px-4 py-3.5 text-sm">
+                                <option value="">Min</option>
+                                {% for age in range(18, 70, 1) %}
+                                <option value="{{ age }}">{{ age }}</option>
+                                {% endfor %}
+                            </select>
+                            <select name="partner_age_max" required class="flex-1 glass-card glass-input rounded-2xl px-4 py-3.5 text-sm">
+                                <option value="">Max</option>
+                                {% for age in range(18, 70, 1) %}
+                                <option value="{{ age }}">{{ age }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-white/60 mb-2">Hudud *</label>
+                        <select name="partner_region" required class="w-full glass-card glass-input rounded-2xl px-4 py-3.5 text-sm">
+                            <option value="">Tanlang</option>
+                            <option value="Istalgan">Istalgan</option>
+                            <option value="Toshkent shahar">Toshkent shahar</option>
+                            <option value="Toshkent viloyati">Toshkent viloyati</option>
+                            <option value="Samarqand">Samarqand</option>
+                            <option value="Buxoro">Buxoro</option>
+                            <option value="Andijon">Andijon</option>
+                            <option value="Farg'ona">Farg'ona</option>
+                            <option value="Namangan">Namangan</option>
+                            <option value="Qashqadaryo">Qashqadaryo</option>
+                            <option value="Surxondaryo">Surxondaryo</option>
+                            <option value="Xorazm">Xorazm</option>
+                            <option value="Qoraqalpog'iston">Qoraqalpog'iston</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-white/60 mb-2">Diniy daraja *</label>
+                        <select name="partner_religious_level" required class="w-full glass-card glass-input rounded-2xl px-4 py-3.5 text-sm">
+                            <option value="">Tanlang</option>
+                            <option value="Istalgan">Istalgan</option>
+                            <option value="Jiddiy">Jiddiy</option>
+                            <option value="O'rtacha">O'rtacha</option>
+                            <option value="Yengil">Yengil</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-white/60 mb-2">Oilaviy holati *</label>
+                        <select name="partner_marital_status" required class="w-full glass-card glass-input rounded-2xl px-4 py-3.5 text-sm">
+                            <option value="">Tanlang</option>
+                            <option value="Bo'ydoq">Bo'ydoq</option>
+                            <option value="Ajrashgan">Ajrashgan</option>
+                        </select>
+                    </div>
+                </section>
+
+                <!-- Bio -->
+                <section class="space-y-4 pb-4">
+                    <h2 class="text-xs font-black uppercase tracking-[0.2em] text-white/40">O'zingiz haqingizda</h2>
+                    <div>
+                        <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-white/60 mb-2">Qisqacha tavsif *</label>
+                        <textarea name="bio" required rows="4" class="w-full glass-card glass-input rounded-2xl px-4 py-3.5 text-sm" placeholder="O'zingiz haqingizda qisqacha yozing"></textarea>
+                    </div>
+                </section>
+            </form>
+            <div class="p-6 bg-gradient-to-t from-background-dark via-background-dark/95 to-transparent">
+                <button type="button" onclick="submitOnboarding()" class="w-full bg-primary text-black font-black py-4 rounded-2xl text-sm tracking-[0.22em] uppercase shadow-[0_10px_30px_rgba(64,255,0,0.3)] hover:scale-[1.02] active:scale-[0.98] transition-all">
+                    TUGATISH
+                </button>
+            </div>
+        </div>
+
         <!-- FEED PAGE -->
         <div id="page-feed" class="page-container active">
             <header class="sticky top-0 z-50 bg-background-dark/95 backdrop-blur-xl pt-4 pb-4 px-5">
@@ -315,7 +571,7 @@
                             </div>
                             <h1 class="text-lg logo-text uppercase font-extrabold tracking-wider">Nikoh</h1>
                         </div>
-                        <div id="feed-tariff-badge" class="glass-card px-3 py-1.5 rounded-full">
+                        <div id="feed-tariff-badge" class="px-3 py-1.5 rounded-full">
                             <p class="text-[10px] font-black text-primary uppercase tracking-wider">0 SO'ROV</p>
                         </div>
                     </div>
@@ -1105,6 +1361,20 @@
             tg.expand();
             tg.setHeaderColor('#0a0a0b');
             tg.setBackgroundColor('#0a0a0b');
+            if (typeof tg.disableVerticalSwipes === 'function') {
+                tg.disableVerticalSwipes();
+            }
+        }
+
+        // Haptic (taptic) helper
+        function hapticTap(type = 'medium') {
+            try {
+                if (tg && tg.HapticFeedback && typeof tg.HapticFeedback.impactOccurred === 'function') {
+                    tg.HapticFeedback.impactOccurred(type);
+                }
+            } catch (e) {
+                console.warn('Haptic error', e);
+            }
         }
 
         // Global state
@@ -1112,6 +1382,7 @@
         let userData = null;
         let hasActiveTariff = false;
         let lastTariffCheck = null; // Obuna tekshiruvi uchun
+        let onboardingDone = false;
 
         // Page navigation - INSTANT (make it global)
         window.showPage = function(pageName) {
@@ -1261,8 +1532,16 @@
                 } else if (currentPage === 'profile') {
                     updateProfileUI();
                 }
+
+                // Agar profil hali to'liq bo'lmasa, onboarding majburiy
+                if (userData && userData.user && !userData.user.profile_complete) {
+                    onboardingDone = false;
+                    openOnboarding();
+                } else {
+                    onboardingDone = true;
                 // Load page data
                 loadPageData(currentPage);
+                }
             }).catch(err => {
                 console.error('Initialization error:', err);
             });
@@ -1296,6 +1575,7 @@
                 case 'profile':
                     await loadProfileData();
                     break;
+                // onboarding sahifalari hozircha faqat UI
             }
         }
 
@@ -1314,12 +1594,64 @@
                 }, 5000);
             }
         }
-        
+
         window.hideNotification = function() {
             const toast = document.getElementById('notification-toast');
             if (toast) {
                 toast.classList.add('hidden');
                 toast.classList.remove('fadeIn');
+            }
+        }
+
+        // ONBOARDING HELPERS
+        function openOnboarding() {
+            const overlay = document.getElementById('onboarding-overlay');
+            const nav = document.querySelector('nav');
+            if (overlay) {
+                overlay.classList.remove('hidden');
+            }
+            if (nav) {
+                nav.classList.add('hidden');
+            }
+        }
+
+        async function submitOnboarding() {
+            const form = document.getElementById('onboarding-form');
+            if (!form) return;
+
+            // HTML5 validation
+            if (!form.reportValidity()) {
+                return;
+            }
+
+            const formData = new FormData(form);
+            try {
+                const response = await fetch('/profile/edit', {
+                    method: 'POST',
+                    body: formData,
+                    credentials: 'same-origin'
+                });
+                const data = await response.json();
+                if (response.ok && data.success) {
+                    onboardingDone = true;
+                    // Profil ma'lumotlarini yangilash
+                    await initUserData();
+                    const overlay = document.getElementById('onboarding-overlay');
+                    const nav = document.querySelector('nav');
+                    if (overlay) {
+                        overlay.classList.add('hidden');
+                    }
+                    if (nav) {
+                        nav.classList.remove('hidden');
+                    }
+                    // Asosiy sahifaga o'tish
+                    window.showPage('feed');
+                } else {
+                    alert(data.message || "Xatolik yuz berdi. Iltimos, qaytadan urinib ko'ring.");
+                }
+            } catch (error) {
+                console.error('Onboarding error:', error);
+                alert("Xatolik yuz berdi. Internet aloqasini tekshiring.");
             }
         }
 
@@ -1406,7 +1738,7 @@
                 badge.innerHTML = `<p class="text-[10px] font-black text-primary uppercase tracking-wider">${tariff.requests_count} SO'ROV</p>`;
             } else {
                 container.innerHTML = `
-                    <div class="glass-card rounded-2xl p-4 mb-4 border border-yellow-500/30 bg-yellow-500/10">
+                    <div>
                         <div class="flex items-center gap-3">
                             <div class="size-10 rounded-xl bg-yellow-500/20 flex items-center justify-center">
                                 <span class="material-symbols-outlined text-yellow-400 text-[22px]">info</span>

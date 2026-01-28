@@ -7,7 +7,8 @@ load_dotenv()
 class Config:
     """Base configuration"""
     SECRET_KEY = os.getenv('SECRET_KEY', 'dev-secret-key-change-in-production')
-    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL', 'sqlite:///nikoh.db')
+    # MySQL DSN (mysql+pymysql) - DATABASE_URL orqali beriladi, default sifatida lokal MySQL misoli
+    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL', 'mysql+pymysql://user:password@localhost:3306/nikoh')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     # Telegram Bot settings

@@ -10,15 +10,9 @@ profile_bp = Blueprint('profile', __name__, url_prefix='/profile')
 @profile_bp.route('/onboarding')
 @login_required
 def onboarding():
-    """Onboarding asosiy sahifa"""
+    """Onboarding endi SPA ichida bajariladi - eski yo'lni SPA ga yo'naltiramiz"""
     user = User.query.get(session['user_id'])
-
-    if user.profile_completed:
-        return redirect(url_for('feed.index'))
-
-    return render_template('onboarding/index.html',
-                         user=user,
-                         profile=user.profile)
+    return render_template('spa.html', user=user)
 
 
 @profile_bp.route('/onboarding/step1', methods=['GET', 'POST'])
@@ -37,11 +31,10 @@ def onboarding_step1():
         profile.marital_status = request.form.get('marital_status')
 
         db.session.commit()
-        return redirect(url_for('profile.onboarding_step2'))
+        return redirect(url_for('profile.view'))
 
-    return render_template('onboarding/step1.html',
-                         user=user,
-                         profile=user.profile)
+    # Endi onboarding alohida sahifa emas, SPA ichida bajariladi
+    return render_template('spa.html', user=user)
 
 
 @profile_bp.route('/onboarding/step2', methods=['GET', 'POST'])
@@ -56,11 +49,9 @@ def onboarding_step2():
         profile.weight = int(request.form.get('weight'))
 
         db.session.commit()
-        return redirect(url_for('profile.onboarding_step3'))
+        return redirect(url_for('profile.view'))
 
-    return render_template('onboarding/step2.html',
-                         user=user,
-                         profile=user.profile)
+    return render_template('spa.html', user=user)
 
 
 @profile_bp.route('/onboarding/step3', methods=['GET', 'POST'])
@@ -76,11 +67,9 @@ def onboarding_step3():
         profile.religious_level = request.form.get('religious_level')
 
         db.session.commit()
-        return redirect(url_for('profile.onboarding_step4'))
+        return redirect(url_for('profile.view'))
 
-    return render_template('onboarding/step3.html',
-                         user=user,
-                         profile=user.profile)
+    return render_template('spa.html', user=user)
 
 
 @profile_bp.route('/onboarding/step4', methods=['GET', 'POST'])
@@ -96,11 +85,9 @@ def onboarding_step4():
         profile.is_working = request.form.get('is_working') == 'true'
 
         db.session.commit()
-        return redirect(url_for('profile.onboarding_step5'))
+        return redirect(url_for('profile.view'))
 
-    return render_template('onboarding/step4.html',
-                         user=user,
-                         profile=user.profile)
+    return render_template('spa.html', user=user)
 
 
 @profile_bp.route('/onboarding/step5', methods=['GET', 'POST'])
@@ -118,11 +105,9 @@ def onboarding_step5():
         profile.partner_marital_status = request.form.get('partner_marital_status')
 
         db.session.commit()
-        return redirect(url_for('profile.onboarding_complete'))
+        return redirect(url_for('profile.view'))
 
-    return render_template('onboarding/step5.html',
-                         user=user,
-                         profile=user.profile)
+    return render_template('spa.html', user=user)
 
 
 @profile_bp.route('/onboarding/complete', methods=['GET', 'POST'])
@@ -131,9 +116,9 @@ def onboarding_complete():
     """Onboarding tugallandi"""
     user = User.query.get(session['user_id'])
 
-    # Agar profil to'liq emas bo'lsa, onboarding'ga qaytarish
+    # Agar profil to'liq emas bo'lsa, profil sahifasiga qaytarish
     if not user.profile or not user.profile.is_complete:
-        return redirect(url_for('profile.onboarding'))
+        return redirect(url_for('profile.view'))
 
     # Agar bio allaqachon to'ldirilgan bo'lsa, activate sahifasiga yo'naltirish
     if user.profile.bio:
@@ -146,9 +131,7 @@ def onboarding_complete():
 
         return redirect(url_for('profile.activate_profile'))
 
-    return render_template('onboarding/complete.html',
-                         user=user,
-                         profile=user.profile)
+    return render_template('spa.html', user=user)
 
 
 @profile_bp.route('/activate', methods=['GET', 'POST'])
