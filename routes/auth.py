@@ -90,13 +90,17 @@ def get_user_data():
     else:
         tariff_data = {'has_active_tariff': False, 'tariff': None}
 
+    # Sent requests count
+    sent_requests_count = user.sent_requests.count() if hasattr(user, 'sent_requests') else 0
+    
     return jsonify({
         'user': {
             'id': user.id,
             'telegram_id': user.telegram_id,
             'profile_complete': user.profile_completed,
             'profile_active': user.profile.is_active if user.profile else False,
-            'has_active_tariff': user.has_active_tariff
+            'has_active_tariff': user.has_active_tariff,
+            'sent_requests_count': sent_requests_count
         },
         'profile': profile_data,
         'tariff': tariff_data

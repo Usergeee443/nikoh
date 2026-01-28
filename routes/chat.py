@@ -3,6 +3,9 @@ from models import User, Chat, Message
 from database import db
 from routes.auth import login_required, profile_required
 from datetime import datetime
+from telegram_bot import send_notification
+import asyncio
+import threading
 
 chat_bp = Blueprint('chat', __name__, url_prefix='/chat')
 
@@ -174,9 +177,35 @@ def send_message(chat_id):
     db.session.commit()
 
     # Qabul qiluvchiga bildirishnoma
-    # TODO: Telegram notification
     other_user_id = chat.get_other_user_id(current_user.id)
     other_user = User.query.get(other_user_id)
+    
+    def send_notification_to_receiver():
+        try:
+            notification_message = f"""
+💬 Yangi xabar!
+
+{current_user.profile.name if current_user.profile else 'Foydalanuvchi'} sizga xabar yubordi.
+
+📱 Mini App'da ko'rish: /start
+"""
+            
+            # Asinxron xabarni yuborish
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+            
+            if other_user.telegram_id:
+                loop.run_until_complete(send_notification(other_user.telegram_id, notification_message))
+            
+            loop.close()
+        except Exception as e:
+            import logging
+            logging.error(f"Error sending notification: {e}")
+
+    # Background threadda xabarni yuborish
+    thread = threading.Thread(target=send_notification_to_receiver)
+    thread.daemon = True
+    thread.start()
 
     return jsonify({
         'success': True,

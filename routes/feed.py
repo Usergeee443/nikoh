@@ -1,8 +1,8 @@
 from flask import Blueprint, render_template, request, session, jsonify
-from models import User, Profile
+from models import User, Profile, Favorite
 from database import db
 from routes.auth import login_required, profile_required
-from sqlalchemy import and_, or_
+from sqlalchemy import and_, or_, case
 from datetime import datetime
 
 feed_bp = Blueprint('feed', __name__, url_prefix='/feed')
@@ -38,54 +38,84 @@ def get_listings():
     )
 
     # Jinsi bo'yicha filter (qarshi jins)
+    # Avval qarshi jins bo'yicha filter qo'llaymiz
     if current_profile.gender == 'Erkak':
-        query = query.filter(Profile.gender == 'Ayol')
+        opposite_gender = 'Ayol'
     else:
-        query = query.filter(Profile.gender == 'Erkak')
+        opposite_gender = 'Erkak'
+    
+    # Qarshi jins bo'yicha filter qo'llash
+    query_with_gender = query.filter(Profile.gender == opposite_gender)
+    
+    # Agar qarshi jins bo'yicha e'lonlar topilmasa, jins filterini qoldiramiz
+    # (bu test uchun, keyinroq o'chirilishi mumkin)
+    # Avval tekshiramiz, qarshi jins bo'yicha e'lonlar bormi?
+    # exists() ishlatamiz, bu count() dan tezroq
+    has_opposite_gender = db.session.query(query_with_gender.exists()).scalar()
+    
+    if has_opposite_gender:
+        # Qarshi jins bo'yicha e'lonlar bor, filter qo'llaymiz
+        query = query_with_gender
+    # Agar qarshi jins bo'yicha e'lonlar yo'q bo'lsa, jins filterini qoldiramiz
+    # (query o'zgarishsiz qoladi - faqat is_active va user_id filterlari qoladi)
 
-    # Foydalanuvchining talablariga mos
-    if current_profile.partner_age_min and current_profile.partner_age_max:
-        current_year = datetime.utcnow().year
-        birth_year_max = current_year - current_profile.partner_age_min
-        birth_year_min = current_year - current_profile.partner_age_max
-        query = query.filter(
-            and_(
-                Profile.birth_year >= birth_year_min,
-                Profile.birth_year <= birth_year_max
-            )
-        )
+    # Juftga talablar filterlari olib tashlandi
+    # Bu filterlar ilovani ochgandan keyin filter funksiyasi orqali ishlatilishi mumkin
 
-    # Hudud bo'yicha
-    if current_profile.partner_region and current_profile.partner_region != 'Farqi yo\'q':
-        query = query.filter(Profile.region == current_profile.partner_region)
-
-    # Diniy daraja
-    if current_profile.partner_religious_level and current_profile.partner_religious_level != 'Farqi yo\'q':
-        query = query.filter(Profile.religious_level == current_profile.partner_religious_level)
-
-    # Oilaviy holat
-    if current_profile.partner_marital_status and current_profile.partner_marital_status != 'Farqi yo\'q':
-        query = query.filter(Profile.marital_status == current_profile.partner_marital_status)
-
+    # User bilan join qilish (zarur, chunki UserTariff bilan join qilish uchun)
+    query = query.join(User)
+    
     # TOP e'lonlar
+    from models.tariff import UserTariff
+    
     if show_top_only:
         # Faqat TOP tarifga ega foydalanuvchilarni ko'rsatish
-        query = query.join(User).join(User.tariffs).filter(
+        query = query.join(UserTariff, db.and_(
+            UserTariff.user_id == User.id,
+            UserTariff.is_active == True,
+            UserTariff.is_top == True,
+            db.or_(
+                UserTariff.top_expires_at.is_(None),
+                UserTariff.top_expires_at > datetime.utcnow()
+            )
+        ))
+    else:
+        # TOP e'lonlarni birinchi o'ringa qo'yish uchun outerjoin
+        query = query.outerjoin(
+            UserTariff, 
             db.and_(
-                User.tariffs.any(is_active=True),
-                User.tariffs.any(is_top=True)
+                UserTariff.user_id == User.id,
+                UserTariff.is_active == True,
+                UserTariff.is_top == True,
+                db.or_(
+                    UserTariff.top_expires_at.is_(None),
+                    UserTariff.top_expires_at > datetime.utcnow()
+                )
             )
         )
 
     # Saralash: avval TOP, keyin yangilari
-    query = query.outerjoin(User).outerjoin(User.tariffs).order_by(
-        db.desc(User.tariffs.any(is_top=True)),
+    # Faqat is_active == True bo'lgan e'lonlar ko'rsatilishi kerak (allaqachon filter qilingan)
+    # UserTariff.is_top NULL bo'lishi mumkin, shuning uchun CASE ishlatamiz
+    query = query.order_by(
+        db.desc(case((UserTariff.is_top == True, 1), else_=0)),
         db.desc(Profile.activated_at)
     )
 
     # Pagination
     pagination = query.paginate(page=page, per_page=per_page, error_out=False)
     profiles = pagination.items
+    
+    # Debug: Query natijalarini tekshirish
+    import logging
+    logger = logging.getLogger(__name__)
+    logger.info(f"Feed query results: {len(profiles)} profiles found")
+    logger.info(f"Query filters: is_active=True, user_id!={current_user.id}, current_gender={current_profile.gender}")
+    logger.info(f"Total active profiles in DB: {Profile.query.filter(Profile.is_active == True).count()}")
+
+    # Current user'ning favorites list'ini olish
+    user_favorites = Favorite.query.filter_by(user_id=current_user.id).all()
+    favorite_user_ids = {fav.favorite_user_id for fav in user_favorites}
 
     # JSON formatga o'tkazish
     listings = []
@@ -100,6 +130,7 @@ def get_listings():
         listing = profile.to_dict()
         listing['is_top'] = is_top
         listing['user_id'] = profile.user_id
+        listing['is_favorite'] = profile.user_id in favorite_user_ids
 
         listings.append(listing)
 
@@ -144,13 +175,50 @@ def get_listing_detail(user_id):
 
     # Allaqachon so'rov yuborilganmi?
     from models import MatchRequest
-    existing_request = MatchRequest.query.filter_by(
-        sender_id=current_user.id,
-        receiver_id=user.id
+    # Ikki tomonlama so'rovni tekshirish
+    existing_request = MatchRequest.query.filter(
+        db.or_(
+            db.and_(MatchRequest.sender_id == current_user.id, MatchRequest.receiver_id == user.id),
+            db.and_(MatchRequest.sender_id == user.id, MatchRequest.receiver_id == current_user.id)
+        )
     ).first()
 
     profile_data['request_sent'] = existing_request is not None
     if existing_request:
         profile_data['request_status'] = existing_request.status
+        profile_data['is_sender'] = existing_request.sender_id == current_user.id
+        # Agar so'rov qabul qilingan bo'lsa, chat_id ni qo'shamiz
+        if existing_request.status == 'accepted' and existing_request.chat:
+            profile_data['chat_id'] = existing_request.chat.id
 
     return jsonify(profile_data)
+
+
+@feed_bp.route('/profile/<int:user_id>')
+@profile_required
+def profile_detail(user_id):
+    """Profil batafsil ko'rish sahifasi"""
+    current_user = User.query.get(session['user_id'])
+    
+    # O'zini ko'ra olmasligi
+    if user_id == current_user.id:
+        return render_template('error.html', message="O'zingizni ko'ra olmaysiz"), 400
+    
+    user = User.query.get(user_id)
+    
+    if not user or not user.profile or not user.profile.is_active:
+        return render_template('error.html', message="Profil topilmadi"), 404
+    
+    # Allaqachon so'rov yuborilganmi?
+    from models import MatchRequest
+    existing_request = MatchRequest.query.filter_by(
+        sender_id=current_user.id,
+        receiver_id=user.id
+    ).first()
+    
+    request_sent = existing_request is not None
+    
+    return render_template('feed/profile_detail.html', 
+                         profile=user.profile, 
+                         current_user=current_user,
+                         request_sent=request_sent)

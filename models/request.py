@@ -79,12 +79,44 @@ class MatchRequest(db.Model):
 
     def to_dict(self):
         """So'rovni dictionary ga aylantirish"""
+        chat_data = None
+        if self.chat:
+            chat_data = {
+                'id': self.chat.id,
+                'is_active': self.chat.is_active,
+                'is_expired': self.chat.is_expired,
+                'days_remaining': self.chat.days_remaining
+            }
+        
+        # Sender ma'lumotlari
+        sender_data = None
+        if self.sender and self.sender.profile:
+            sender_data = self.sender.profile.to_dict()
+            sender_data['user_id'] = self.sender.id
+            # Sender'ning aktiv tarifidagi so'rovlar soni
+            if self.sender.has_active_tariff and self.sender.active_tariff:
+                sender_data['requests_count'] = self.sender.active_tariff.requests_count
+            else:
+                sender_data['requests_count'] = 0
+        
+        # Receiver ma'lumotlari
+        receiver_data = None
+        if self.receiver and self.receiver.profile:
+            receiver_data = self.receiver.profile.to_dict()
+            receiver_data['user_id'] = self.receiver.id
+            # Receiver'ning aktiv tarifidagi so'rovlar soni
+            if self.receiver.has_active_tariff and self.receiver.active_tariff:
+                receiver_data['requests_count'] = self.receiver.active_tariff.requests_count
+            else:
+                receiver_data['requests_count'] = 0
+        
         return {
             'id': self.id,
-            'sender': self.sender.profile.to_dict() if self.sender.profile else None,
-            'receiver': self.receiver.profile.to_dict() if self.receiver.profile else None,
+            'sender': sender_data,
+            'receiver': receiver_data,
             'message': self.message,
             'status': self.status,
             'created_at': self.created_at.isoformat() if self.created_at else None,
-            'responded_at': self.responded_at.isoformat() if self.responded_at else None
+            'responded_at': self.responded_at.isoformat() if self.responded_at else None,
+            'chat': chat_data
         }

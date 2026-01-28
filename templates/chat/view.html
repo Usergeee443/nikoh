@@ -1,0 +1,279 @@
+{% extends "base.html" %}
+
+{% block title %}Chat - NIKOH{% endblock %}
+
+{% block content %}
+<header class="fixed top-0 left-0 right-0 z-50 glass-card h-16 flex items-center px-5" style="background: rgba(10, 10, 11, 0.7); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255, 255, 255, 0.08);">
+    <div class="max-w-md mx-auto w-full flex items-center justify-between">
+        <button onclick="history.back()" class="size-10 flex items-center justify-start text-white active:scale-90 transition-transform">
+            <span class="material-symbols-outlined text-[28px]">chevron_left</span>
+        </button>
+        <div class="flex items-center gap-3">
+            <button class="size-10 glass-card rounded-full flex items-center justify-center text-white/80 active:scale-90 transition-transform">
+                <span class="material-symbols-outlined text-[20px]">share</span>
+            </button>
+            <button class="size-10 glass-card rounded-full flex items-center justify-center text-white/80 active:scale-90 transition-transform">
+                <span class="material-symbols-outlined text-[20px]">more_horiz</span>
+            </button>
+        </div>
+    </div>
+</header>
+
+<main class="max-w-md mx-auto" style="padding-top: 80px; padding-bottom: 100px;">
+    <div class="flex justify-center mb-4">
+        <div class="glass-card bg-white/5 px-4 py-1.5 rounded-full">
+            <p class="text-white/40 text-[10px] font-semibold tracking-widest uppercase">Xabarlashish uchun 7 kun berildi</p>
+        </div>
+    </div>
+    
+    <div id="timerContainer" class="grid grid-cols-4 gap-2 py-2 mb-6 px-4">
+        <!-- Timer will be loaded here -->
+    </div>
+
+    <div id="messagesContainer" class="px-4 space-y-6" style="min-height: 400px;">
+        <!-- Skeleton Loading -->
+        <div id="messagesSkeleton" class="space-y-4">
+            <div class="flex items-end gap-3 max-w-[85%]">
+                <div class="size-9 rounded-full skeleton"></div>
+                <div class="flex-1 glass-card rounded-2xl rounded-bl-none p-4 skeleton" style="height: 60px;"></div>
+            </div>
+            <div class="flex items-end gap-3 justify-end ml-auto max-w-[85%]">
+                <div class="flex-1 glass-card rounded-2xl rounded-br-none p-4 skeleton" style="height: 60px;"></div>
+                <div class="size-9 rounded-full skeleton"></div>
+            </div>
+            <div class="flex items-end gap-3 max-w-[85%]">
+                <div class="size-9 rounded-full skeleton"></div>
+                <div class="flex-1 glass-card rounded-2xl rounded-bl-none p-4 skeleton" style="height: 80px;"></div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<div class="fixed bottom-0 left-0 right-0 p-5 bg-gradient-to-t from-background-dark via-background-dark/90 to-transparent z-50">
+    <div class="max-w-md mx-auto">
+        <div class="flex items-center gap-2">
+            <button class="flex items-center justify-center size-11 rounded-xl bg-white/5 border border-white/10 text-white/50 active:bg-white/10 transition-all">
+                <span class="material-symbols-outlined text-[22px]">add</span>
+            </button>
+            <div class="flex-1 relative flex items-center">
+                <input id="messageInput" class="w-full bg-white/5 border border-white/10 rounded-xl pl-4 pr-10 py-2.5 text-sm text-white placeholder:text-white/20 focus:outline-none focus:ring-1 focus:ring-primary/40 focus:border-primary/40 transition-all" placeholder="Xabar yozing..." type="text" onkeypress="handleKeyPress(event)"/>
+                <button class="absolute right-2 flex items-center justify-center size-8 text-white/40 hover:text-white transition-colors">
+                    <span class="material-symbols-outlined text-[20px]">mic</span>
+                </button>
+            </div>
+            <button id="sendBtn" onclick="sendMessage()" class="flex items-center justify-center size-11 rounded-xl bg-primary text-background-dark neon-glow active:scale-95 transition-all">
+                <span class="material-symbols-outlined font-bold text-[20px]">send</span>
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+const chatId = {{ chat.id if chat else 'null' }};
+const currentUserId = {{ user.id if user else 'null' }};
+let chatData = null;
+let timerInterval = null;
+
+async function loadChat() {
+    const container = document.getElementById('messagesContainer');
+    const skeleton = document.getElementById('messagesSkeleton');
+    
+    try {
+        // Hide skeleton
+        if (skeleton) {
+            setTimeout(() => {
+                skeleton.style.display = 'none';
+            }, 300);
+        }
+        
+        const response = await fetch(`/chat/api/${chatId}/messages`);
+        const data = await response.json();
+        
+        if (skeleton) skeleton.remove();
+        
+        chatData = data.chat;
+        displayMessages(data.messages);
+        updateTimer();
+        
+        if (chatData.is_active && !chatData.is_expired) {
+            timerInterval = setInterval(updateTimer, 1000);
+        }
+        
+    } catch (error) {
+        console.error('Error loading chat:', error);
+        if (skeleton) skeleton.remove();
+        container.innerHTML = '<div class="text-center py-8 text-red-400">Xatolik yuz berdi</div>';
+    }
+}
+
+function displayMessages(messages) {
+    const container = document.getElementById('messagesContainer');
+    container.innerHTML = '';
+    
+    if (messages.length === 0) {
+        container.innerHTML = '<div class="text-center py-8 text-white/60">Xabarlar yo\'q</div>';
+        return;
+    }
+    
+    messages.forEach(msg => {
+        const messageDiv = createMessageElement(msg);
+        container.appendChild(messageDiv);
+    });
+    
+    container.scrollTop = container.scrollHeight;
+}
+
+function createMessageElement(msg) {
+    const div = document.createElement('div');
+    const isMine = msg.sender_id === currentUserId;
+    
+    div.className = `flex items-end gap-3 ${isMine ? 'justify-end ml-auto max-w-[85%]' : 'max-w-[85%]'}`;
+    
+    if (!isMine) {
+        div.innerHTML = `
+            <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full w-9 h-9 border border-white/10 shrink-0" style="background: linear-gradient(135deg, rgba(64, 255, 0, 0.2), rgba(16, 185, 129, 0.2));"></div>
+        `;
+    }
+    
+    const messageContent = document.createElement('div');
+    messageContent.className = `flex flex-col gap-1.5 ${isMine ? 'items-end' : ''}`;
+    
+    const bubble = document.createElement('div');
+    bubble.className = isMine 
+        ? 'glass-card bg-primary/20 border-primary/30 px-4 py-3 rounded-2xl rounded-br-none'
+        : 'glass-card bg-white/5 px-4 py-3 rounded-2xl rounded-bl-none';
+    
+    bubble.innerHTML = `<p class="text-sm font-normal leading-relaxed text-white">${escapeHtml(msg.content)}</p>`;
+    
+    const time = document.createElement('p');
+    time.className = `text-white/20 text-[9px] uppercase ${isMine ? 'text-right mr-1' : 'text-left ml-1'}`;
+    time.textContent = formatMessageTime(new Date(msg.created_at));
+    
+    messageContent.appendChild(bubble);
+    messageContent.appendChild(time);
+    
+    div.appendChild(messageContent);
+    
+    if (isMine) {
+        div.innerHTML += `
+            <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full w-9 h-9 border border-primary/20 shrink-0" style="background: linear-gradient(135deg, rgba(64, 255, 0, 0.3), rgba(16, 185, 129, 0.3));"></div>
+        `;
+    }
+    
+    return div;
+}
+
+function formatMessageTime(date) {
+    return date.toLocaleTimeString('uz-UZ', { hour: '2-digit', minute: '2-digit' });
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+function updateTimer() {
+    if (!chatData || !chatData.expires_at) return;
+    
+    const expiresAt = new Date(chatData.expires_at);
+    const now = new Date();
+    const diff = expiresAt - now;
+    
+    if (diff <= 0) {
+        if (timerInterval) clearInterval(timerInterval);
+        document.getElementById('timerContainer').innerHTML = '<div class="col-span-4 text-center text-red-400 text-sm">Muddati tugadi</div>';
+        document.getElementById('messageInput').disabled = true;
+        document.getElementById('sendBtn').disabled = true;
+        return;
+    }
+    
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+    
+    const timerHtml = `
+        <div class="flex flex-col items-center gap-1.5">
+            <div class="flex h-12 w-full items-center justify-center rounded-2xl bg-white/5 border border-white/10 glass-card">
+                <p class="text-white text-lg font-bold">${String(days).padStart(2, '0')}</p>
+            </div>
+            <p class="text-white/30 text-[9px] uppercase font-bold tracking-wider">Kun</p>
+        </div>
+        <div class="flex flex-col items-center gap-1.5">
+            <div class="flex h-12 w-full items-center justify-center rounded-2xl bg-white/5 border border-white/10 glass-card">
+                <p class="text-white text-lg font-bold">${String(hours).padStart(2, '0')}</p>
+            </div>
+            <p class="text-white/30 text-[9px] uppercase font-bold tracking-wider">Soat</p>
+        </div>
+        <div class="flex flex-col items-center gap-1.5">
+            <div class="flex h-12 w-full items-center justify-center rounded-2xl bg-white/5 border border-white/10 glass-card">
+                <p class="text-white text-lg font-bold">${String(minutes).padStart(2, '0')}</p>
+            </div>
+            <p class="text-white/30 text-[9px] uppercase font-bold tracking-wider">Minut</p>
+        </div>
+        <div class="flex flex-col items-center gap-1.5">
+            <div class="flex h-12 w-full items-center justify-center rounded-2xl bg-primary/20 border border-primary/40 glass-card">
+                <p class="text-primary text-lg font-bold" style="text-shadow: 0 0 8px rgba(64, 255, 0, 0.6);">${String(seconds).padStart(2, '0')}</p>
+            </div>
+            <p class="text-primary/60 text-[9px] uppercase font-bold tracking-wider">Sekund</p>
+        </div>
+    `;
+    
+    document.getElementById('timerContainer').innerHTML = timerHtml;
+}
+
+async function sendMessage() {
+    const input = document.getElementById('messageInput');
+    const content = input.value.trim();
+    
+    if (!content) return;
+    if (!chatData || !chatData.is_active || chatData.is_expired) {
+        alert('Chat muddati tugagan');
+        return;
+    }
+    
+    try {
+        const response = await fetch(`/chat/api/${chatId}/send`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({content: content})
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+            input.value = '';
+            const messageDiv = createMessageElement(data.message);
+            document.getElementById('messagesContainer').appendChild(messageDiv);
+            document.getElementById('messagesContainer').scrollTop = document.getElementById('messagesContainer').scrollHeight;
+        } else {
+            alert(data.error || 'Xatolik yuz berdi');
+        }
+    } catch (error) {
+        alert('Xatolik yuz berdi');
+    }
+}
+
+function handleKeyPress(event) {
+    if (event.key === 'Enter') {
+        sendMessage();
+    }
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', loadChat);
+} else {
+    loadChat();
+}
+
+// Auto-refresh messages every 3 seconds
+setInterval(() => {
+    if (chatData && chatData.is_active && !chatData.is_expired) {
+        loadChat();
+    }
+}, 3000);
+</script>
+{% endblock %}

@@ -112,12 +112,27 @@ class Profile(db.Model):
 
     def to_dict(self):
         """Profilni dictionary ga aylantirish"""
+        # Generate unique gradient background based on user_id
+        import hashlib
+        user_id_str = str(self.user_id)
+        hash_value = int(hashlib.md5(user_id_str.encode()).hexdigest()[:8], 16)
+        
+        # Generate gradient colors based on hash
+        colors = [
+            ['#FF6B6B', '#4ECDC4'], ['#45B7D1', '#96CEB4'], ['#FFEAA7', '#DDA0DD'],
+            ['#74B9FF', '#A29BFE'], ['#FD79A8', '#FDCB6E'], ['#6C5CE7', '#A29BFE'],
+            ['#00B894', '#00CEC9'], ['#E17055', '#FDCB6E'], ['#0984E3', '#74B9FF'],
+            ['#6C5CE7', '#A29BFE']
+        ]
+        color_pair = colors[hash_value % len(colors)]
+        
         return {
             'id': self.id,
             'name': self.name,
             'age': self.age,
             'gender': self.gender,
             'region': self.region,
+            'location': self.region,  # Alias for region
             'nationality': self.nationality,
             'marital_status': self.marital_status,
             'height': self.height,
@@ -135,5 +150,9 @@ class Profile(db.Model):
             'partner_age_max': self.partner_age_max,
             'partner_region': self.partner_region,
             'partner_religious_level': self.partner_religious_level,
-            'partner_marital_status': self.partner_marital_status
+            'partner_marital_status': self.partner_marital_status,
+            'photo_url': None,  # Will be generated on frontend using gradient
+            'salary': None,  # Not stored in profile, will be calculated if needed
+            'views_count': 0,  # Placeholder
+            'favorites_count': 0  # Placeholder
         }

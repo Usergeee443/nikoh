@@ -72,6 +72,14 @@ class UserTariff(db.Model):
         remaining = self.expires_at - datetime.utcnow()
         return max(0, remaining.days)
 
+    @property
+    def top_days_remaining(self):
+        """TOP qolgan kunlar soni"""
+        if not self.top_expires_at:
+            return 0
+        remaining = self.top_expires_at - datetime.utcnow()
+        return max(0, remaining.days)
+
     def check_and_update_status(self):
         """Holatni tekshirish va yangilash"""
         if self.is_expired:
@@ -123,15 +131,50 @@ class PaymentRequest(db.Model):
         self.review_comment = comment
         self.reviewed_at = datetime.utcnow()
 
-        # Yangi tarif yaratish
+        # Yangi tarif yaratish - tarif nomiga qarab
         from config import Config
+        
+        # TOP_xx maxsus tariflari (faqat TOP uchun, so'rovlar yo'q)
+        if self.tariff_name and self.tariff_name.startswith('TOP_'):
+            try:
+                days = int(self.tariff_name.split('_', 1)[1])
+            except (ValueError, IndexError):
+                days = 1
+            days = max(1, min(days, 30))
+            requests_count = 0
+            duration_days = days
+            top_duration_days = days
+            is_top = True
+        elif self.tariff_name == 'KUMUSH':
+            requests_count = Config.KUMUSH_TARIFF_REQUESTS
+            duration_days = Config.KUMUSH_TARIFF_DAYS
+            top_duration_days = Config.KUMUSH_TARIFF_TOP_DAYS
+            is_top = False
+        elif self.tariff_name == 'OLTIN':
+            requests_count = Config.OLTIN_TARIFF_REQUESTS
+            duration_days = Config.OLTIN_TARIFF_DAYS
+            top_duration_days = Config.OLTIN_TARIFF_TOP_DAYS
+            is_top = True
+        elif self.tariff_name == 'VIP':
+            requests_count = Config.VIP_TARIFF_REQUESTS
+            duration_days = Config.VIP_TARIFF_DAYS
+            top_duration_days = Config.VIP_TARIFF_TOP_DAYS
+            is_top = True
+        else:
+            # Default KUMUSH
+            requests_count = Config.KUMUSH_TARIFF_REQUESTS
+            duration_days = Config.KUMUSH_TARIFF_DAYS
+            top_duration_days = Config.KUMUSH_TARIFF_TOP_DAYS
+            is_top = False
+        
         new_tariff = UserTariff(
             user_id=self.user_id,
             tariff_name=self.tariff_name,
-            requests_count=Config.KUMUSH_TARIFF_REQUESTS,
-            total_requests=Config.KUMUSH_TARIFF_REQUESTS,
-            duration_days=Config.KUMUSH_TARIFF_DAYS,
-            top_duration_days=Config.KUMUSH_TARIFF_TOP_DAYS,
+            requests_count=requests_count,
+            total_requests=requests_count,
+            duration_days=duration_days,
+            top_duration_days=top_duration_days,
+            is_top=is_top,
             payment_request_id=self.id
         )
         db.session.add(new_tariff)

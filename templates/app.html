@@ -1,0 +1,1457 @@
+<!DOCTYPE html>
+<html class="dark" lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>NIKOH - Halol tanishuv</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind Config -->
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#40ff00",
+                        "background-dark": "#0a0a0b",
+                    },
+                    fontFamily: {
+                        "display": ["Manrope", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "2xl": "24px",
+                    },
+                },
+            },
+        }
+    </script>
+    
+    <!-- Custom Styles -->
+    <style type="text/tailwindcss">
+        @layer components {
+            .glass-card {
+                background: rgba(255, 255, 255, 0.03);
+                backdrop-filter: blur(24px);
+                -webkit-backdrop-filter: blur(24px);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.05);
+            }
+            .glass-strip {
+                background: rgba(0, 0, 0, 0.85);
+                backdrop-filter: blur(12px);
+                -webkit-backdrop-filter: blur(12px);
+                border-top: 1px solid rgba(255, 255, 255, 0.08);
+            }
+            .neon-glow {
+                box-shadow: 0 0 15px rgba(64, 255, 0, 0.4);
+            }
+            .search-glass {
+                background: rgba(255, 255, 255, 0.04);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+            }
+            .profile-gradient {
+                background: linear-gradient(to top, rgba(10, 10, 11, 1) 0%, rgba(10, 10, 11, 0.95) 15%, rgba(10, 10, 11, 0.4) 50%, transparent 100%);
+            }
+            .tag-premium {
+                background: rgba(20, 20, 22, 0.92);
+                backdrop-filter: blur(12px);
+                border: 1px solid rgba(255, 255, 255, 0.25);
+            }
+            .status-pending {
+                background: rgba(64, 255, 0, 0.08);
+                border: 1px solid rgba(64, 255, 0, 0.3);
+                color: #40ff00;
+                text-shadow: 0 0 10px rgba(64, 255, 0, 0.3);
+            }
+            .status-rejected {
+                background: rgba(255, 64, 64, 0.08);
+                border: 1px solid rgba(255, 64, 64, 0.3);
+                color: #ff4040;
+                text-shadow: 0 0 10px rgba(255, 64, 64, 0.3);
+            }
+            .active-neon-btn {
+                background: rgba(64, 255, 0, 0.1);
+                border-color: rgba(64, 255, 0, 0.4);
+                box-shadow: 0 0 15px rgba(64, 255, 0, 0.15);
+            }
+            .badge-neon {
+                background: #40ff00;
+                box-shadow: 0 0 8px rgba(64, 255, 0, 0.6);
+            }
+            .action-glass {
+                background: rgba(10, 10, 11, 0.6);
+                backdrop-filter: blur(16px);
+                -webkit-backdrop-filter: blur(16px);
+                border: 1px solid rgba(255, 255, 255, 0.15);
+            }
+            .skeleton {
+                background: linear-gradient(90deg, rgba(255, 255, 255, 0.05) 25%, rgba(255, 255, 255, 0.1) 50%, rgba(255, 255, 255, 0.05) 75%);
+                background-size: 200% 100%;
+                animation: skeleton-loading 1.5s ease-in-out infinite;
+            }
+            @keyframes skeleton-loading {
+                0% { background-position: 200% 0; }
+                100% { background-position: -200% 0; }
+            }
+            .glass-item {
+                background: rgba(255, 255, 255, 0.04);
+                backdrop-filter: blur(12px);
+                -webkit-backdrop-filter: blur(12px);
+                border: 1px solid rgba(255, 255, 255, 0.06);
+                transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+            .glass-item:active {
+                background: rgba(255, 255, 255, 0.08);
+                transform: scale(0.985);
+            }
+            .toggle-pill {
+                @apply w-12 h-6 rounded-full relative transition-colors duration-300;
+            }
+            .toggle-circle {
+                @apply absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform duration-300 shadow-sm;
+            }
+            input:checked + .toggle-pill {
+                @apply bg-primary;
+            }
+            input:checked + .toggle-pill .toggle-circle {
+                @apply translate-x-6 bg-black;
+            }
+            .gold-gradient {
+                background: linear-gradient(135deg, #FFD700 0%, #FFA500 50%, #FF8C00 100%);
+            }
+            .page-container {
+                display: none;
+                animation: fadeIn 0.1s ease-in;
+            }
+            .page-container.active {
+                display: block;
+            }
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(4px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+        }
+    </style>
+    
+    <style>
+        body {
+            min-height: max(884px, 100dvh);
+            overflow-x: hidden;
+        }
+        main {
+            padding-bottom: 120px;
+        }
+        ::-webkit-scrollbar {
+            display: none;
+        }
+        .logo-text {
+            letter-spacing: 0.15em;
+            font-weight: 800;
+        }
+    </style>
+
+    <!-- Telegram Web App SDK -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body class="font-display bg-background-dark text-white selection:bg-primary/30">
+    <!-- App Container -->
+    <div id="app-container" class="min-h-screen">
+        <!-- Navigation -->
+        <nav class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[92%] max-w-md z-50">
+            <div class="glass-card rounded-full p-2 flex items-center justify-between shadow-[0_20px_50px_rgba(0,0,0,0.6)] bg-black/80 border-white/10">
+                <a href="#" data-page="feed" class="nav-link flex-1 flex flex-col items-center justify-center py-1 text-primary">
+                    <span class="material-symbols-outlined text-[24px]" style="font-variation-settings: 'FILL' 1">home</span>
+                    <span class="text-[8px] font-black mt-0.5 uppercase tracking-widest">Asosiy</span>
+                </a>
+                <a href="#" data-page="requests" class="nav-link flex-1 flex flex-col items-center justify-center py-1 text-white/30 hover:text-white transition-colors">
+                    <span class="material-symbols-outlined text-[24px]">chat_bubble</span>
+                    <span class="text-[8px] font-black mt-0.5 uppercase tracking-widest">Xabarlar</span>
+                </a>
+                <a href="#" data-page="chats" class="nav-link flex-1 flex flex-col items-center justify-center py-1 text-white/30 hover:text-white transition-colors">
+                    <span class="material-symbols-outlined text-[24px]">favorite</span>
+                    <span class="text-[8px] font-black mt-0.5 uppercase tracking-widest">Sevimli</span>
+                </a>
+                <a href="#" data-page="profile" class="nav-link flex-1 flex flex-col items-center justify-center py-1 text-white/30 hover:text-white transition-colors">
+                    <span class="material-symbols-outlined text-[24px]">person</span>
+                    <span class="text-[8px] font-black mt-0.5 uppercase tracking-widest">Profil</span>
+                </a>
+            </div>
+        </nav>
+
+        <!-- FEED PAGE -->
+        <div id="page-feed" class="page-container active">
+            <header class="sticky top-0 z-50 bg-background-dark/95 backdrop-blur-xl pt-4 pb-4 px-5">
+                <div class="max-w-md mx-auto">
+                    <div class="flex items-center justify-between mb-5">
+                        <div class="flex items-center gap-2">
+                            <div class="size-7 bg-primary rounded-lg flex items-center justify-center neon-glow">
+                                <span class="material-symbols-outlined text-black text-[18px] font-bold">diamond</span>
+                            </div>
+                            <h1 class="text-lg logo-text uppercase font-extrabold tracking-wider">Nikoh</h1>
+                        </div>
+                        <div id="feed-tariff-badge" class="glass-card px-3 py-1.5 rounded-full">
+                            <p class="text-[10px] font-black text-primary uppercase tracking-wider">0 SO'ROV</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2.5">
+                        <div class="relative flex-1">
+                            <div class="absolute inset-y-0 left-4 flex items-center pointer-events-none">
+                                <span class="material-symbols-outlined text-white/40 text-[18px]">search</span>
+                            </div>
+                            <input id="feed-search" class="w-full h-11 search-glass rounded-2xl pl-11 pr-4 text-[13px] text-white/60 focus:outline-none focus:border-primary/40 transition-all placeholder:text-white/20 bg-transparent" placeholder="Ism yoki ID qidirish..." type="text"/>
+                        </div>
+                        <button id="feed-filter" class="size-11 search-glass rounded-full flex items-center justify-center text-white/60 hover:text-primary hover:border-primary/40 transition-all active:scale-95">
+                            <span class="material-symbols-outlined text-[22px] font-light">tune</span>
+                        </button>
+                    </div>
+                    <div class="flex items-center gap-2 mt-3">
+                        <label class="flex items-center gap-2 text-white/60 text-[11px]">
+                            <input type="checkbox" id="feed-top-only" class="w-4 h-4 rounded border-white/20 bg-transparent text-primary focus:ring-primary/40">
+                            <span>Faqat TOP</span>
+                        </label>
+                    </div>
+                </div>
+            </header>
+
+            <main class="max-w-md mx-auto px-4 w-full" style="padding-top: 20px; padding-bottom: 140px;">
+                <div id="feed-tariff-info" class="glass-card rounded-2xl p-4 mb-4"></div>
+                <div id="feed-listings" class="space-y-4">
+                    <div id="feed-skeleton" class="space-y-4">
+                        <div class="profile-card glass-card rounded-[22px] overflow-hidden skeleton" style="height: calc((100vh - 220px) / 2.8); min-height: 245px;"></div>
+                        <div class="profile-card glass-card rounded-[22px] overflow-hidden skeleton" style="height: calc((100vh - 220px) / 2.8); min-height: 245px;"></div>
+                        <div class="profile-card glass-card rounded-[22px] overflow-hidden skeleton" style="height: calc((100vh - 220px) / 2.8); min-height: 245px;"></div>
+                    </div>
+                </div>
+                <div class="text-center py-4 hidden" id="feed-load-more">
+                    <button id="feed-load-more-btn" class="glass-card px-6 py-2 rounded-full text-primary text-sm font-bold hover:bg-primary/10 transition">
+                        Ko'proq yuklash
+                    </button>
+                </div>
+            </main>
+
+            <!-- Profile Detail Modal -->
+            <div id="feed-profile-modal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                <div class="max-w-md w-full glass-card rounded-[28px] max-h-[90vh] overflow-y-auto" style="scrollbar-width: thin;">
+                    <div class="p-6" id="feed-profile-content"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- REQUESTS PAGE -->
+        <div id="page-requests" class="page-container">
+            <header class="sticky top-0 z-50 bg-background-dark/95 backdrop-blur-xl pt-4 pb-3 px-4">
+                <div class="max-w-md mx-auto">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-3">
+                            <button onclick="window.showPage('feed')" class="size-10 rounded-full glass-card flex items-center justify-center text-white/70 active:scale-95 transition-transform">
+                                <span class="material-symbols-outlined text-[20px]">arrow_back_ios_new</span>
+                            </button>
+                            <h1 class="text-xl font-extrabold tracking-tight">So'rovlar</h1>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button id="requests-received-tab" class="relative h-10 px-3 rounded-full glass-card flex items-center gap-2 text-primary active-neon-btn">
+                                <span class="material-symbols-outlined text-[20px]">call_received</span>
+                                <span id="requests-received-badge" class="absolute -top-1 -right-1 bg-white/20 text-[9px] font-black text-white px-1.5 rounded-full min-w-[18px] h-[18px] flex items-center justify-center border-2 border-background-dark hidden">0</span>
+                            </button>
+                            <button id="requests-sent-tab" class="relative h-10 px-4 rounded-full glass-card flex items-center gap-2 text-white/40">
+                                <span class="material-symbols-outlined text-[20px]">call_made</span>
+                                <span class="text-[9px] font-black uppercase tracking-wider">Yuborilgan</span>
+                                <span id="requests-sent-badge" class="absolute -top-1 -right-1 badge-neon text-[9px] font-black text-black px-1.5 rounded-full min-w-[18px] h-[18px] flex items-center justify-center border-2 border-background-dark hidden">0</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <div class="flex-1 relative">
+                            <div class="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+                                <span class="material-symbols-outlined text-white/30 text-[18px]">search</span>
+                            </div>
+                            <input id="requests-search" class="w-full h-10 search-glass rounded-full pl-10 pr-4 text-[12px] bg-transparent text-white placeholder:text-white/30 border-none focus:ring-1 focus:ring-primary/30 outline-none" placeholder="Ism yoki ID..." type="text"/>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <main class="max-w-md mx-auto px-4 w-full" style="padding-top: 20px; padding-bottom: 140px;">
+                <div id="requests-tariff-info"></div>
+                <div id="requests-received-container" class="space-y-4">
+                    <div id="requests-received-skeleton" class="space-y-4">
+                        <div class="profile-card glass-card rounded-[28px] overflow-hidden skeleton" style="height: calc((100vh - 220px) / 2.8); min-height: 245px;"></div>
+                        <div class="profile-card glass-card rounded-[28px] overflow-hidden skeleton" style="height: calc((100vh - 220px) / 2.8); min-height: 245px;"></div>
+                    </div>
+                </div>
+                <div id="requests-sent-container" class="space-y-4 hidden">
+                    <div id="requests-sent-skeleton" class="space-y-4">
+                        <div class="profile-card glass-card rounded-[28px] overflow-hidden skeleton" style="height: calc((100vh - 220px) / 2.8); min-height: 245px;"></div>
+                        <div class="profile-card glass-card rounded-[28px] overflow-hidden skeleton" style="height: calc((100vh - 220px) / 2.8); min-height: 245px;"></div>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <!-- CHATS PAGE -->
+        <div id="page-chats" class="page-container">
+            <header class="sticky top-0 z-50 bg-background-dark/95 backdrop-blur-xl pt-4 pb-4 px-5">
+                <div class="max-w-md mx-auto">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-3">
+                            <button onclick="window.showPage('feed')" class="size-10 rounded-full glass-card flex items-center justify-center text-white/70 active:scale-95 transition-transform">
+                                <span class="material-symbols-outlined text-[20px]">arrow_back_ios_new</span>
+                            </button>
+                            <h1 class="text-xl font-extrabold tracking-tight">Chatlar</h1>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <main class="max-w-md mx-auto px-4 w-full" style="padding-top: 20px; padding-bottom: 140px;">
+                <div id="chats-list" class="space-y-3">
+                    <div id="chats-skeleton" class="space-y-3">
+                        <div class="glass-card rounded-2xl p-4 skeleton" style="height: 80px;"></div>
+                        <div class="glass-card rounded-2xl p-4 skeleton" style="height: 80px;"></div>
+                        <div class="glass-card rounded-2xl p-4 skeleton" style="height: 80px;"></div>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <!-- PROFILE PAGE -->
+        <div id="page-profile" class="page-container">
+            <div class="px-6 pt-14 pb-6">
+                <div class="max-w-md mx-auto flex flex-col items-center">
+                    <div class="relative mb-4">
+                        <div class="size-28 rounded-full p-1.5 glass-card neon-glow border-primary/20">
+                            <div id="profile-avatar" class="w-full h-full rounded-full overflow-hidden border border-white/10 bg-gradient-to-br from-primary/20 to-green-500/20 flex items-center justify-center text-4xl font-bold">
+                                ?
+                            </div>
+                        </div>
+                        <div class="absolute bottom-1 right-1 bg-primary text-black size-8 rounded-full flex items-center justify-center border-4 border-background-dark">
+                            <span class="material-symbols-outlined text-[18px] font-black">verified</span>
+                        </div>
+                    </div>
+                    <h1 id="profile-name" class="text-2xl font-extrabold tracking-tight">Foydalanuvchi</h1>
+                    <div class="flex items-center gap-2 mt-1.5">
+                        <span id="profile-telegram-id" class="text-[12px] font-black tracking-widest text-primary/80 uppercase">#0</span>
+                        <span class="w-1 h-1 rounded-full bg-white/20"></span>
+                        <span class="text-[10px] font-bold text-primary px-2.5 py-0.5 rounded-full bg-primary/10 border border-primary/20 uppercase tracking-wider">Tasdiqlangan</span>
+                    </div>
+                </div>
+            </div>
+
+            <main class="max-w-md mx-auto px-5 w-full space-y-6" style="padding-bottom: 140px;">
+                <div class="glass-card rounded-3xl p-5 grid grid-cols-3 gap-2">
+                    <div class="flex flex-col items-center border-r border-white/5">
+                        <span class="text-[10px] font-bold text-white/40 uppercase tracking-wider mb-1">Ko'rilganlar</span>
+                        <span id="profile-views" class="text-lg font-extrabold">0</span>
+                    </div>
+                    <div class="flex flex-col items-center border-r border-white/5">
+                        <span class="text-[10px] font-bold text-white/40 uppercase tracking-wider mb-1">Sevimlilar</span>
+                        <span id="profile-likes" class="text-lg font-extrabold">0</span>
+                    </div>
+                    <div class="flex flex-col items-center">
+                        <span class="text-[10px] font-bold text-white/40 uppercase tracking-wider mb-1">So'rovlar</span>
+                        <span id="profile-requests" class="text-lg font-extrabold">0</span>
+                    </div>
+                </div>
+                
+                <div class="space-y-3">
+                    <div class="glass-card rounded-2xl p-4 flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="size-10 rounded-xl bg-white/5 flex items-center justify-center text-white/60">
+                                <span class="material-symbols-outlined text-[22px]">campaign</span>
+                            </div>
+                            <div>
+                                <p class="text-sm font-bold">E'lon holati</p>
+                                <p class="text-[10px] text-white/40">E'lonni hammaga ko'rsatish</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <span id="profile-status-text" class="text-[10px] font-bold uppercase tracking-tight text-primary">Aktiv</span>
+                            <label class="cursor-pointer">
+                                <input type="checkbox" id="profile-toggle" class="sr-only peer">
+                                <div class="toggle-pill bg-white/10">
+                                    <div class="toggle-circle"></div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div id="profile-top-btn" class="hidden">
+                        <button class="w-full gold-gradient p-4 rounded-2xl flex items-center justify-center gap-3 active:scale-[0.97] transition-all shadow-[0_10px_30px_rgba(255,165,0,0.3)]">
+                            <span class="material-symbols-outlined text-black font-bold">rocket_launch</span>
+                            <span class="text-sm font-black text-black uppercase tracking-wider">TOPga olib chiqish</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="space-y-2">
+                    <h3 class="px-2 text-[10px] font-black uppercase tracking-[0.2em] text-white/30 mb-3">Asosiy amallar</h3>
+                    <a href="/tariff/purchase" class="w-full glass-card rounded-2xl p-4 flex items-center justify-between group active:scale-[0.98] transition-transform">
+                        <div class="flex items-center gap-4">
+                            <div class="size-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+                                <span class="material-symbols-outlined text-[24px]">workspace_premium</span>
+                            </div>
+                            <p class="text-sm font-bold">Obuna (Premium)</p>
+                        </div>
+                        <span class="material-symbols-outlined text-white/20 group-hover:text-primary transition-colors">chevron_right</span>
+                    </a>
+                    <a href="/profile/edit" class="w-full glass-card rounded-2xl p-4 flex items-center justify-between group active:scale-[0.98] transition-transform">
+                        <div class="flex items-center gap-4">
+                            <div class="size-10 rounded-xl bg-white/5 flex items-center justify-center text-white/60">
+                                <span class="material-symbols-outlined text-[22px]">person_edit</span>
+                            </div>
+                            <p class="text-sm font-bold">Profilni tahrirlash</p>
+                        </div>
+                        <span class="material-symbols-outlined text-white/20">chevron_right</span>
+                    </a>
+                    <button class="w-full glass-card rounded-2xl p-4 flex items-center justify-between group active:scale-[0.98] transition-transform">
+                        <div class="flex items-center gap-4">
+                            <div class="size-10 rounded-xl bg-white/5 flex items-center justify-center text-white/60">
+                                <span class="material-symbols-outlined text-[22px]">settings</span>
+                            </div>
+                            <p class="text-sm font-bold">Sozlamalar</p>
+                        </div>
+                        <span class="material-symbols-outlined text-white/20">chevron_right</span>
+                    </button>
+                    <div class="pt-4 space-y-2">
+                        <h3 class="px-2 text-[10px] font-black uppercase tracking-[0.2em] text-white/30 mb-3">Qo'shimcha</h3>
+                        <button class="w-full glass-card rounded-2xl p-4 flex items-center justify-between group active:scale-[0.98] transition-transform">
+                            <div class="flex items-center gap-4">
+                                <div class="size-10 rounded-xl bg-white/5 flex items-center justify-center text-white/60">
+                                    <span class="material-symbols-outlined text-[22px]">menu_book</span>
+                                </div>
+                                <p class="text-sm font-bold">Qo'llanma</p>
+                            </div>
+                            <span class="material-symbols-outlined text-white/20">chevron_right</span>
+                        </button>
+                        <button class="w-full glass-card rounded-2xl p-4 flex items-center justify-between group active:scale-[0.98] transition-transform">
+                            <div class="flex items-center gap-4">
+                                <div class="size-10 rounded-xl bg-white/5 flex items-center justify-center text-white/60">
+                                    <span class="material-symbols-outlined text-[22px]">support_agent</span>
+                                </div>
+                                <p class="text-sm font-bold">Bog'lanish</p>
+                            </div>
+                            <span class="material-symbols-outlined text-white/20">chevron_right</span>
+                        </button>
+                        <button class="w-full glass-card rounded-2xl p-4 flex items-center justify-between group active:scale-[0.98] transition-transform">
+                            <div class="flex items-center gap-4">
+                                <div class="size-10 rounded-xl bg-white/5 flex items-center justify-center text-white/60">
+                                    <span class="material-symbols-outlined text-[22px]">handshake</span>
+                                </div>
+                                <p class="text-sm font-bold">Hamkorlik</p>
+                            </div>
+                            <span class="material-symbols-outlined text-white/20">chevron_right</span>
+                        </button>
+                        <button class="w-full glass-card rounded-2xl p-4 flex items-center justify-between group active:scale-[0.98] transition-transform">
+                            <div class="flex items-center gap-4">
+                                <div class="size-10 rounded-xl bg-white/5 flex items-center justify-center text-white/60">
+                                    <span class="material-symbols-outlined text-[22px]">share</span>
+                                </div>
+                                <p class="text-sm font-bold">Do'stlar bilan ulashing</p>
+                            </div>
+                            <span class="material-symbols-outlined text-white/20">chevron_right</span>
+                        </button>
+                    </div>
+                </div>
+                <button class="w-full mt-8 py-4 px-6 rounded-2xl border border-red-500/10 bg-red-500/5 text-red-500/60 flex items-center justify-center gap-2 active:scale-95 transition-all">
+                    <span class="material-symbols-outlined text-[20px]">logout</span>
+                    <span class="text-xs font-black uppercase tracking-[0.2em]">Chiqish</span>
+                </button>
+            </main>
+        </div>
+
+        <!-- Background Gradient -->
+        <div class="fixed top-0 left-0 w-full h-full pointer-events-none -z-10 overflow-hidden opacity-25">
+            <div class="absolute top-[-20%] right-[-10%] w-[80%] h-[80%] bg-primary/20 blur-[180px] rounded-full"></div>
+            <div class="absolute bottom-[-20%] left-[-10%] w-[80%] h-[80%] bg-primary/10 blur-[180px] rounded-full"></div>
+        </div>
+    </div>
+    
+    <!-- Main JavaScript - Inline for instant loading -->
+    <script>
+        // Telegram Web App initialization
+        const tg = window.Telegram?.WebApp;
+        if (tg) {
+            tg.ready();
+            tg.expand();
+            tg.setHeaderColor('#0a0a0b');
+            tg.setBackgroundColor('#0a0a0b');
+        }
+
+        // Global state
+        let currentPage = 'feed';
+        let userData = null;
+        let hasActiveTariff = false;
+
+        // Page navigation - INSTANT (make it global)
+        window.showPage = function(pageName) {
+            if (currentPage === pageName) return;
+            
+            // Hide all pages instantly
+            document.querySelectorAll('.page-container').forEach(page => {
+                page.classList.remove('active');
+            });
+            
+            // Show target page instantly
+            const targetPage = document.getElementById(`page-${pageName}`);
+            if (targetPage) {
+                targetPage.classList.add('active');
+                currentPage = pageName;
+                updateNav(pageName);
+                loadPageData(pageName);
+                window.scrollTo({ top: 0, behavior: 'instant' });
+            }
+        };
+
+        function updateNav(activePage) {
+            document.querySelectorAll('.nav-link').forEach(link => {
+                const page = link.getAttribute('data-page');
+                const icon = link.querySelector('.material-symbols-outlined');
+                
+                if (page === activePage) {
+                    link.classList.remove('text-white/30', 'hover:text-white');
+                    link.classList.add('text-primary');
+                    if (icon) icon.style.fontVariationSettings = "'FILL' 1";
+                } else {
+                    link.classList.remove('text-primary');
+                    link.classList.add('text-white/30', 'hover:text-white');
+                    if (icon) icon.style.fontVariationSettings = "'FILL' 0";
+                }
+            });
+        }
+
+        // Initialize when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initApp);
+        } else {
+            initApp();
+        }
+
+        function initApp() {
+            // Navigation event listeners
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const page = link.getAttribute('data-page');
+                    if (page) window.showPage(page);
+                });
+            });
+            
+            // Initialize user data and load page
+            initUserData().then(() => {
+                // Update UI with user data
+                if (currentPage === 'feed') {
+                    updateFeedTariffInfo();
+                } else if (currentPage === 'profile') {
+                    updateProfileUI();
+                }
+                // Load page data
+                loadPageData(currentPage);
+            }).catch(err => {
+                console.error('Initialization error:', err);
+            });
+        }
+
+        // Load page data
+        async function loadPageData(pageName) {
+            switch(pageName) {
+                case 'feed':
+                    await loadFeedData();
+                    break;
+                case 'requests':
+                    await loadRequestsData();
+                    break;
+                case 'chats':
+                    await loadChatsData();
+                    break;
+                case 'profile':
+                    await loadProfileData();
+                    break;
+            }
+        }
+
+        // Initialize user data
+        async function initUserData() {
+            try {
+                const response = await fetch('/api/user-data', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    credentials: 'same-origin'
+                });
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        console.warn('User not authenticated, redirecting...');
+                        window.location.href = '/';
+                        return;
+                    }
+                    throw new Error(`HTTP ${response.status}: Failed to load user data`);
+                }
+                userData = await response.json();
+                hasActiveTariff = userData.has_active_tariff || false;
+                console.log('User data loaded:', userData);
+            } catch (error) {
+                console.error('Error loading user data:', error);
+                // Retry after 1 second
+                setTimeout(() => {
+                    if (!userData) {
+                        initUserData();
+                    }
+                }, 1000);
+            }
+        }
+
+        // FEED PAGE
+        let feedCurrentPage = 1;
+        let feedIsLoading = false;
+        let feedHasMore = true;
+
+        async function loadFeedData() {
+            // Wait for user data if not loaded yet
+            if (!userData) {
+                await initUserData();
+            }
+            updateFeedTariffInfo();
+            const container = document.getElementById('feed-listings');
+            if (!container || container.children.length === 0 || document.getElementById('feed-skeleton')) {
+                await loadFeedListings(1);
+            }
+        }
+
+        function updateFeedTariffInfo() {
+            const container = document.getElementById('feed-tariff-info');
+            const badge = document.getElementById('feed-tariff-badge');
+            
+            if (!container || !badge) return;
+            
+            if (hasActiveTariff && userData?.active_tariff) {
+                container.innerHTML = `
+                    <div class="glass-card rounded-2xl p-4 flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-bold text-white/80">Aktiv tarif</p>
+                            <p class="text-xs text-primary mt-1">
+                                <span class="font-semibold">${userData.active_tariff.requests_count}</span> ta so'rov qoldi •
+                                ${userData.active_tariff.days_remaining} kun qoldi
+                            </p>
+                        </div>
+                        <a href="/tariff/purchase" class="text-primary text-sm font-semibold hover:underline">Yangilash →</a>
+                    </div>
+                `;
+                badge.innerHTML = `<p class="text-[10px] font-black text-primary uppercase tracking-wider">${userData.active_tariff.requests_count} SO'ROV</p>`;
+            } else {
+                container.innerHTML = `
+                    <div class="glass-card rounded-2xl p-4 mb-4 border border-yellow-500/30 bg-yellow-500/10">
+                        <div class="flex items-center gap-3">
+                            <div class="size-10 rounded-xl bg-yellow-500/20 flex items-center justify-center">
+                                <span class="material-symbols-outlined text-yellow-400 text-[22px]">info</span>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-sm font-bold text-yellow-400">E'lonlarni ko'rishingiz mumkin</p>
+                                <p class="text-[11px] text-yellow-400/80 mt-0.5">So'rov yuborish uchun tarif kerak</p>
+                            </div>
+                            <a href="/tariff/purchase" class="bg-primary text-black px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider active:scale-95 transition-all">
+                                Tarif
+                            </a>
+                        </div>
+                    </div>
+                `;
+                badge.innerHTML = `<a href="/tariff/purchase" class="glass-card px-3 py-1.5 rounded-full text-[10px] font-black text-yellow-400 uppercase tracking-wider">Tarif</a>`;
+            }
+        }
+
+        async function loadFeedListings(page = 1, topOnly = false) {
+            if (feedIsLoading) return;
+            feedIsLoading = true;
+
+            const container = document.getElementById('feed-listings');
+            const skeleton = document.getElementById('feed-skeleton');
+
+            try {
+                if (skeleton && page === 1) {
+                    setTimeout(() => skeleton.style.display = 'none', 100);
+                }
+
+                const response = await fetch(`/feed/api/listings?page=${page}&top_only=${topOnly}`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    credentials: 'same-origin'
+                });
+                if (!response.ok) {
+                    if (response.status === 401 || response.status === 403) {
+                        window.location.href = '/';
+                        return;
+                    }
+                    throw new Error(`HTTP ${response.status}: Failed to load listings`);
+                }
+                const data = await response.json();
+
+                if (skeleton) skeleton.remove();
+                if (page === 1) container.innerHTML = '';
+
+                if (data.listings.length === 0 && page === 1) {
+                    container.innerHTML = '<div class="text-center py-8 text-white/60">E\'lonlar topilmadi</div>';
+                    feedHasMore = false;
+                    return;
+                }
+
+                data.listings.forEach(listing => {
+                    container.appendChild(createFeedListingCard(listing));
+                });
+
+                feedHasMore = data.has_next;
+                const loadMore = document.getElementById('feed-load-more');
+                if (loadMore) loadMore.classList.toggle('hidden', !feedHasMore);
+                feedCurrentPage = page;
+
+            } catch (error) {
+                console.error('Error loading listings:', error);
+                if (skeleton) skeleton.remove();
+                if (container) container.innerHTML = '<div class="text-center py-8 text-red-400">Xatolik yuz berdi</div>';
+            } finally {
+                feedIsLoading = false;
+            }
+        }
+
+        function createFeedListingCard(listing) {
+            const div = document.createElement('article');
+            div.className = 'profile-card glass-card rounded-[22px] overflow-hidden relative flex flex-col group';
+            div.style.height = 'calc((100vh - 220px) / 2.8)';
+            div.style.minHeight = '245px';
+            div.onclick = () => showFeedProfile(listing.user_id);
+
+            const bgImage = listing.photo_url || 'https://via.placeholder.com/400x600?text=' + (listing.name || 'User');
+            
+            div.innerHTML = `
+                <div class="relative flex-1 bg-cover bg-center" style="background-image: url('${bgImage}')">
+                    <div class="absolute inset-0 profile-gradient"></div>
+                    <div class="absolute top-3 left-3 right-3 flex justify-between items-start z-10">
+                        <div class="flex flex-wrap gap-1.5 items-center">
+                            <span class="bg-primary px-2.5 py-1 rounded text-[9px] font-black tracking-widest text-black neon-glow uppercase">#${listing.user_id || '0000'}</span>
+                            ${listing.is_top ? '<div class="tag-premium px-2.5 py-1.5 rounded-xl flex items-center gap-1.5 text-[8px] font-extrabold text-white uppercase tracking-wider shadow-lg"><span class="material-symbols-outlined text-[12px] text-primary">star</span> TOP</div>' : ''}
+                            <div class="tag-premium px-2.5 py-1.5 rounded-xl flex items-center gap-1.5 text-[8px] font-extrabold text-white uppercase tracking-wider shadow-lg">
+                                <span class="material-symbols-outlined text-[12px] text-primary">public</span>
+                                ${listing.nationality || 'O\'zbek'}
+                            </div>
+                            <div class="tag-premium px-2.5 py-1.5 rounded-xl flex items-center gap-1.5 text-[8px] font-extrabold text-white uppercase tracking-wider shadow-lg">
+                                <span class="material-symbols-outlined text-[12px] text-primary">location_on</span>
+                                ${listing.region || 'Toshkent'}
+                            </div>
+                        </div>
+                        <button class="size-8 rounded-full glass-card flex items-center justify-center text-white/80 border-white/20">
+                            <span class="material-symbols-outlined text-[18px]">favorite</span>
+                        </button>
+                    </div>
+                    <div class="absolute bottom-2 left-4 right-4 z-10">
+                        <div class="flex items-baseline gap-2 mb-1">
+                            <h2 class="text-xl font-extrabold tracking-tight">${listing.name || 'Foydalanuvchi'}</h2>
+                            <span class="text-[12px] font-bold text-white/60">${listing.age || '?'} yosh</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-x-3 gap-y-0.5 text-[10px] font-bold text-white">
+                            <span class="flex items-center gap-1.5 truncate">
+                                <span class="material-symbols-outlined text-[13px] text-primary">straighten</span>
+                                ${listing.height || '-'} sm • ${listing.weight || '-'} kg
+                            </span>
+                            <span class="flex items-center gap-1.5 truncate">
+                                <span class="material-symbols-outlined text-[13px] text-primary">family_restroom</span>
+                                ${listing.marital_status || 'Bo\'ydoq'}
+                            </span>
+                            <span class="flex items-center gap-1.5 truncate">
+                                <span class="material-symbols-outlined text-[13px] text-primary">verified_user</span>
+                                ${listing.religious_level || 'O\'rtacha'}
+                            </span>
+                            <span class="flex items-center gap-1.5 truncate">
+                                <span class="material-symbols-outlined text-[13px] text-primary">school</span>
+                                ${listing.education || 'Oliy'}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="glass-strip px-4 py-2 flex justify-between items-center text-[8px] uppercase tracking-[0.12em] font-black">
+                    <div class="flex items-center gap-3 text-white/50">
+                        <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">visibility</span> ${listing.views || 0}</span>
+                        <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">favorite</span> ${listing.likes || 0}</span>
+                    </div>
+                </div>
+            `;
+
+            return div;
+        }
+
+        async function showFeedProfile(userId) {
+            const modal = document.getElementById('feed-profile-modal');
+            const content = document.getElementById('feed-profile-content');
+            if (!modal || !content) return;
+
+            content.innerHTML = '<div class="text-center py-8"><div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div></div>';
+            modal.classList.remove('hidden');
+
+            try {
+                const response = await fetch(`/feed/api/listing/${userId}`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    credentials: 'same-origin'
+                });
+                if (!response.ok) {
+                    if (response.status === 401 || response.status === 403) {
+                        window.location.href = '/';
+                        return;
+                    }
+                    throw new Error(`HTTP ${response.status}: Failed to load profile`);
+                }
+                const profile = await response.json();
+
+                const bgImage = profile.photo_url || 'https://via.placeholder.com/400x600?text=' + (profile.name || 'User');
+
+                content.innerHTML = `
+                    <div class="relative h-[45vh] w-full overflow-hidden rounded-2xl mb-4">
+                        <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('${bgImage}')"></div>
+                        <div class="absolute inset-0 profile-gradient"></div>
+                        <button onclick="window.closeFeedModal()" class="absolute top-4 right-4 size-10 glass-card rounded-full flex items-center justify-center text-white/80">
+                            <span class="material-symbols-outlined">close</span>
+                        </button>
+                        <div class="absolute bottom-6 left-6 right-6">
+                            <div class="flex items-center gap-2 mb-2">
+                                <span class="bg-primary/20 text-primary border border-primary/30 px-2 py-0.5 rounded text-[10px] font-black tracking-widest uppercase">#${profile.user_id || '0000'}</span>
+                            </div>
+                            <h1 class="text-3xl font-extrabold tracking-tight mb-1">${profile.name || 'Foydalanuvchi'}, <span class="text-white/70 font-medium text-2xl">${profile.age || '?'}</span></h1>
+                            <div class="flex items-center gap-1.5 text-white/60 font-medium">
+                                <span class="material-symbols-outlined text-[18px] text-primary">location_on</span>
+                                ${profile.region || 'Toshkent'}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="glass-card rounded-2xl p-4">
+                            <div class="flex items-center gap-2 mb-4 border-b border-white/5 pb-2">
+                                <span class="material-symbols-outlined text-primary text-[20px]">straighten</span>
+                                <h3 class="text-[12px] font-black uppercase tracking-widest text-white/80">Jismoniy ma'lumotlar</h3>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <p class="text-[10px] text-white/40 font-bold uppercase tracking-wider mb-1">Bo'yi</p>
+                                    <p class="text-[14px] text-white font-semibold">${profile.height || '-'} sm</p>
+                                </div>
+                                <div>
+                                    <p class="text-[10px] text-white/40 font-bold uppercase tracking-wider mb-1">Vazni</p>
+                                    <p class="text-[14px] text-white font-semibold">${profile.weight || '-'} kg</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="glass-card rounded-2xl p-4">
+                            <div class="flex items-center gap-2 mb-4 border-b border-white/5 pb-2">
+                                <span class="material-symbols-outlined text-primary text-[20px]">auto_awesome</span>
+                                <h3 class="text-[12px] font-black uppercase tracking-widest text-white/80">Diniy ma'lumotlar</h3>
+                            </div>
+                            <div class="grid grid-cols-2 gap-y-4 gap-x-4">
+                                <div>
+                                    <p class="text-[10px] text-white/40 font-bold uppercase tracking-wider mb-1">Namoz</p>
+                                    <p class="text-[14px] text-white font-semibold">${profile.prays || '-'}</p>
+                                </div>
+                                <div>
+                                    <p class="text-[10px] text-white/40 font-bold uppercase tracking-wider mb-1">Ro'za</p>
+                                    <p class="text-[14px] text-white font-semibold">${profile.fasts || '-'}</p>
+                                </div>
+                                <div class="col-span-2">
+                                    <p class="text-[10px] text-white/40 font-bold uppercase tracking-wider mb-1">Diniy daraja</p>
+                                    <p class="text-[14px] text-white font-semibold">${profile.religious_level || '-'}</p>
+                                </div>
+                            </div>
+                        </div>
+                        ${profile.bio ? `
+                        <div class="glass-card rounded-2xl p-5">
+                            <h3 class="text-[13px] font-black uppercase tracking-widest text-primary mb-3">O'zim haqimda</h3>
+                            <p class="text-[14px] leading-relaxed text-white/80 font-medium">${profile.bio}</p>
+                        </div>
+                        ` : ''}
+                    </div>
+                    ${profile.request_sent ?
+                        '<div class="mt-6 glass-card p-4 rounded-2xl text-center text-white/60">So\'rov allaqachon yuborilgan</div>' :
+                        `<button onclick="window.sendFeedRequest(${userId})" class="mt-6 w-full h-14 bg-gradient-to-r from-primary to-green-500 rounded-2xl flex items-center justify-center gap-2 text-black font-extrabold text-[15px] tracking-widest uppercase neon-glow active:scale-95 transition-all">SO'ROV YUBORISH 💌</button>`
+                    }
+                `;
+            } catch (error) {
+                console.error('Error loading profile:', error);
+                content.innerHTML = '<div class="text-center py-8 text-red-400">Xatolik yuz berdi</div>';
+            }
+        }
+
+        window.closeFeedModal = function() {
+            const modal = document.getElementById('feed-profile-modal');
+            if (modal) modal.classList.add('hidden');
+        };
+
+        window.sendFeedRequest = async function(receiverId) {
+            if (!hasActiveTariff) {
+                alert('So\'rov yuborish uchun tarif kerak. Iltimos, tarif sotib oling.');
+                window.showPage('profile');
+                return;
+            }
+            
+            if (!confirm('Ushbu foydalanuvchiga so\'rov yuborasizmi?')) return;
+
+            try {
+                const response = await fetch('/requests/api/send', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({receiver_id: receiverId})
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    alert('So\'rov muvaffaqiyatli yuborildi!');
+                    window.closeFeedModal();
+                    window.showPage('requests');
+                } else {
+                    alert(data.error || 'Xatolik yuz berdi');
+                }
+            } catch (error) {
+                alert('Xatolik yuz berdi');
+            }
+        };
+
+        // Feed event listeners - use event delegation
+        document.addEventListener('change', (e) => {
+            if (e.target.id === 'feed-top-only') {
+                feedCurrentPage = 1;
+                loadFeedListings(1, e.target.checked);
+            }
+        });
+
+        document.addEventListener('click', (e) => {
+            if (e.target.id === 'feed-load-more-btn' || e.target.closest('#feed-load-more-btn')) {
+                feedCurrentPage++;
+                const topOnly = document.getElementById('feed-top-only')?.checked || false;
+                loadFeedListings(feedCurrentPage, topOnly);
+            }
+        });
+
+        // REQUESTS PAGE
+        let requestsCurrentTab = 'received';
+
+        async function loadRequestsData() {
+            // Wait for user data if not loaded yet
+            if (!userData) {
+                await initUserData();
+            }
+            updateRequestsTariffInfo();
+            await loadReceivedRequests();
+        }
+
+        function updateRequestsTariffInfo() {
+            const container = document.getElementById('requests-tariff-info');
+            if (!container) return;
+            
+            if (!hasActiveTariff) {
+                container.innerHTML = `
+                    <div class="glass-card rounded-2xl p-5 mb-4 border border-yellow-500/30 bg-yellow-500/10">
+                        <div class="flex items-center gap-3 mb-3">
+                            <div class="size-12 rounded-xl bg-yellow-500/20 flex items-center justify-center">
+                                <span class="material-symbols-outlined text-yellow-400 text-[28px]">workspace_premium</span>
+                            </div>
+                            <div>
+                                <h3 class="text-base font-bold text-yellow-400">Tarif kerak</h3>
+                                <p class="text-[11px] text-yellow-400/80">So'rov yuborish uchun tarif sotib oling</p>
+                            </div>
+                        </div>
+                        <a href="/tariff/purchase" class="block w-full bg-primary text-black py-3 rounded-xl text-center font-bold text-sm uppercase tracking-wider neon-glow active:scale-95 transition-all">
+                            Tarif sotib olish
+                        </a>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = '';
+            }
+        }
+
+        function switchRequestsTab(tab) {
+            requestsCurrentTab = tab;
+            
+            if (tab === 'received') {
+                document.getElementById('requests-received-tab')?.classList.add('text-primary', 'active-neon-btn');
+                document.getElementById('requests-received-tab')?.classList.remove('text-white/40');
+                document.getElementById('requests-sent-tab')?.classList.remove('text-primary', 'active-neon-btn');
+                document.getElementById('requests-sent-tab')?.classList.add('text-white/40');
+                document.getElementById('requests-received-container')?.classList.remove('hidden');
+                document.getElementById('requests-sent-container')?.classList.add('hidden');
+                loadReceivedRequests();
+            } else {
+                document.getElementById('requests-sent-tab')?.classList.add('text-primary', 'active-neon-btn');
+                document.getElementById('requests-sent-tab')?.classList.remove('text-white/40');
+                document.getElementById('requests-received-tab')?.classList.remove('text-primary', 'active-neon-btn');
+                document.getElementById('requests-received-tab')?.classList.add('text-white/40');
+                document.getElementById('requests-sent-container')?.classList.remove('hidden');
+                document.getElementById('requests-received-container')?.classList.add('hidden');
+                loadSentRequests();
+            }
+        }
+
+        async function loadReceivedRequests() {
+            const container = document.getElementById('requests-received-container');
+            const skeleton = document.getElementById('requests-received-skeleton');
+            
+            if (!container) return;
+            
+            try {
+                if (skeleton) setTimeout(() => skeleton.style.display = 'none', 100);
+                
+                const response = await fetch('/requests/api/received', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    credentials: 'same-origin'
+                });
+                if (!response.ok) {
+                    if (response.status === 401 || response.status === 403) {
+                        window.location.href = '/';
+                        return;
+                    }
+                    throw new Error(`HTTP ${response.status}: Failed to load requests`);
+                }
+                const data = await response.json();
+
+                if (skeleton) skeleton.remove();
+                container.innerHTML = '';
+
+                if (data.requests.length === 0) {
+                    container.innerHTML = '<div class="text-center py-8 text-white/60">Qabul qilingan so\'rovlar yo\'q</div>';
+                    return;
+                }
+                
+                const badge = document.getElementById('requests-received-badge');
+                if (badge && data.count > 0) {
+                    badge.textContent = data.count;
+                    badge.classList.remove('hidden');
+                }
+
+                data.requests.forEach(request => {
+                    container.appendChild(createReceivedRequestCard(request));
+                });
+
+            } catch (error) {
+                console.error('Error loading received requests:', error);
+                if (skeleton) skeleton.remove();
+                container.innerHTML = '<div class="text-center py-8 text-red-400">Xatolik yuz berdi</div>';
+            }
+        }
+
+        async function loadSentRequests() {
+            const container = document.getElementById('requests-sent-container');
+            const skeleton = document.getElementById('requests-sent-skeleton');
+            
+            if (!container) return;
+            
+            try {
+                if (skeleton) setTimeout(() => skeleton.style.display = 'none', 100);
+                
+                const response = await fetch('/requests/api/sent', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    credentials: 'same-origin'
+                });
+                if (!response.ok) {
+                    if (response.status === 401 || response.status === 403) {
+                        window.location.href = '/';
+                        return;
+                    }
+                    throw new Error(`HTTP ${response.status}: Failed to load requests`);
+                }
+                const data = await response.json();
+
+                if (skeleton) skeleton.remove();
+                container.innerHTML = '';
+
+                if (data.requests.length === 0) {
+                    container.innerHTML = '<div class="text-center py-8 text-white/60">Yuborilgan so\'rovlar yo\'q</div>';
+                    return;
+                }
+                
+                const badge = document.getElementById('requests-sent-badge');
+                if (badge && data.count > 0) {
+                    badge.textContent = data.count;
+                    badge.classList.remove('hidden');
+                }
+
+                data.requests.forEach(request => {
+                    container.appendChild(createSentRequestCard(request));
+                });
+
+            } catch (error) {
+                console.error('Error loading sent requests:', error);
+                if (skeleton) skeleton.remove();
+                container.innerHTML = '<div class="text-center py-8 text-red-400">Xatolik yuz berdi</div>';
+            }
+        }
+
+        function createReceivedRequestCard(request) {
+            const div = document.createElement('article');
+            div.className = 'profile-card glass-card rounded-[28px] overflow-hidden relative flex flex-col group';
+            div.style.height = 'calc((100vh - 220px) / 2.8)';
+            div.style.minHeight = '245px';
+
+            const statusBadge = request.status === 'pending' 
+                ? '<div class="status-pending px-3 py-1 rounded-full flex items-center gap-1.5"><span class="material-symbols-outlined text-[14px]">pending_actions</span> KUTILMOQDA</div>'
+                : request.status === 'accepted'
+                ? '<div class="bg-green-500/20 border-green-500/40 text-green-400 px-3 py-1 rounded-full flex items-center gap-1.5 text-[9px] font-black uppercase"><span class="material-symbols-outlined text-[14px]">check_circle</span> QABUL QILINDI</div>'
+                : '<div class="status-rejected px-3 py-1 rounded-full flex items-center gap-1.5"><span class="material-symbols-outlined text-[14px]">cancel</span> RAD ETILDI</div>';
+
+            const bgImage = 'https://via.placeholder.com/400x600?text=' + (request.sender_name || 'User');
+            
+            div.innerHTML = `
+                <div class="relative flex-1 bg-cover bg-center" style="background-image: url('${bgImage}')">
+                    <div class="absolute inset-0 profile-gradient"></div>
+                    <div class="absolute top-4 left-4 right-4 flex justify-between items-start z-10">
+                        <div class="flex flex-wrap items-center gap-1.5">
+                            <span class="bg-primary px-2.5 py-1 rounded text-[10px] font-black tracking-widest text-black neon-glow uppercase">#${request.sender_id || '0000'}</span>
+                        </div>
+                    </div>
+                    <div class="absolute bottom-3 left-5 right-5 z-10">
+                        <div class="flex items-baseline gap-2 mb-1.5">
+                            <h2 class="text-2xl font-extrabold tracking-tight">${request.sender_name || 'Foydalanuvchi'}</h2>
+                        </div>
+                        ${request.message ? `<p class="text-sm text-white/80 mt-2 line-clamp-2">${request.message}</p>` : ''}
+                    </div>
+                </div>
+                <div class="glass-strip px-5 py-3 flex justify-between items-center text-[9px] uppercase tracking-[0.15em] font-black">
+                    <div class="flex items-center gap-3.5 text-white/50">
+                        <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[15px]">schedule</span> ${formatTimeAgo(new Date(request.created_at))}</span>
+                    </div>
+                    ${statusBadge}
+                </div>
+                ${request.status === 'pending' ? `
+                    <div class="glass-strip px-5 py-3 flex gap-2">
+                        <button onclick="window.acceptRequest(${request.id})" class="flex-1 bg-green-500/20 border-green-500/40 text-green-400 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-wider hover:bg-green-500/30 transition active:scale-95">
+                            Qabul qilish
+                        </button>
+                        <button onclick="window.rejectRequest(${request.id})" class="flex-1 bg-red-500/20 border-red-500/40 text-red-400 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-wider hover:bg-red-500/30 transition active:scale-95">
+                            Rad etish
+                        </button>
+                    </div>
+                ` : ''}
+                ${request.chat_id ? `
+                    <div class="glass-strip px-5 py-3">
+                        <a href="/chat/${request.chat_id}" class="block text-center bg-primary/20 border-primary/40 text-primary py-2.5 rounded-xl font-black text-[10px] uppercase tracking-wider hover:bg-primary/30 transition">
+                            Chatga o'tish
+                        </a>
+                    </div>
+                ` : ''}
+            `;
+
+            return div;
+        }
+
+        function createSentRequestCard(request) {
+            const div = document.createElement('article');
+            div.className = 'profile-card glass-card rounded-[28px] overflow-hidden relative flex flex-col group';
+            div.style.height = 'calc((100vh - 220px) / 2.8)';
+            div.style.minHeight = '245px';
+
+            const statusBadge = request.status === 'pending' 
+                ? '<div class="status-pending px-3 py-1 rounded-full flex items-center gap-1.5"><span class="material-symbols-outlined text-[14px]">pending_actions</span> KUTILMOQDA</div>'
+                : request.status === 'accepted'
+                ? '<div class="bg-green-500/20 border-green-500/40 text-green-400 px-3 py-1 rounded-full flex items-center gap-1.5 text-[9px] font-black uppercase"><span class="material-symbols-outlined text-[14px]">check_circle</span> QABUL QILINDI</div>'
+                : '<div class="status-rejected px-3 py-1 rounded-full flex items-center gap-1.5"><span class="material-symbols-outlined text-[14px]">cancel</span> RAD ETILDI</div>';
+
+            const bgImage = 'https://via.placeholder.com/400x600?text=' + (request.receiver_name || 'User');
+            
+            div.innerHTML = `
+                <div class="relative flex-1 bg-cover bg-center" style="background-image: url('${bgImage}')">
+                    <div class="absolute inset-0 profile-gradient"></div>
+                    <div class="absolute top-4 left-4 right-4 flex justify-between items-start z-10">
+                        <div class="flex flex-wrap items-center gap-1.5">
+                            <span class="bg-primary px-2.5 py-1 rounded text-[10px] font-black tracking-widest text-black neon-glow uppercase">#${request.receiver_id || '0000'}</span>
+                        </div>
+                    </div>
+                    <div class="absolute bottom-3 left-5 right-5 z-10">
+                        <div class="flex items-baseline gap-2 mb-1.5">
+                            <h2 class="text-2xl font-extrabold tracking-tight">${request.receiver_name || 'Foydalanuvchi'}</h2>
+                        </div>
+                        ${request.message ? `<p class="text-sm text-white/80 mt-2 line-clamp-2">${request.message}</p>` : ''}
+                    </div>
+                </div>
+                <div class="glass-strip px-5 py-3 flex justify-between items-center text-[9px] uppercase tracking-[0.15em] font-black">
+                    <div class="flex items-center gap-3.5 text-white/50">
+                        <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[15px]">schedule</span> ${formatTimeAgo(new Date(request.created_at))}</span>
+                    </div>
+                    ${statusBadge}
+                </div>
+                ${request.status === 'pending' ? `
+                    <div class="glass-strip px-5 py-3">
+                        <button onclick="window.cancelRequest(${request.id})" class="w-full bg-gray-500/20 border-gray-500/40 text-gray-400 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-wider hover:bg-gray-500/30 transition active:scale-95">
+                            Bekor qilish
+                        </button>
+                    </div>
+                ` : ''}
+                ${request.chat_id ? `
+                    <div class="glass-strip px-5 py-3">
+                        <a href="/chat/${request.chat_id}" class="block text-center bg-primary/20 border-primary/40 text-primary py-2.5 rounded-xl font-black text-[10px] uppercase tracking-wider hover:bg-primary/30 transition">
+                            Chatga o'tish
+                        </a>
+                    </div>
+                ` : ''}
+            `;
+
+            return div;
+        }
+
+        window.acceptRequest = async function(requestId) {
+            if (!confirm('Ushbu so\'rovni qabul qilasizmi?')) return;
+            try {
+                const response = await fetch(`/requests/api/${requestId}/accept`, { 
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    credentials: 'same-origin'
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    alert('So\'rov qabul qilindi!');
+                    loadReceivedRequests();
+                } else {
+                    alert(data.error || 'Xatolik yuz berdi');
+                }
+            } catch (error) {
+                alert('Xatolik yuz berdi');
+            }
+        };
+
+        window.rejectRequest = async function(requestId) {
+            if (!confirm('Ushbu so\'rovni rad qilasizmi?')) return;
+            try {
+                const response = await fetch(`/requests/api/${requestId}/reject`, { 
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    credentials: 'same-origin'
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    alert('So\'rov rad etildi');
+                    loadReceivedRequests();
+                } else {
+                    alert(data.error || 'Xatolik yuz berdi');
+                }
+            } catch (error) {
+                alert('Xatolik yuz berdi');
+            }
+        };
+
+        window.cancelRequest = async function(requestId) {
+            if (!confirm('Ushbu so\'rovni bekor qilasizmi?')) return;
+            try {
+                const response = await fetch(`/requests/api/${requestId}/cancel`, { 
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    credentials: 'same-origin'
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    alert('So\'rov bekor qilindi');
+                    loadSentRequests();
+                } else {
+                    alert(data.error || 'Xatolik yuz berdi');
+                }
+            } catch (error) {
+                alert('Xatolik yuz berdi');
+            }
+        };
+
+        // Requests event listeners - use event delegation
+        document.addEventListener('click', (e) => {
+            if (e.target.id === 'requests-received-tab' || e.target.closest('#requests-received-tab')) {
+                switchRequestsTab('received');
+            } else if (e.target.id === 'requests-sent-tab' || e.target.closest('#requests-sent-tab')) {
+                switchRequestsTab('sent');
+            }
+        });
+
+        // CHATS PAGE
+        async function loadChatsData() {
+            const container = document.getElementById('chats-list');
+            const skeleton = document.getElementById('chats-skeleton');
+            
+            if (!container) return;
+            
+            try {
+                if (skeleton) setTimeout(() => skeleton.style.display = 'none', 100);
+                
+                const response = await fetch('/chat/api/list', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    credentials: 'same-origin'
+                });
+                if (!response.ok) {
+                    if (response.status === 401 || response.status === 403) {
+                        window.location.href = '/';
+                        return;
+                    }
+                    throw new Error(`HTTP ${response.status}: Failed to load chats`);
+                }
+                const data = await response.json();
+
+                if (skeleton) skeleton.remove();
+                container.innerHTML = '';
+
+                if (data.chats.length === 0) {
+                    container.innerHTML = '<div class="text-center py-8 text-white/60">Chatlar yo\'q</div>';
+                    return;
+                }
+
+                data.chats.forEach(chat => {
+                    container.appendChild(createChatCard(chat));
+                });
+
+            } catch (error) {
+                console.error('Error loading chats:', error);
+                if (skeleton) skeleton.remove();
+                container.innerHTML = '<div class="text-center py-8 text-red-400">Xatolik yuz berdi</div>';
+            }
+        }
+
+        function createChatCard(chat) {
+            const div = document.createElement('div');
+            div.className = 'glass-card rounded-2xl p-4 cursor-pointer hover:bg-white/5 transition active:scale-[0.98]';
+            div.onclick = () => window.location.href = `/chat/${chat.id}`;
+
+            const lastMsg = chat.last_message;
+            const timeAgo = lastMsg ? formatTimeAgo(new Date(lastMsg.created_at)) : '';
+            const unreadBadge = chat.unread_count > 0 ? `
+                <span class="absolute -top-1 -right-1 bg-primary text-black text-[10px] font-black px-1.5 rounded-full min-w-[18px] h-[18px] flex items-center justify-center border-2 border-background-dark">
+                    ${chat.unread_count}
+                </span>
+            ` : '';
+
+            div.innerHTML = `
+                <div class="flex items-center gap-3">
+                    <div class="relative size-14 rounded-full overflow-hidden border-2 border-white/10">
+                        <div class="w-full h-full bg-gradient-to-br from-primary/20 to-green-500/20 flex items-center justify-center text-2xl font-bold">
+                            ${chat.other_user.name ? chat.other_user.name.charAt(0).toUpperCase() : '?'}
+                        </div>
+                        ${chat.is_active && !chat.is_expired ? `
+                            <div class="absolute bottom-0 right-0 size-3 bg-primary rounded-full border-2 border-background-dark"></div>
+                        ` : ''}
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center justify-between mb-1">
+                            <h3 class="text-base font-bold text-white truncate">${chat.other_user.name || 'Foydalanuvchi'}</h3>
+                            <span class="text-[10px] text-white/40 ml-2">${timeAgo}</span>
+                        </div>
+                        ${lastMsg ? `
+                            <p class="text-sm text-white/60 truncate">${lastMsg.is_mine ? 'Siz: ' : ''}${lastMsg.content}</p>
+                        ` : '<p class="text-sm text-white/40">Chat boshlandi</p>'}
+                        ${chat.is_expired ? `
+                            <p class="text-[10px] text-red-400 mt-1">Muddati tugagan</p>
+                        ` : chat.days_remaining !== null ? `
+                            <p class="text-[10px] text-primary mt-1">${chat.days_remaining} kun qoldi</p>
+                        ` : ''}
+                    </div>
+                    ${unreadBadge}
+                </div>
+            `;
+
+            return div;
+        }
+
+        // PROFILE PAGE
+        async function loadProfileData() {
+            if (!userData) {
+                await initUserData();
+            }
+            updateProfileUI();
+        }
+
+        function updateProfileUI() {
+            if (!userData) return;
+            
+            const avatar = document.getElementById('profile-avatar');
+            const name = document.getElementById('profile-name');
+            const telegramId = document.getElementById('profile-telegram-id');
+            const views = document.getElementById('profile-views');
+            const likes = document.getElementById('profile-likes');
+            const requests = document.getElementById('profile-requests');
+            const statusText = document.getElementById('profile-status-text');
+            const toggle = document.getElementById('profile-toggle');
+            const topBtn = document.getElementById('profile-top-btn');
+            
+            if (avatar) avatar.textContent = userData.profile?.name?.[0] || '?';
+            if (name) name.textContent = userData.profile?.name || 'Foydalanuvchi';
+            if (telegramId) telegramId.textContent = `#${userData.telegram_id || '0'}`;
+            if (views) views.textContent = userData.profile?.views || 0;
+            if (likes) likes.textContent = userData.profile?.likes || 0;
+            if (requests) requests.textContent = userData.sent_requests_count || 0;
+            
+            const isActive = userData.profile?.is_active || false;
+            if (statusText) statusText.textContent = isActive ? 'Aktiv' : 'Passiv';
+            if (toggle) toggle.checked = isActive;
+            
+            if (hasActiveTariff && topBtn) {
+                topBtn.classList.remove('hidden');
+            } else if (topBtn) {
+                topBtn.classList.add('hidden');
+            }
+        }
+
+        // Profile toggle event listener - use event delegation
+        document.addEventListener('change', async (e) => {
+            if (e.target.id === 'profile-toggle') {
+                const toggle = e.target;
+                try {
+                    const response = await fetch('/profile/toggle-active', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'}
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (response.ok) {
+                        await initUserData();
+                        updateProfileUI();
+                    } else {
+                        alert(data.error || 'Xatolik yuz berdi');
+                        toggle.checked = !toggle.checked;
+                    }
+                } catch (error) {
+                    alert('Xatolik yuz berdi');
+                    toggle.checked = !toggle.checked;
+                }
+            }
+        });
+
+        // Utility functions
+        function formatTimeAgo(date) {
+            if (!date || isNaN(date.getTime())) return 'hozir';
+            const now = new Date();
+            const diff = now - date;
+            const minutes = Math.floor(diff / 60000);
+            const hours = Math.floor(diff / 3600000);
+            const days = Math.floor(diff / 86400000);
+
+            if (minutes < 1) return 'hozir';
+            if (minutes < 60) return `${minutes}min`;
+            if (hours < 24) return `${hours}soat`;
+            if (days < 7) return `${days}kun`;
+            return date.toLocaleDateString('uz-UZ', { day: 'numeric', month: 'short' });
+        }
+    </script>
+</body>
+</html>

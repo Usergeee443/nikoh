@@ -13,6 +13,7 @@ class Config:
     # Telegram Bot settings
     TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
     TELEGRAM_WEBHOOK_URL = os.getenv('TELEGRAM_WEBHOOK_URL')
+    TELEGRAM_BOT_USERNAME = os.getenv('TELEGRAM_BOT_USERNAME', 'nikoh_bot')
 
     # Mini App settings
     MINI_APP_URL = os.getenv('MINI_APP_URL', 'https://your-app.com')
@@ -20,11 +21,23 @@ class Config:
     # Admin settings
     ADMIN_TELEGRAM_IDS = os.getenv('ADMIN_TELEGRAM_IDS', '').split(',')
 
-    # Tariff settings
+    # Tariff settings - KUMUSH (Silver)
     KUMUSH_TARIFF_REQUESTS = 5  # 5 ta so'rov
     KUMUSH_TARIFF_DAYS = 10  # 10 kun e'lon
-    KUMUSH_TARIFF_TOP_DAYS = 3  # 3 kun TOP
+    KUMUSH_TARIFF_TOP_DAYS = 0  # TOP yo'q
     KUMUSH_TARIFF_PRICE = 50000  # 50,000 so'm
+    
+    # Tariff settings - OLTIN (Gold)
+    OLTIN_TARIFF_REQUESTS = 10  # 10 ta so'rov
+    OLTIN_TARIFF_DAYS = 15  # 15 kun e'lon
+    OLTIN_TARIFF_TOP_DAYS = 7  # 7 kun TOP
+    OLTIN_TARIFF_PRICE = 100000  # 100,000 so'm
+    
+    # Tariff settings - VIP
+    VIP_TARIFF_REQUESTS = 20  # 20 ta so'rov
+    VIP_TARIFF_DAYS = 30  # 30 kun e'lon
+    VIP_TARIFF_TOP_DAYS = 15  # 15 kun TOP
+    VIP_TARIFF_PRICE = 250000  # 250,000 so'm
 
     # Chat settings
     CHAT_DURATION_DAYS = 7  # 7 kunlik chat
