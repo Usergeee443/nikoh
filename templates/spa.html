@@ -276,6 +276,77 @@
                 from { opacity: 0; transform: translateY(4px); }
                 to { opacity: 1; transform: translateY(0); }
             }
+            /* Onboarding styles */
+            .onboarding-dot {
+                @apply size-2 rounded-full bg-white/20 transition-all duration-300;
+            }
+            .onboarding-dot.active {
+                @apply w-8 bg-primary;
+            }
+            .onboarding-dot.completed {
+                @apply bg-primary/60;
+            }
+            .onboarding-step {
+                @apply absolute inset-0 opacity-0 pointer-events-none transition-all duration-300;
+                transform: translateX(30px);
+            }
+            .onboarding-step.active {
+                @apply opacity-100 pointer-events-auto;
+                transform: translateX(0);
+            }
+            .onboarding-step.prev {
+                transform: translateX(-30px);
+            }
+            .onboarding-option-card {
+                @apply cursor-pointer block;
+            }
+            .onboarding-option-card .card-inner {
+                @apply glass-card rounded-2xl p-5 flex flex-col items-center justify-center text-center transition-all duration-200 border border-transparent;
+            }
+            .onboarding-option-card input:checked + .card-inner {
+                @apply border-primary bg-primary/10;
+            }
+            .onboarding-option-card input:checked + .card-inner .material-symbols-outlined {
+                @apply text-primary;
+            }
+            .onboarding-option-card.small .card-inner {
+                @apply p-4;
+            }
+            .onboarding-chip {
+                @apply cursor-pointer block;
+            }
+            .onboarding-chip span {
+                @apply glass-card rounded-xl py-3 px-4 text-sm font-semibold text-center block transition-all duration-200 border border-transparent;
+            }
+            .onboarding-chip input:checked + span {
+                @apply border-primary bg-primary/10 text-primary;
+            }
+            .onboarding-list-option {
+                @apply cursor-pointer glass-card rounded-2xl p-4 flex items-center justify-between transition-all duration-200 border border-transparent;
+            }
+            .onboarding-list-option .option-content {
+                @apply flex items-center gap-3 text-white/80;
+            }
+            .onboarding-list-option .check-icon {
+                @apply text-transparent text-xl transition-colors;
+            }
+            .onboarding-list-option input:checked ~ .option-content {
+                @apply text-primary;
+            }
+            .onboarding-list-option:has(input:checked) {
+                @apply border-primary/40 bg-primary/5;
+            }
+            .onboarding-list-option:has(input:checked) .check-icon {
+                @apply text-primary;
+            }
+            @keyframes shake {
+                0%, 100% { transform: translateX(0); }
+                20%, 60% { transform: translateX(-5px); }
+                40%, 80% { transform: translateX(5px); }
+            }
+            .shake {
+                animation: shake 0.4s ease-in-out;
+            }
         }
     </style>
     
@@ -325,239 +396,374 @@
         </nav>
 
         <!-- ONBOARDING OVERLAY -->
-        <div id="onboarding-overlay" class="fixed inset-0 z-50 bg-background-dark flex flex-col max-w-md mx-auto w-full">
-            <form id="onboarding-form" class="flex-1 overflow-y-auto ios-scroll-hide px-6 pt-8 pb-24 space-y-6">
-                <header class="mb-4">
-                    <div class="flex items-center justify-between mb-3">
-                        <div class="w-10 h-10"></div>
+        <div id="onboarding-overlay" class="fixed inset-0 z-50 bg-background-dark flex flex-col max-w-md mx-auto w-full hidden">
+            <form id="onboarding-form" class="flex-1 flex flex-col overflow-hidden">
+                <!-- Header with progress -->
+                <header class="px-6 pt-6 pb-4">
+                    <div class="flex items-center justify-between mb-4">
+                        <button type="button" id="onboarding-back-btn" onclick="onboardingPrevStep()" class="size-10 glass-card rounded-xl flex items-center justify-center active:scale-95 transition-transform opacity-0 pointer-events-none">
+                            <span class="material-symbols-outlined text-white/80 text-xl">arrow_back</span>
+                        </button>
                         <div class="flex flex-col items-center">
-                            <span class="text-[10px] font-black tracking-widest text-primary/60 uppercase">Ro'yxatdan o'tish</span>
-                            <span class="text-sm font-bold">Profil ma'lumotlari</span>
+                            <span class="text-[10px] font-black tracking-widest text-primary/60 uppercase">Qadam <span id="onboarding-step-num">1</span>/5</span>
+                            <span id="onboarding-step-title" class="text-sm font-bold">Tanishib olaylik</span>
                         </div>
-                        <div class="w-10 h-10"></div>
+                        <div class="size-10"></div>
                     </div>
-                    <div class="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
-                        <div class="h-full bg-primary neon-glow transition-all duration-700" style="width: 100%"></div>
+                    <!-- Progress dots -->
+                    <div class="flex items-center justify-center gap-2">
+                        <div class="onboarding-dot active"></div>
+                        <div class="onboarding-dot"></div>
+                        <div class="onboarding-dot"></div>
+                        <div class="onboarding-dot"></div>
+                        <div class="onboarding-dot"></div>
                     </div>
                 </header>
 
-                <!-- Shaxsiy ma'lumotlar -->
-                <section class="space-y-4">
-                    <h2 class="text-xs font-black uppercase tracking-[0.2em] text-white/40">Shaxsiy ma'lumotlar</h2>
-                    <div>
-                        <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-white/60 mb-2">Ism *</label>
-                        <input name="name" required class="w-full glass-card glass-input rounded-2xl px-4 py-3.5 text-sm" placeholder="Ismingizni kiriting">
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-white/60 mb-2">Jins *</label>
-                        <select name="gender" required class="w-full glass-card glass-input rounded-2xl px-4 py-3.5 text-sm">
-                            <option value="">Tanlang</option>
-                            <option value="Erkak">Erkak</option>
-                            <option value="Ayol">Ayol</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-white/60 mb-2">Tug'ilgan yil *</label>
-                        <select name="birth_year" required class="w-full glass-card glass-input rounded-2xl px-4 py-3.5 text-sm">
-                            <option value="">Tanlang</option>
-                            {% for year in range(2006, 1959, -1) %}
-                            <option value="{{ year }}">{{ year }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-white/60 mb-2">Hudud *</label>
-                        <select name="region" required class="w-full glass-card glass-input rounded-2xl px-4 py-3.5 text-sm">
-                            <option value="">Tanlang</option>
-                            <option value="Toshkent shahar">Toshkent shahar</option>
-                            <option value="Toshkent viloyati">Toshkent viloyati</option>
-                            <option value="Samarqand">Samarqand</option>
-                            <option value="Buxoro">Buxoro</option>
-                            <option value="Andijon">Andijon</option>
-                            <option value="Farg'ona">Farg'ona</option>
-                            <option value="Namangan">Namangan</option>
-                            <option value="Qashqadaryo">Qashqadaryo</option>
-                            <option value="Surxondaryo">Surxondaryo</option>
-                            <option value="Xorazm">Xorazm</option>
-                            <option value="Qoraqalpog'iston">Qoraqalpog'iston</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-white/60 mb-2">Millati *</label>
-                        <select name="nationality" required class="w-full glass-card glass-input rounded-2xl px-4 py-3.5 text-sm">
-                            <option value="">Tanlang</option>
-                            <option value="O'zbek">O'zbek</option>
-                            <option value="Rus">Rus</option>
-                            <option value="Tojik">Tojik</option>
-                            <option value="Qozoq">Qozoq</option>
-                            <option value="Qoraqalpoq">Qoraqalpoq</option>
-                            <option value="Boshqa">Boshqa</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-white/60 mb-2">Oilaviy holati *</label>
-                        <select name="marital_status" required class="w-full glass-card glass-input rounded-2xl px-4 py-3.5 text-sm">
-                            <option value="">Tanlang</option>
-                            <option value="Bo'ydoq">Bo'ydoq</option>
-                            <option value="Ajrashgan">Ajrashgan</option>
-                        </select>
-                    </div>
-                </section>
-
-                <!-- Jismoniy ma'lumotlar -->
-                <section class="space-y-4">
-                    <h2 class="text-xs font-black uppercase tracking-[0.2em] text-white/40">Jismoniy ma'lumotlar</h2>
-                    <div>
-                        <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-white/60 mb-2">Bo'y (sm) *</label>
-                        <select name="height" required class="w-full glass-card glass-input rounded-2xl px-4 py-3.5 text-sm">
-                            <option value="">Tanlang</option>
-                            {% for height in range(140, 220, 1) %}
-                            <option value="{{ height }}">{{ height }} sm</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-white/60 mb-2">Vazn (kg) *</label>
-                        <select name="weight" required class="w-full glass-card glass-input rounded-2xl px-4 py-3.5 text-sm">
-                            <option value="">Tanlang</option>
-                            {% for weight in range(40, 150, 1) %}
-                            <option value="{{ weight }}">{{ weight }} kg</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                </section>
-
-                <!-- Diniy ma'lumotlar -->
-                <section class="space-y-4">
-                    <h2 class="text-xs font-black uppercase tracking-[0.2em] text-white/40">Diniy ma'lumotlar</h2>
-                    <div>
-                        <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-white/60 mb-2">Namoz o'qiydimi? *</label>
-                        <select name="prays" required class="w-full glass-card glass-input rounded-2xl px-4 py-3.5 text-sm">
-                            <option value="">Tanlang</option>
-                            <option value="Ha">Ha</option>
-                            <option value="Ba'zan">Ba'zan</option>
-                            <option value="Yo'q">Yo'q</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-white/60 mb-2">Ro'za tutadimi? *</label>
-                        <select name="fasts" required class="w-full glass-card glass-input rounded-2xl px-4 py-3.5 text-sm">
-                            <option value="">Tanlang</option>
-                            <option value="Ha">Ha</option>
-                            <option value="Ba'zan">Ba'zan</option>
-                            <option value="Yo'q">Yo'q</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-white/60 mb-2">Diniy daraja *</label>
-                        <select name="religious_level" required class="w-full glass-card glass-input rounded-2xl px-4 py-3.5 text-sm">
-                            <option value="">Tanlang</option>
-                            <option value="Jiddiy">Jiddiy</option>
-                            <option value="O'rtacha">O'rtacha</option>
-                            <option value="Yengil">Yengil</option>
-                        </select>
-                    </div>
-                </section>
-
-                <!-- Ta'lim va kasb -->
-                <section class="space-y-4">
-                    <h2 class="text-xs font-black uppercase tracking-[0.2em] text-white/40">Ta'lim va kasb</h2>
-                    <div>
-                        <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-white/60 mb-2">Ta'lim *</label>
-                        <select name="education" required class="w-full glass-card glass-input rounded-2xl px-4 py-3.5 text-sm">
-                            <option value="">Tanlang</option>
-                            <option value="Oliy">Oliy</option>
-                            <option value="O'rta maxsus">O'rta maxsus</option>
-                            <option value="O'rta">O'rta</option>
-                            <option value="O'rta bo'lmagan">O'rta bo'lmagan</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-white/60 mb-2">Kasb *</label>
-                        <input name="profession" required class="w-full glass-card glass-input rounded-2xl px-4 py-3.5 text-sm" placeholder="Kasbingizni yozing">
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-white/60 mb-2">Ishlaydimi? *</label>
-                        <select name="is_working" required class="w-full glass-card glass-input rounded-2xl px-4 py-3.5 text-sm">
-                            <option value="">Tanlang</option>
-                            <option value="true">Ha</option>
-                            <option value="false">Yo'q</option>
-                        </select>
-                    </div>
-                </section>
-
-                <!-- Juftga qo'yiladigan talablar -->
-                <section class="space-y-4">
-                    <h2 class="text-xs font-black uppercase tracking-[0.2em] text-white/40">Juftga qo'yiladigan talablar</h2>
-                    <div>
-                        <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-white/60 mb-2">Yosh oralig'i *</label>
-                        <div class="flex gap-2">
-                            <select name="partner_age_min" required class="flex-1 glass-card glass-input rounded-2xl px-4 py-3.5 text-sm">
-                                <option value="">Min</option>
-                                {% for age in range(18, 70, 1) %}
-                                <option value="{{ age }}">{{ age }}</option>
-                                {% endfor %}
-                            </select>
-                            <select name="partner_age_max" required class="flex-1 glass-card glass-input rounded-2xl px-4 py-3.5 text-sm">
-                                <option value="">Max</option>
-                                {% for age in range(18, 70, 1) %}
-                                <option value="{{ age }}">{{ age }}</option>
-                                {% endfor %}
-                            </select>
+                <!-- Steps container -->
+                <div class="flex-1 overflow-hidden relative">
+                    <!-- Step 1: Shaxsiy ma'lumotlar -->
+                    <div class="onboarding-step active" data-step="1">
+                        <div class="h-full overflow-y-auto ios-scroll-hide px-6 pb-6 space-y-5">
+                            <div class="text-center mb-6">
+                                <div class="size-20 mx-auto mb-4 rounded-3xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
+                                    <span class="material-symbols-outlined text-primary text-4xl">person</span>
+                                </div>
+                                <h2 class="text-xl font-extrabold mb-1">Tanishib olaylik</h2>
+                                <p class="text-sm text-white/50">O'zingiz haqingizda ma'lumot bering</p>
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-white/60 mb-2">Ismingiz</label>
+                                <input name="name" required class="w-full glass-card glass-input rounded-2xl px-4 py-4 text-base" placeholder="Ismingizni kiriting">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-white/60 mb-3">Jinsingiz</label>
+                                <div class="grid grid-cols-2 gap-3">
+                                    <label class="onboarding-option-card">
+                                        <input type="radio" name="gender" value="Erkak" required class="hidden">
+                                        <div class="card-inner">
+                                            <span class="material-symbols-outlined text-2xl mb-2">male</span>
+                                            <span class="font-bold">Erkak</span>
+                                        </div>
+                                    </label>
+                                    <label class="onboarding-option-card">
+                                        <input type="radio" name="gender" value="Ayol" required class="hidden">
+                                        <div class="card-inner">
+                                            <span class="material-symbols-outlined text-2xl mb-2">female</span>
+                                            <span class="font-bold">Ayol</span>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-white/60 mb-2">Tug'ilgan yil</label>
+                                <select name="birth_year" required class="w-full glass-card glass-input rounded-2xl px-4 py-4 text-base">
+                                    <option value="">Yilni tanlang</option>
+                                    {% for year in range(2006, 1959, -1) %}
+                                    <option value="{{ year }}">{{ year }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
                         </div>
                     </div>
-                    <div>
-                        <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-white/60 mb-2">Hudud *</label>
-                        <select name="partner_region" required class="w-full glass-card glass-input rounded-2xl px-4 py-3.5 text-sm">
-                            <option value="">Tanlang</option>
-                            <option value="Istalgan">Istalgan</option>
-                            <option value="Toshkent shahar">Toshkent shahar</option>
-                            <option value="Toshkent viloyati">Toshkent viloyati</option>
-                            <option value="Samarqand">Samarqand</option>
-                            <option value="Buxoro">Buxoro</option>
-                            <option value="Andijon">Andijon</option>
-                            <option value="Farg'ona">Farg'ona</option>
-                            <option value="Namangan">Namangan</option>
-                            <option value="Qashqadaryo">Qashqadaryo</option>
-                            <option value="Surxondaryo">Surxondaryo</option>
-                            <option value="Xorazm">Xorazm</option>
-                            <option value="Qoraqalpog'iston">Qoraqalpog'iston</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-white/60 mb-2">Diniy daraja *</label>
-                        <select name="partner_religious_level" required class="w-full glass-card glass-input rounded-2xl px-4 py-3.5 text-sm">
-                            <option value="">Tanlang</option>
-                            <option value="Istalgan">Istalgan</option>
-                            <option value="Jiddiy">Jiddiy</option>
-                            <option value="O'rtacha">O'rtacha</option>
-                            <option value="Yengil">Yengil</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-white/60 mb-2">Oilaviy holati *</label>
-                        <select name="partner_marital_status" required class="w-full glass-card glass-input rounded-2xl px-4 py-3.5 text-sm">
-                            <option value="">Tanlang</option>
-                            <option value="Bo'ydoq">Bo'ydoq</option>
-                            <option value="Ajrashgan">Ajrashgan</option>
-                        </select>
-                    </div>
-                </section>
 
-                <!-- Bio -->
-                <section class="space-y-4 pb-4">
-                    <h2 class="text-xs font-black uppercase tracking-[0.2em] text-white/40">O'zingiz haqingizda</h2>
-                    <div>
-                        <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-white/60 mb-2">Qisqacha tavsif *</label>
-                        <textarea name="bio" required rows="4" class="w-full glass-card glass-input rounded-2xl px-4 py-3.5 text-sm" placeholder="O'zingiz haqingizda qisqacha yozing"></textarea>
+                    <!-- Step 2: Joylashuv -->
+                    <div class="onboarding-step" data-step="2">
+                        <div class="h-full overflow-y-auto ios-scroll-hide px-6 pb-6 space-y-5">
+                            <div class="text-center mb-6">
+                                <div class="size-20 mx-auto mb-4 rounded-3xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
+                                    <span class="material-symbols-outlined text-primary text-4xl">location_on</span>
+                                </div>
+                                <h2 class="text-xl font-extrabold mb-1">Qayerdansiz?</h2>
+                                <p class="text-sm text-white/50">Joylashuvingiz haqida ma'lumot</p>
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-white/60 mb-2">Hudud</label>
+                                <select name="region" required class="w-full glass-card glass-input rounded-2xl px-4 py-4 text-base">
+                                    <option value="">Hududni tanlang</option>
+                                    <option value="Toshkent shahar">Toshkent shahar</option>
+                                    <option value="Toshkent viloyati">Toshkent viloyati</option>
+                                    <option value="Samarqand">Samarqand</option>
+                                    <option value="Buxoro">Buxoro</option>
+                                    <option value="Andijon">Andijon</option>
+                                    <option value="Farg'ona">Farg'ona</option>
+                                    <option value="Namangan">Namangan</option>
+                                    <option value="Qashqadaryo">Qashqadaryo</option>
+                                    <option value="Surxondaryo">Surxondaryo</option>
+                                    <option value="Xorazm">Xorazm</option>
+                                    <option value="Navoiy">Navoiy</option>
+                                    <option value="Jizzax">Jizzax</option>
+                                    <option value="Sirdaryo">Sirdaryo</option>
+                                    <option value="Qoraqalpog'iston">Qoraqalpog'iston</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-white/60 mb-2">Millatingiz</label>
+                                <select name="nationality" required class="w-full glass-card glass-input rounded-2xl px-4 py-4 text-base">
+                                    <option value="">Millatni tanlang</option>
+                                    <option value="O'zbek">O'zbek</option>
+                                    <option value="Rus">Rus</option>
+                                    <option value="Tojik">Tojik</option>
+                                    <option value="Qozoq">Qozoq</option>
+                                    <option value="Qoraqalpoq">Qoraqalpoq</option>
+                                    <option value="Boshqa">Boshqa</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-white/60 mb-3">Oilaviy holatingiz</label>
+                                <div class="grid grid-cols-2 gap-3">
+                                    <label class="onboarding-option-card">
+                                        <input type="radio" name="marital_status" value="Bo'ydoq" required class="hidden">
+                                        <div class="card-inner">
+                                            <span class="material-symbols-outlined text-2xl mb-2">person</span>
+                                            <span class="font-bold">Bo'ydoq</span>
+                                        </div>
+                                    </label>
+                                    <label class="onboarding-option-card">
+                                        <input type="radio" name="marital_status" value="Ajrashgan" required class="hidden">
+                                        <div class="card-inner">
+                                            <span class="material-symbols-outlined text-2xl mb-2">group</span>
+                                            <span class="font-bold">Ajrashgan</span>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                </section>
+
+                    <!-- Step 3: Jismoniy va diniy -->
+                    <div class="onboarding-step" data-step="3">
+                        <div class="h-full overflow-y-auto ios-scroll-hide px-6 pb-6 space-y-5">
+                            <div class="text-center mb-6">
+                                <div class="size-20 mx-auto mb-4 rounded-3xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
+                                    <span class="material-symbols-outlined text-primary text-4xl">self_improvement</span>
+                                </div>
+                                <h2 class="text-xl font-extrabold mb-1">Shaxsiy xususiyatlar</h2>
+                                <p class="text-sm text-white/50">Jismoniy va diniy ma'lumotlar</p>
+                            </div>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-white/60 mb-2">Bo'yingiz</label>
+                                    <select name="height" required class="w-full glass-card glass-input rounded-2xl px-4 py-4 text-base">
+                                        <option value="">sm</option>
+                                        {% for height in range(140, 220, 1) %}
+                                        <option value="{{ height }}">{{ height }} sm</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-white/60 mb-2">Vazningiz</label>
+                                    <select name="weight" required class="w-full glass-card glass-input rounded-2xl px-4 py-4 text-base">
+                                        <option value="">kg</option>
+                                        {% for weight in range(40, 150, 1) %}
+                                        <option value="{{ weight }}">{{ weight }} kg</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-white/60 mb-3">Namoz o'qiysizmi?</label>
+                                <div class="flex gap-2">
+                                    <label class="onboarding-chip flex-1">
+                                        <input type="radio" name="prays" value="Ha" required class="hidden">
+                                        <span>Ha</span>
+                                    </label>
+                                    <label class="onboarding-chip flex-1">
+                                        <input type="radio" name="prays" value="Ba'zan" class="hidden">
+                                        <span>Ba'zan</span>
+                                    </label>
+                                    <label class="onboarding-chip flex-1">
+                                        <input type="radio" name="prays" value="Yo'q" class="hidden">
+                                        <span>Yo'q</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-white/60 mb-3">Ro'za tutasizmi?</label>
+                                <div class="flex gap-2">
+                                    <label class="onboarding-chip flex-1">
+                                        <input type="radio" name="fasts" value="Ha" required class="hidden">
+                                        <span>Ha</span>
+                                    </label>
+                                    <label class="onboarding-chip flex-1">
+                                        <input type="radio" name="fasts" value="Ba'zan" class="hidden">
+                                        <span>Ba'zan</span>
+                                    </label>
+                                    <label class="onboarding-chip flex-1">
+                                        <input type="radio" name="fasts" value="Yo'q" class="hidden">
+                                        <span>Yo'q</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-white/60 mb-3">Diniy darajangiz</label>
+                                <div class="flex gap-2">
+                                    <label class="onboarding-chip flex-1">
+                                        <input type="radio" name="religious_level" value="Jiddiy" required class="hidden">
+                                        <span>Jiddiy</span>
+                                    </label>
+                                    <label class="onboarding-chip flex-1">
+                                        <input type="radio" name="religious_level" value="O'rtacha" class="hidden">
+                                        <span>O'rtacha</span>
+                                    </label>
+                                    <label class="onboarding-chip flex-1">
+                                        <input type="radio" name="religious_level" value="Yengil" class="hidden">
+                                        <span>Yengil</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 4: Ta'lim va kasb -->
+                    <div class="onboarding-step" data-step="4">
+                        <div class="h-full overflow-y-auto ios-scroll-hide px-6 pb-6 space-y-5">
+                            <div class="text-center mb-6">
+                                <div class="size-20 mx-auto mb-4 rounded-3xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
+                                    <span class="material-symbols-outlined text-primary text-4xl">school</span>
+                                </div>
+                                <h2 class="text-xl font-extrabold mb-1">Ta'lim va kasb</h2>
+                                <p class="text-sm text-white/50">Bilim va tajribangiz</p>
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-white/60 mb-3">Ta'lim darajangiz</label>
+                                <div class="space-y-2">
+                                    <label class="onboarding-list-option">
+                                        <input type="radio" name="education" value="Oliy" required class="hidden">
+                                        <div class="option-content">
+                                            <span class="material-symbols-outlined text-xl">workspace_premium</span>
+                                            <span>Oliy</span>
+                                        </div>
+                                        <span class="check-icon material-symbols-outlined">check_circle</span>
+                                    </label>
+                                    <label class="onboarding-list-option">
+                                        <input type="radio" name="education" value="O'rta maxsus" class="hidden">
+                                        <div class="option-content">
+                                            <span class="material-symbols-outlined text-xl">verified</span>
+                                            <span>O'rta maxsus</span>
+                                        </div>
+                                        <span class="check-icon material-symbols-outlined">check_circle</span>
+                                    </label>
+                                    <label class="onboarding-list-option">
+                                        <input type="radio" name="education" value="O'rta" class="hidden">
+                                        <div class="option-content">
+                                            <span class="material-symbols-outlined text-xl">menu_book</span>
+                                            <span>O'rta</span>
+                                        </div>
+                                        <span class="check-icon material-symbols-outlined">check_circle</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-white/60 mb-2">Kasbingiz</label>
+                                <input name="profession" required class="w-full glass-card glass-input rounded-2xl px-4 py-4 text-base" placeholder="Masalan: Dasturchi, O'qituvchi...">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-white/60 mb-3">Hozir ishlaysizmi?</label>
+                                <div class="grid grid-cols-2 gap-3">
+                                    <label class="onboarding-option-card small">
+                                        <input type="radio" name="is_working" value="true" required class="hidden">
+                                        <div class="card-inner">
+                                            <span class="material-symbols-outlined text-2xl mb-1">work</span>
+                                            <span class="font-bold text-sm">Ha</span>
+                                        </div>
+                                    </label>
+                                    <label class="onboarding-option-card small">
+                                        <input type="radio" name="is_working" value="false" class="hidden">
+                                        <div class="card-inner">
+                                            <span class="material-symbols-outlined text-2xl mb-1">home</span>
+                                            <span class="font-bold text-sm">Yo'q</span>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 5: Juft talablari va Bio -->
+                    <div class="onboarding-step" data-step="5">
+                        <div class="h-full overflow-y-auto ios-scroll-hide px-6 pb-6 space-y-5">
+                            <div class="text-center mb-6">
+                                <div class="size-20 mx-auto mb-4 rounded-3xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
+                                    <span class="material-symbols-outlined text-primary text-4xl">favorite</span>
+                                </div>
+                                <h2 class="text-xl font-extrabold mb-1">Juftingiz haqida</h2>
+                                <p class="text-sm text-white/50">Qanday odam izlayapsiz?</p>
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-white/60 mb-2">Yosh oralig'i</label>
+                                <div class="flex gap-3 items-center">
+                                    <select name="partner_age_min" required class="flex-1 glass-card glass-input rounded-2xl px-4 py-4 text-base">
+                                        <option value="">Min</option>
+                                        {% for age in range(18, 70, 1) %}
+                                        <option value="{{ age }}">{{ age }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <span class="text-white/40">—</span>
+                                    <select name="partner_age_max" required class="flex-1 glass-card glass-input rounded-2xl px-4 py-4 text-base">
+                                        <option value="">Max</option>
+                                        {% for age in range(18, 70, 1) %}
+                                        <option value="{{ age }}">{{ age }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-white/60 mb-2">Hudud</label>
+                                <select name="partner_region" required class="w-full glass-card glass-input rounded-2xl px-4 py-4 text-base">
+                                    <option value="">Tanlang</option>
+                                    <option value="Istalgan">Farqi yo'q</option>
+                                    <option value="Toshkent shahar">Toshkent shahar</option>
+                                    <option value="Toshkent viloyati">Toshkent viloyati</option>
+                                    <option value="Samarqand">Samarqand</option>
+                                    <option value="Buxoro">Buxoro</option>
+                                    <option value="Andijon">Andijon</option>
+                                    <option value="Farg'ona">Farg'ona</option>
+                                    <option value="Namangan">Namangan</option>
+                                    <option value="Qashqadaryo">Qashqadaryo</option>
+                                    <option value="Surxondaryo">Surxondaryo</option>
+                                    <option value="Xorazm">Xorazm</option>
+                                    <option value="Navoiy">Navoiy</option>
+                                    <option value="Jizzax">Jizzax</option>
+                                    <option value="Sirdaryo">Sirdaryo</option>
+                                    <option value="Qoraqalpog'iston">Qoraqalpog'iston</option>
+                                </select>
+                            </div>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-white/60 mb-2">Diniy daraja</label>
+                                    <select name="partner_religious_level" required class="w-full glass-card glass-input rounded-2xl px-4 py-4 text-sm">
+                                        <option value="">Tanlang</option>
+                                        <option value="Istalgan">Farqi yo'q</option>
+                                        <option value="Jiddiy">Jiddiy</option>
+                                        <option value="O'rtacha">O'rtacha</option>
+                                        <option value="Yengil">Yengil</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-white/60 mb-2">Oilaviy holati</label>
+                                    <select name="partner_marital_status" required class="w-full glass-card glass-input rounded-2xl px-4 py-4 text-sm">
+                                        <option value="">Tanlang</option>
+                                        <option value="Bo'ydoq">Bo'ydoq</option>
+                                        <option value="Ajrashgan">Ajrashgan</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-white/60 mb-2">O'zingiz haqingizda</label>
+                                <textarea name="bio" required rows="4" class="w-full glass-card glass-input rounded-2xl px-4 py-4 text-base resize-none" placeholder="O'zingiz haqingizda qisqacha yozing. Qiziqishlaringiz, maqsadlaringiz..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bottom buttons -->
+                <div class="p-6 bg-gradient-to-t from-background-dark via-background-dark to-transparent">
+                    <button type="button" id="onboarding-next-btn" onclick="onboardingNextStep()" class="w-full bg-primary text-black font-black py-4 rounded-2xl text-sm tracking-[0.22em] uppercase shadow-[0_10px_30px_rgba(64,255,0,0.3)] hover:scale-[1.02] active:scale-[0.98] transition-all">
+                        DAVOM ETISH
+                    </button>
+                </div>
             </form>
-            <div class="p-6 bg-gradient-to-t from-background-dark via-background-dark/95 to-transparent">
-                <button type="button" onclick="submitOnboarding()" class="w-full bg-primary text-black font-black py-4 rounded-2xl text-sm tracking-[0.22em] uppercase shadow-[0_10px_30px_rgba(64,255,0,0.3)] hover:scale-[1.02] active:scale-[0.98] transition-all">
-                    TUGATISH
-                </button>
-            </div>
         </div>
 
         <!-- FEED PAGE -->
@@ -1604,6 +1810,24 @@
         }
 
         // ONBOARDING HELPERS
+        // Onboarding state
+        let currentOnboardingStep = 1;
+        const totalOnboardingSteps = 5;
+        const stepTitles = {
+            1: "Tanishib olaylik",
+            2: "Qayerdansiz?",
+            3: "Shaxsiy xususiyatlar",
+            4: "Ta'lim va kasb",
+            5: "Juftingiz haqida"
+        };
+        const stepFields = {
+            1: ['name', 'gender', 'birth_year'],
+            2: ['region', 'nationality', 'marital_status'],
+            3: ['height', 'weight', 'prays', 'fasts', 'religious_level'],
+            4: ['education', 'profession', 'is_working'],
+            5: ['partner_age_min', 'partner_age_max', 'partner_region', 'partner_religious_level', 'partner_marital_status', 'bio']
+        };
+
         function openOnboarding() {
             const overlay = document.getElementById('onboarding-overlay');
             const nav = document.querySelector('nav');
@@ -1613,15 +1837,154 @@
             if (nav) {
                 nav.classList.add('hidden');
             }
+            currentOnboardingStep = 1;
+            updateOnboardingUI();
+            initOnboardingListeners();
+        }
+
+        function initOnboardingListeners() {
+            // Add haptic feedback to all interactive elements
+            const form = document.getElementById('onboarding-form');
+            if (!form) return;
+
+            // Option cards
+            form.querySelectorAll('.onboarding-option-card input, .onboarding-chip input, .onboarding-list-option input').forEach(input => {
+                input.addEventListener('change', () => {
+                    hapticTap('light');
+                });
+            });
+
+            // Select changes
+            form.querySelectorAll('select').forEach(select => {
+                select.addEventListener('change', () => {
+                    hapticTap('light');
+                });
+            });
+        }
+
+        function updateOnboardingUI() {
+            // Update step number
+            const stepNum = document.getElementById('onboarding-step-num');
+            const stepTitle = document.getElementById('onboarding-step-title');
+            if (stepNum) stepNum.textContent = currentOnboardingStep;
+            if (stepTitle) stepTitle.textContent = stepTitles[currentOnboardingStep];
+
+            // Update progress dots
+            document.querySelectorAll('.onboarding-dot').forEach((dot, index) => {
+                dot.classList.remove('active', 'completed');
+                if (index + 1 === currentOnboardingStep) {
+                    dot.classList.add('active');
+                } else if (index + 1 < currentOnboardingStep) {
+                    dot.classList.add('completed');
+                }
+            });
+
+            // Update steps visibility
+            document.querySelectorAll('.onboarding-step').forEach(step => {
+                const stepNum = parseInt(step.dataset.step);
+                step.classList.remove('active', 'prev');
+                if (stepNum === currentOnboardingStep) {
+                    step.classList.add('active');
+                } else if (stepNum < currentOnboardingStep) {
+                    step.classList.add('prev');
+                }
+            });
+
+            // Update back button
+            const backBtn = document.getElementById('onboarding-back-btn');
+            if (backBtn) {
+                if (currentOnboardingStep === 1) {
+                    backBtn.classList.add('opacity-0', 'pointer-events-none');
+                } else {
+                    backBtn.classList.remove('opacity-0', 'pointer-events-none');
+                }
+            }
+
+            // Update next button text
+            const nextBtn = document.getElementById('onboarding-next-btn');
+            if (nextBtn) {
+                if (currentOnboardingStep === totalOnboardingSteps) {
+                    nextBtn.textContent = 'TUGATISH';
+                } else {
+                    nextBtn.textContent = 'DAVOM ETISH';
+                }
+            }
+        }
+
+        function validateCurrentStep() {
+            const form = document.getElementById('onboarding-form');
+            if (!form) return false;
+
+            const fields = stepFields[currentOnboardingStep];
+            let isValid = true;
+            let firstInvalid = null;
+
+            fields.forEach(fieldName => {
+                const field = form.querySelector(`[name="${fieldName}"]`);
+                if (field && field.required) {
+                    if (field.type === 'radio') {
+                        const checked = form.querySelector(`[name="${fieldName}"]:checked`);
+                        if (!checked) {
+                            isValid = false;
+                            if (!firstInvalid) firstInvalid = field.closest('.onboarding-option-card, .onboarding-chip, .onboarding-list-option') || field;
+                        }
+                    } else if (!field.value) {
+                        isValid = false;
+                        if (!firstInvalid) firstInvalid = field;
+                    }
+                }
+            });
+
+            if (!isValid && firstInvalid) {
+                // Add shake animation
+                const container = firstInvalid.closest('.onboarding-option-card, .onboarding-chip, .onboarding-list-option, div');
+                if (container) {
+                    container.classList.add('shake');
+                    setTimeout(() => container.classList.remove('shake'), 400);
+                }
+                hapticTap('heavy');
+            }
+
+            return isValid;
+        }
+
+        function onboardingNextStep() {
+            hapticTap('medium');
+
+            if (!validateCurrentStep()) {
+                return;
+            }
+
+            if (currentOnboardingStep < totalOnboardingSteps) {
+                currentOnboardingStep++;
+                updateOnboardingUI();
+                // Scroll to top of step
+                const activeStep = document.querySelector('.onboarding-step.active');
+                if (activeStep) {
+                    const scrollContainer = activeStep.querySelector('.overflow-y-auto');
+                    if (scrollContainer) scrollContainer.scrollTop = 0;
+                }
+            } else {
+                submitOnboarding();
+            }
+        }
+
+        function onboardingPrevStep() {
+            hapticTap('light');
+            if (currentOnboardingStep > 1) {
+                currentOnboardingStep--;
+                updateOnboardingUI();
+            }
         }
 
         async function submitOnboarding() {
             const form = document.getElementById('onboarding-form');
             if (!form) return;
 
-            // HTML5 validation
-            if (!form.reportValidity()) {
-                return;
+            const nextBtn = document.getElementById('onboarding-next-btn');
+            if (nextBtn) {
+                nextBtn.disabled = true;
+                nextBtn.innerHTML = '<span class="animate-pulse">SAQLANMOQDA...</span>';
             }
 
             const formData = new FormData(form);
@@ -1633,6 +1996,7 @@
                 });
                 const data = await response.json();
                 if (response.ok && data.success) {
+                    hapticTap('heavy');
                     onboardingDone = true;
                     // Profil ma'lumotlarini yangilash
                     await initUserData();
@@ -1647,11 +2011,18 @@
                     // Asosiy sahifaga o'tish
                     window.showPage('feed');
                 } else {
+                    hapticTap('heavy');
                     alert(data.message || "Xatolik yuz berdi. Iltimos, qaytadan urinib ko'ring.");
                 }
             } catch (error) {
                 console.error('Onboarding error:', error);
+                hapticTap('heavy');
                 alert("Xatolik yuz berdi. Internet aloqasini tekshiring.");
+            } finally {
+                if (nextBtn) {
+                    nextBtn.disabled = false;
+                    nextBtn.textContent = 'TUGATISH';
+                }
             }
         }
 
