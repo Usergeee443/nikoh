@@ -44,9 +44,22 @@ def run_bot():
             loop = asyncio.new_event_loop()
             asyncio.set_event_loop(loop)
             # Signal handler'larni o'chirish uchun stop_signals=None
-            telegram_app.run_polling(stop_signals=None)
+            print("🤖 Telegram bot polling boshlandi...")
+            telegram_app.run_polling(stop_signals=None, drop_pending_updates=True)
         except Exception as e:
             print(f"❌ Bot xatosi: {e}")
+            import traceback
+            traceback.print_exc()
+
+
+# Production rejimida (Gunicorn) botni avtomatik ishga tushirish
+# Gunicorn ishlatilganda `if __name__ == '__main__'` bloki ishlamaydi,
+# shuning uchun botni bu yerda ishga tushirish kerak
+if telegram_app and (env == 'production' or os.getenv('GUNICORN_CMD_ARGS')):
+    # Faqat bir marta ishga tushirish uchun
+    bot_thread = threading.Thread(target=run_bot, daemon=True)
+    bot_thread.start()
+    print("✅ Telegram bot production rejimida ishga tushdi!")
 
 
 @app.route('/health')
@@ -56,14 +69,12 @@ def health():
 
 
 if __name__ == '__main__':
+    # Development rejimida botni ishga tushirish
     # Botni faqat reloader subprocess'da ishga tushirish (WERKZEUG_RUN_MAIN mavjud bo'lganda)
-    # Bu botni faqat bir marta ishga tushirishni ta'minlaydi
-    # Werkzeug reloader asosiy process'da botni ishga tushirmaydi, faqat subprocess'da
     if telegram_app and os.environ.get('WERKZEUG_RUN_MAIN') == 'true':
         bot_thread = threading.Thread(target=run_bot, daemon=True)
         bot_thread.start()
-        print("✅ Telegram bot ishga tushdi!")
+        print("✅ Telegram bot development rejimida ishga tushdi!")
     
     # Development rejimida ishlatish
-    # use_reloader=True - reloader yoqilgan, lekin bot faqat subprocess'da ishga tushadi
     app.run(debug=True, host='0.0.0.0', port=5000, use_reloader=True)
