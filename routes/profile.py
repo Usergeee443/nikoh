@@ -162,32 +162,60 @@ def edit():
     user = User.query.get(session['user_id'])
 
     if request.method == 'POST':
-        profile = user.profile
+        try:
+            profile = user.profile
 
-        # Yangilanadigan maydonlar
-        profile.name = request.form.get('name')
-        profile.region = request.form.get('region')
-        profile.height = int(request.form.get('height'))
-        profile.weight = int(request.form.get('weight'))
-        profile.prays = request.form.get('prays')
-        profile.fasts = request.form.get('fasts')
-        profile.religious_level = request.form.get('religious_level')
-        profile.education = request.form.get('education')
-        profile.profession = request.form.get('profession')
-        profile.is_working = request.form.get('is_working') == 'true'
-        profile.bio = request.form.get('bio')
+            # Yangilanadigan maydonlar - to'g'ri tekshirib olish
+            profile.name = request.form.get('name') or profile.name
+            profile.gender = request.form.get('gender') or profile.gender
+            birth_year = request.form.get('birth_year')
+            if birth_year:
+                profile.birth_year = int(birth_year)
+            profile.region = request.form.get('region') or profile.region
+            profile.nationality = request.form.get('nationality') or profile.nationality
+            profile.marital_status = request.form.get('marital_status') or profile.marital_status
+            
+            height = request.form.get('height')
+            if height:
+                profile.height = int(height)
+            weight = request.form.get('weight')
+            if weight:
+                profile.weight = int(weight)
+            
+            profile.prays = request.form.get('prays') or profile.prays
+            profile.fasts = request.form.get('fasts') or profile.fasts
+            profile.religious_level = request.form.get('religious_level') or profile.religious_level
+            profile.education = request.form.get('education') or profile.education
+            profile.profession = request.form.get('profession') or profile.profession
+            
+            is_working = request.form.get('is_working')
+            if is_working:
+                profile.is_working = is_working == 'true'
+            
+            profile.bio = request.form.get('bio') or profile.bio
 
-        # Juftga qo'yiladigan talablar
-        profile.partner_age_min = int(request.form.get('partner_age_min'))
-        profile.partner_age_max = int(request.form.get('partner_age_max'))
-        profile.partner_region = request.form.get('partner_region')
-        profile.partner_religious_level = request.form.get('partner_religious_level')
-        profile.partner_marital_status = request.form.get('partner_marital_status')
+            # Juftga qo'yiladigan talablar
+            partner_age_min = request.form.get('partner_age_min')
+            if partner_age_min:
+                profile.partner_age_min = int(partner_age_min)
+            partner_age_max = request.form.get('partner_age_max')
+            if partner_age_max:
+                profile.partner_age_max = int(partner_age_max)
+            
+            profile.partner_region = request.form.get('partner_region') or profile.partner_region
+            profile.partner_religious_level = request.form.get('partner_religious_level') or profile.partner_religious_level
+            profile.partner_marital_status = request.form.get('partner_marital_status') or profile.partner_marital_status
 
-        db.session.commit()
+            # is_complete property avtomatik barcha maydonlar to'ldirilganini tekshiradi
+            # Shuning uchun uni alohida set qilish shart emas
 
-        # SPA da yana profilga qaytarish uchun JSON javob
-        return jsonify({'success': True, 'message': 'Profil saqlandi'})
+            db.session.commit()
+
+            # SPA da yana profilga qaytarish uchun JSON javob
+            return jsonify({'success': True, 'message': 'Profil saqlandi'})
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({'success': False, 'message': f'Xatolik: {str(e)}'}), 400
 
     # GET so'rovi uchun SPA ga yo'naltirish
     return render_template('spa.html', user=user)

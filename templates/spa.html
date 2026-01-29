@@ -1831,12 +1831,28 @@
         function openOnboarding() {
             const overlay = document.getElementById('onboarding-overlay');
             const nav = document.querySelector('nav');
+            // Feed header va qidiruv qismlarini yashirish
+            const feedHeader = document.querySelector('#page-feed header');
+            const feedPage = document.getElementById('page-feed');
+            
             if (overlay) {
                 overlay.classList.remove('hidden');
             }
             if (nav) {
                 nav.classList.add('hidden');
             }
+            // Feed header va qidiruv qismlarini yashirish
+            if (feedHeader) {
+                feedHeader.style.display = 'none';
+            }
+            if (feedPage) {
+                feedPage.style.display = 'none';
+            }
+            // Barcha page-containerlarni yashirish
+            document.querySelectorAll('.page-container').forEach(page => {
+                page.style.display = 'none';
+            });
+            
             currentOnboardingStep = 1;
             updateOnboardingUI();
             initOnboardingListeners();
@@ -2002,12 +2018,26 @@
                     await initUserData();
                     const overlay = document.getElementById('onboarding-overlay');
                     const nav = document.querySelector('nav');
+                    const feedHeader = document.querySelector('#page-feed header');
+                    const feedPage = document.getElementById('page-feed');
+                    
                     if (overlay) {
                         overlay.classList.add('hidden');
                     }
                     if (nav) {
                         nav.classList.remove('hidden');
                     }
+                    // Feed header va qidiruv qismlarini qayta ko'rsatish
+                    if (feedHeader) {
+                        feedHeader.style.display = '';
+                    }
+                    if (feedPage) {
+                        feedPage.style.display = '';
+                    }
+                    // Barcha page-containerlarni qayta ko'rsatish
+                    document.querySelectorAll('.page-container').forEach(page => {
+                        page.style.display = '';
+                    });
                     // Asosiy sahifaga o'tish
                     window.showPage('feed');
                 } else {
