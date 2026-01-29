@@ -3,6 +3,7 @@ services:
     name: nikoh-web
     env: python
     runtime: python
+    pythonVersion: 3.12.7
     plan: free
     buildCommand: pip install -r requirements.txt
     startCommand: gunicorn app:app --bind 0.0.0.0:$PORT
