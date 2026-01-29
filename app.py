@@ -23,9 +23,18 @@ init_db(app)
 # Blueprintlarni ro'yxatdan o'tkazish
 register_blueprints(app)
 
-# Telegram botni sozlash
-set_flask_app(app)
-telegram_app = setup_bot(app)
+# Telegram botni sozlash (ixtiyoriy - agar token bo'lmasa, bot ishlamaydi)
+telegram_app = None
+try:
+    set_flask_app(app)
+    telegram_app = setup_bot(app)
+    if telegram_app:
+        print("✅ Telegram bot sozlandi!")
+    else:
+        print("⚠️ Telegram bot token topilmadi. Bot ishlamaydi.")
+except Exception as e:
+    print(f"⚠️ Telegram bot sozlashda xatolik: {e}")
+    print("⚠️ Bot ishlamaydi, lekin web ilova ishlaydi.")
 
 
 def run_bot():
