@@ -1,0 +1,242 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Foydalanuvchi - Telegram orqali autentifikatsiya
+model User {
+  id            String    @id @default(cuid())
+  telegramId    BigInt    @unique
+  username      String?
+  firstName     String?
+  lastName      String?
+  isAdmin       Boolean   @default(false)
+  isBlocked     Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  profile       Profile?
+  sentRequests     MatchRequest[] @relation("SentRequests")
+  receivedRequests MatchRequest[] @relation("ReceivedRequests")
+  chats1        Chat[]    @relation("ChatUser1")
+  chats2        Chat[]    @relation("ChatUser2")
+  messages      Message[]
+  tariffs       UserTariff[]
+  payments      PaymentRequest[]
+  favorites     Favorite[] @relation("UserFavorites")
+  favoritedBy   Favorite[] @relation("FavoritedBy")
+
+  @@index([telegramId])
+}
+
+// Profil - Foydalanuvchi ma'lumotlari
+model Profile {
+  id                String   @id @default(cuid())
+  userId            String   @unique
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Shaxsiy ma'lumotlar
+  gender            Gender
+  name              String
+  birthYear         Int
+  region            String
+  nationality       String
+  maritalStatus     MaritalStatus
+
+  // Jismoniy ma'lumotlar
+  height            Int?
+  weight            Int?
+
+  // Diniy ma'lumotlar
+  prayerFrequency   PrayerFrequency?
+  fasting           Boolean?
+  religiousLevel    ReligiousLevel?
+
+  // Ta'lim va kasb
+  education         String?
+  profession        String?
+  employmentStatus  EmploymentStatus?
+
+  // Qo'shimcha
+  bio               String?
+
+  // Partner talablari
+  partnerAgeMin     Int?
+  partnerAgeMax     Int?
+  partnerRegion     String?
+  partnerReligiousLevel ReligiousLevel?
+  partnerMaritalStatus  MaritalStatus?
+
+  // Holat
+  isActive          Boolean  @default(false)
+  isComplete        Boolean  @default(false)
+  activatedAt       DateTime?
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([gender])
+  @@index([isActive])
+  @@index([region])
+}
+
+// So'rov (Taklifnoma)
+model MatchRequest {
+  id          String        @id @default(cuid())
+  senderId    String
+  sender      User          @relation("SentRequests", fields: [senderId], references: [id], onDelete: Cascade)
+  receiverId  String
+  receiver    User          @relation("ReceivedRequests", fields: [receiverId], references: [id], onDelete: Cascade)
+  message     String?
+  status      RequestStatus @default(PENDING)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  chat        Chat?
+
+  @@unique([senderId, receiverId])
+  @@index([senderId])
+  @@index([receiverId])
+  @@index([status])
+}
+
+// Chat
+model Chat {
+  id          String    @id @default(cuid())
+  requestId   String    @unique
+  request     MatchRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  user1Id     String
+  user1       User      @relation("ChatUser1", fields: [user1Id], references: [id], onDelete: Cascade)
+  user2Id     String
+  user2       User      @relation("ChatUser2", fields: [user2Id], references: [id], onDelete: Cascade)
+  isActive    Boolean   @default(true)
+  expiresAt   DateTime
+  createdAt   DateTime  @default(now())
+
+  messages    Message[]
+
+  @@index([user1Id])
+  @@index([user2Id])
+  @@index([isActive])
+}
+
+// Xabar
+model Message {
+  id        String   @id @default(cuid())
+  chatId    String
+  chat      Chat     @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  senderId  String
+  sender    User     @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  content   String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([chatId])
+  @@index([senderId])
+  @@index([createdAt])
+}
+
+// Tarif
+model UserTariff {
+  id            String     @id @default(cuid())
+  userId        String
+  user          User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tariffType    TariffType
+  requestsLeft  Int
+  listingExpires DateTime
+  topExpires    DateTime?
+  isActive      Boolean    @default(true)
+  createdAt     DateTime   @default(now())
+
+  @@index([userId])
+  @@index([isActive])
+}
+
+// To'lov so'rovi
+model PaymentRequest {
+  id            String        @id @default(cuid())
+  userId        String
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tariffType    TariffType
+  amount        Int
+  receiptFileId String?
+  status        PaymentStatus @default(PENDING)
+  adminNote     String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  @@index([userId])
+  @@index([status])
+}
+
+// Sevimlilar
+model Favorite {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation("UserFavorites", fields: [userId], references: [id], onDelete: Cascade)
+  favoriteId  String
+  favorite    User     @relation("FavoritedBy", fields: [favoriteId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+
+  @@unique([userId, favoriteId])
+  @@index([userId])
+  @@index([favoriteId])
+}
+
+// Enumlar
+enum Gender {
+  MALE
+  FEMALE
+}
+
+enum MaritalStatus {
+  SINGLE
+  DIVORCED
+  WIDOWED
+}
+
+enum PrayerFrequency {
+  ALWAYS
+  OFTEN
+  SOMETIMES
+  RARELY
+  NEVER
+}
+
+enum ReligiousLevel {
+  VERY_RELIGIOUS
+  RELIGIOUS
+  MODERATE
+  NOT_RELIGIOUS
+}
+
+enum EmploymentStatus {
+  EMPLOYED
+  UNEMPLOYED
+  STUDENT
+  SELF_EMPLOYED
+  RETIRED
+}
+
+enum RequestStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  CANCELLED
+}
+
+enum TariffType {
+  KUMUSH
+  OLTIN
+  VIP
+}
+
+enum PaymentStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
