@@ -14,12 +14,19 @@ export async function POST(request: NextRequest) {
     }
 
     // Telegram ma'lumotlarini tekshirish
+    // Development rejimida validatsiyani o'tkazib yuborish mumkin
+    const isDev = process.env.NODE_ENV === "development";
     const isValid = validateTelegramWebAppData(initData);
-    if (!isValid) {
+
+    if (!isValid && !isDev) {
       return NextResponse.json(
         { error: "Noto'g'ri Telegram ma'lumotlari" },
         { status: 401 }
       );
+    }
+
+    if (!isValid && isDev) {
+      console.log("⚠️ Development: Telegram validatsiya o'tkazib yuborildi");
     }
 
     // Foydalanuvchi ma'lumotlarini olish

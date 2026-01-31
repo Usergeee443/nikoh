@@ -8,7 +8,10 @@ export function validateTelegramWebAppData(initData: string): boolean {
   try {
     const urlParams = new URLSearchParams(initData);
     const hash = urlParams.get("hash");
+
+    // hash va signature ni olib tashlash
     urlParams.delete("hash");
+    urlParams.delete("signature");
 
     const dataCheckString = Array.from(urlParams.entries())
       .sort(([a], [b]) => a.localeCompare(b))
@@ -25,8 +28,18 @@ export function validateTelegramWebAppData(initData: string): boolean {
       .update(dataCheckString)
       .digest("hex");
 
-    return calculatedHash === hash;
-  } catch {
+    const isValid = calculatedHash === hash;
+
+    if (!isValid) {
+      console.log("Hash validation failed:", {
+        calculated: calculatedHash,
+        received: hash,
+      });
+    }
+
+    return isValid;
+  } catch (error) {
+    console.error("Validation error:", error);
     return false;
   }
 }
