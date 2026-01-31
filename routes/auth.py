@@ -91,6 +91,7 @@ def get_user_data():
         'user': {
             'id': user.id,
             'telegram_id': user.telegram_id,
+            'profile_basic_complete': user.profile_basic_completed,
             'profile_complete': user.profile_completed,
             'profile_active': user.profile.is_active if user.profile else False,
             'has_active_tariff': user.has_active_tariff,
@@ -118,6 +119,7 @@ def check_auth():
         'authenticated': True,
         'user_id': user.id,
         'telegram_id': user.telegram_id,
+        'profile_basic_complete': user.profile_basic_completed,
         'profile_complete': user.profile_completed,
         'profile_active': user.profile.is_active if user.profile else False,
         'has_active_tariff': user.has_active_tariff
@@ -142,8 +144,26 @@ def login_required(f):
     return decorated_function
 
 
+def basic_profile_required(f):
+    """Minimal ro'yxatdan o'tish talab qiluvchi (e'lon ko'rish, sevimliga saqlash uchun)"""
+    from functools import wraps
+
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'user_id' not in session:
+            return redirect(url_for('auth.index'))
+
+        user = User.query.get(session['user_id'])
+        if not user or not user.profile_basic_completed:
+            return redirect(url_for('auth.index'))
+
+        return f(*args, **kwargs)
+
+    return decorated_function
+
+
 def profile_required(f):
-    """To'liq profil talab qiluvchi decorator"""
+    """To'liq profil talab qiluvchi decorator (so'rov yuborish, e'lon joylash uchun)"""
     from functools import wraps
 
     @wraps(f)
@@ -153,7 +173,6 @@ def profile_required(f):
 
         user = User.query.get(session['user_id'])
         if not user or not user.profile_completed:
-            # Onboarding endi SPA ichida bajariladi, shuning uchun profil sahifasiga yo'naltiramiz
             return redirect(url_for('profile.view'))
 
         return f(*args, **kwargs)

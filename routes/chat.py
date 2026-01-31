@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, session, jsonify
 from models import User, Chat, Message
 from database import db
-from routes.auth import login_required, profile_required
+from routes.auth import login_required, profile_required, basic_profile_required
 from datetime import datetime
 from telegram_bot import send_notification
 import asyncio
@@ -11,7 +11,7 @@ chat_bp = Blueprint('chat', __name__, url_prefix='/chat')
 
 
 @chat_bp.route('/')
-@profile_required
+@basic_profile_required
 def index():
     """Chatlar ro'yxati - SPA ga yo'naltirish"""
     user = User.query.get(session['user_id'])
@@ -19,7 +19,7 @@ def index():
 
 
 @chat_bp.route('/api/list')
-@profile_required
+@basic_profile_required
 def get_chats():
     """Foydalanuvchining barcha chatlarini olish"""
     current_user = User.query.get(session['user_id'])
@@ -73,7 +73,7 @@ def get_chats():
 
 
 @chat_bp.route('/<int:chat_id>')
-@profile_required
+@basic_profile_required
 def view_chat(chat_id):
     """Chatni ko'rish - SPA ga yo'naltirish"""
     current_user = User.query.get(session['user_id'])
@@ -95,7 +95,7 @@ def view_chat(chat_id):
 
 
 @chat_bp.route('/api/<int:chat_id>/messages')
-@profile_required
+@basic_profile_required
 def get_messages(chat_id):
     """Chat xabarlarini olish"""
     current_user = User.query.get(session['user_id'])
@@ -141,7 +141,7 @@ def get_messages(chat_id):
 
 
 @chat_bp.route('/api/<int:chat_id>/send', methods=['POST'])
-@profile_required
+@basic_profile_required
 def send_message(chat_id):
     """Xabar yuborish"""
     current_user = User.query.get(session['user_id'])
@@ -214,7 +214,7 @@ def send_message(chat_id):
 
 
 @chat_bp.route('/api/<int:chat_id>/mark-read', methods=['POST'])
-@profile_required
+@basic_profile_required
 def mark_messages_read(chat_id):
     """Xabarlarni o'qilgan deb belgilash"""
     current_user = User.query.get(session['user_id'])

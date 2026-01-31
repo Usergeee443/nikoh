@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, session, jsonify
 from models import User, Profile, Favorite
 from database import db
-from routes.auth import login_required, profile_required
+from routes.auth import login_required, profile_required, basic_profile_required
 from sqlalchemy import and_, or_, case
 from datetime import datetime
 
@@ -9,7 +9,7 @@ feed_bp = Blueprint('feed', __name__, url_prefix='/feed')
 
 
 @feed_bp.route('/')
-@profile_required
+@basic_profile_required
 def index():
     """E'lonlar sahifasi (Feed) - SPA ga yo'naltirish"""
     user = User.query.get(session['user_id'])
@@ -18,7 +18,7 @@ def index():
 
 
 @feed_bp.route('/api/listings')
-@profile_required
+@basic_profile_required
 def get_listings():
     """E'lonlarni olish (API)"""
     current_user = User.query.get(session['user_id'])
@@ -146,7 +146,7 @@ def get_listings():
 
 
 @feed_bp.route('/api/listing/<int:user_id>')
-@profile_required
+@basic_profile_required
 def get_listing_detail(user_id):
     """Bitta e'lonni batafsil ko'rish"""
     current_user = User.query.get(session['user_id'])
@@ -195,7 +195,7 @@ def get_listing_detail(user_id):
 
 
 @feed_bp.route('/profile/<int:user_id>')
-@profile_required
+@basic_profile_required
 def profile_detail(user_id):
     """Profil batafsil ko'rish sahifasi"""
     current_user = User.query.get(session['user_id'])

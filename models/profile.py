@@ -10,6 +10,7 @@ class Profile(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False, unique=True)
 
     # 5.1 Shaxsiy ma'lumotlar
+    phone_number = db.Column(db.String(20))  # Telefon raqam (oddiy ro'yxatdan o'tish)
     name = db.Column(db.String(100))
     gender = db.Column(db.String(10))  # Erkak / Ayol
     birth_year = db.Column(db.Integer)
@@ -51,8 +52,13 @@ class Profile(db.Model):
         return f'<Profile {self.name}>'
 
     @property
+    def basic_complete(self):
+        """Minimal ro'yxatdan o'tish: telefon, ism, yosh, jins (e'lon ko'rish va sevimliga saqlash uchun)"""
+        return bool(self.phone_number and self.name and self.gender and self.birth_year)
+
+    @property
     def is_complete(self):
-        """Profil to'liq to'ldirilganmi?"""
+        """Profil to'liq to'ldirilganmi? (so'rov yuborish va e'lon joylash uchun)"""
         required_fields = [
             self.name, self.gender, self.birth_year, self.region,
             self.nationality, self.marital_status, self.height, self.weight,
@@ -128,6 +134,7 @@ class Profile(db.Model):
         
         return {
             'id': self.id,
+            'phone_number': self.phone_number,
             'name': self.name,
             'age': self.age,
             'gender': self.gender,

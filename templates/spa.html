@@ -397,7 +397,77 @@
 
         <!-- ONBOARDING OVERLAY -->
         <div id="onboarding-overlay" class="fixed inset-0 z-50 bg-background-dark flex flex-col max-w-md mx-auto w-full hidden">
-            <form id="onboarding-form" class="flex-1 flex flex-col overflow-hidden">
+            <!-- 1. Ilovani tanishtirish (birinchi ochilganda) -->
+            <div id="welcome-screen" class="flex-1 flex flex-col items-center justify-center px-8 py-10 hidden">
+                <div class="size-24 mx-auto mb-6 rounded-3xl bg-gradient-to-br from-primary/30 to-primary/10 flex items-center justify-center neon-glow">
+                    <span class="material-symbols-outlined text-primary text-5xl" style="font-variation-settings: 'FILL' 1">favorite</span>
+                </div>
+                <h1 class="text-2xl font-extrabold text-center mb-2">NIKOH</h1>
+                <p class="text-primary font-bold text-sm tracking-widest uppercase mb-4">Halol tanishuv</p>
+                <p class="text-white/70 text-center text-sm leading-relaxed max-w-xs mb-8">
+                    Bizning ilovada e'lonlarni bepul ko'rishingiz, sevimliga saqlashingiz mumkin. So'rov yuborish va o'z e'loningizni joylash uchun to'liq profil to'ldiring va tarif sotib oling.
+                </p>
+                <button type="button" id="welcome-start-btn" class="w-full bg-primary text-black font-black py-4 rounded-2xl text-sm tracking-[0.22em] uppercase shadow-[0_10px_30px_rgba(64,255,0,0.3)] hover:scale-[1.02] active:scale-[0.98] transition-all">
+                    BOSHLASH
+                </button>
+            </div>
+
+            <!-- 2. Oddiy ro'yxatdan o'tish (telefon, ism, yosh, jins) -->
+            <form id="simple-reg-form" class="flex-1 flex flex-col overflow-hidden hidden">
+                <header class="px-6 pt-6 pb-4">
+                    <button type="button" id="simple-reg-back" class="size-10 glass-card rounded-xl flex items-center justify-center active:scale-95 transition-transform mb-4">
+                        <span class="material-symbols-outlined text-white/80 text-xl">arrow_back</span>
+                    </button>
+                    <h2 class="text-lg font-bold text-center">Ro'yxatdan o'tish</h2>
+                    <p class="text-[11px] text-white/50 text-center mt-1">Telefon, ism, yosh va jinsingizni kiriting</p>
+                </header>
+                <div class="flex-1 overflow-y-auto ios-scroll-hide px-6 pb-6 space-y-5">
+                    <div>
+                        <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-white/60 mb-2">Telefon raqam</label>
+                        <input type="tel" name="phone_number" id="simple-phone" required class="w-full glass-card glass-input rounded-2xl px-4 py-4 text-base" placeholder="+998 90 123 45 67">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-white/60 mb-2">Ismingiz</label>
+                        <input type="text" name="name" id="simple-name" required class="w-full glass-card glass-input rounded-2xl px-4 py-4 text-base" placeholder="Ismingizni kiriting">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-white/60 mb-2">Tug'ilgan yil (yosh)</label>
+                        <select name="birth_year" id="simple-birth_year" required class="w-full glass-card glass-input rounded-2xl px-4 py-4 text-base">
+                            <option value="">Yilni tanlang</option>
+                            {% for year in range(2006, 1959, -1) %}
+                            <option value="{{ year }}">{{ year }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-white/60 mb-3">Jinsingiz</label>
+                        <div class="grid grid-cols-2 gap-3">
+                            <label class="onboarding-option-card">
+                                <input type="radio" name="gender" value="Erkak" required class="hidden">
+                                <div class="card-inner">
+                                    <span class="material-symbols-outlined text-2xl mb-2">male</span>
+                                    <span class="font-bold">Erkak</span>
+                                </div>
+                            </label>
+                            <label class="onboarding-option-card">
+                                <input type="radio" name="gender" value="Ayol" required class="hidden">
+                                <div class="card-inner">
+                                    <span class="material-symbols-outlined text-2xl mb-2">female</span>
+                                    <span class="font-bold">Ayol</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-6 bg-gradient-to-t from-background-dark via-background-dark to-transparent">
+                    <button type="submit" id="simple-reg-submit" class="w-full bg-primary text-black font-black py-4 rounded-2xl text-sm tracking-[0.22em] uppercase shadow-[0_10px_30px_rgba(64,255,0,0.3)] hover:scale-[1.02] active:scale-[0.98] transition-all">
+                        DAVOM ETISH
+                    </button>
+                </div>
+            </form>
+
+            <!-- 3. To'liq profil (5 qadam - so'rov yuborish / e'lon joylash uchun) -->
+            <form id="onboarding-form" class="flex-1 flex flex-col overflow-hidden hidden">
                 <!-- Header with progress -->
                 <header class="px-6 pt-6 pb-4">
                     <div class="flex items-center justify-between mb-4">
@@ -1113,12 +1183,27 @@
                 
                 <div class="space-y-2">
                     <h3 class="px-2 text-[10px] font-black uppercase tracking-[0.2em] text-white/30 mb-3">Asosiy amallar</h3>
+                    <!-- To'liq profil to'ldirish (so'rov yuborish va e'lon joylash uchun) -->
+                    <div id="profile-full-profile-btn" class="hidden">
+                        <button type="button" onclick="openOnboarding('full')" class="w-full glass-card rounded-2xl p-4 flex items-center justify-between group active:scale-[0.98] transition-transform border border-primary/20 bg-primary/5">
+                            <div class="flex items-center gap-4">
+                                <div class="size-10 rounded-xl bg-primary/20 flex items-center justify-center text-primary">
+                                    <span class="material-symbols-outlined text-[24px]">person_add</span>
+                                </div>
+                                <div class="text-left">
+                                    <p class="text-sm font-bold text-primary">To'liq profil to'ldirish</p>
+                                    <p class="text-[10px] text-white/50">So'rov yuborish va e'lon joylash uchun</p>
+                                </div>
+                            </div>
+                            <span class="material-symbols-outlined text-primary">chevron_right</span>
+                        </button>
+                    </div>
                     <a href="/tariff/purchase" class="w-full glass-card rounded-2xl p-4 flex items-center justify-between group active:scale-[0.98] transition-transform">
                         <div class="flex items-center gap-4">
                             <div class="size-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
                                 <span class="material-symbols-outlined text-[24px]">workspace_premium</span>
                             </div>
-                            <p class="text-sm font-bold">Obuna (Premium)</p>
+                            <p class="text-sm font-bold">Tariflar (Obuna)</p>
                         </div>
                         <span class="material-symbols-outlined text-white/20 group-hover:text-primary transition-colors">chevron_right</span>
                     </a>
@@ -1556,6 +1641,32 @@
                 </button>
             </div>
         </div>
+
+        <!-- To'liq profil va tarif talab qiluvchi modal (so'rov yuborish / e'lon joylash uchun) -->
+        <div id="require-full-profile-modal" class="hidden fixed inset-0 z-[60] flex items-end sm:items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+            <div class="glass-card rounded-2xl p-6 max-w-md w-full shadow-2xl border border-primary/20">
+                <div class="text-center mb-6">
+                    <div class="size-16 mx-auto mb-4 rounded-2xl bg-primary/10 flex items-center justify-center">
+                        <span class="material-symbols-outlined text-primary text-3xl">info</span>
+                    </div>
+                    <h3 class="text-lg font-bold mb-2">To'liq profil va tarif kerak</h3>
+                    <p class="text-sm text-white/60 leading-relaxed">
+                        So'rov yuborish va e'lon joylash uchun avval batafsil ma'lumotlarni to'ldiring (to'liq profil), keyin tarif sotib oling.
+                    </p>
+                </div>
+                <div class="space-y-3">
+                    <button type="button" onclick="window.openFullProfileFromModal()" class="w-full bg-primary text-black font-bold py-3.5 rounded-xl text-sm uppercase tracking-wider active:scale-[0.98] transition-all">
+                        To'liq profil to'ldirish
+                    </button>
+                    <a href="/tariff/purchase" class="block w-full bg-white/10 text-white font-bold py-3.5 rounded-xl text-sm uppercase tracking-wider text-center border border-white/20 active:scale-[0.98] transition-all">
+                        Tarif sotib olish
+                    </a>
+                    <button type="button" onclick="document.getElementById('require-full-profile-modal').classList.add('hidden')" class="w-full text-white/50 text-sm py-2">
+                        Yopish
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
     
     <!-- Main JavaScript - Inline for instant loading -->
@@ -1590,28 +1701,30 @@
         let lastTariffCheck = null; // Obuna tekshiruvi uchun
         let onboardingDone = false;
 
-        // Page navigation - INSTANT (make it global)
+        // Sahifa ma'lumotlari faqat 1 marta yuklanadi (sahifadan sahifaga qaytganda qayta yuklanmaydi)
+        let pageDataLoaded = { feed: false, chats: false, favorites: false, profile: false, requests: false };
+        window.invalidatePageCache = function(pageName) {
+            if (pageDataLoaded[pageName] !== undefined) pageDataLoaded[pageName] = false;
+        };
+
+        // Page navigation - INSTANT + haptic
         window.showPage = function(pageName) {
-            console.log('Navigating to page:', pageName, 'Current page:', currentPage);
+            if (currentPage === pageName) return;
+            hapticTap('light');
             
             // Hide all pages instantly
             document.querySelectorAll('.page-container').forEach(page => {
                 page.classList.remove('active');
             });
             
-            // Show target page instantly
             const targetPage = document.getElementById(`page-${pageName}`);
             if (targetPage) {
                 targetPage.classList.add('active');
                 currentPage = pageName;
                 updateNav(pageName);
-                // Load page data asynchronously - always load, even if same page
-                setTimeout(() => {
-                loadPageData(pageName);
-                }, 0);
+                // Faqat birinchi marta yuklash; keyin cache'dan
+                setTimeout(() => loadPageData(pageName), 0);
                 window.scrollTo({ top: 0, behavior: 'instant' });
-            } else {
-                console.error('Page not found:', pageName);
             }
         };
 
@@ -1671,6 +1784,76 @@
         }
 
         function initApp() {
+            // Welcome va oddiy ro'yxatdan o'tish
+            const welcomeStartBtn = document.getElementById('welcome-start-btn');
+            if (welcomeStartBtn) {
+                welcomeStartBtn.addEventListener('click', () => {
+                    hapticTap('medium');
+                    document.getElementById('welcome-screen').classList.add('hidden');
+                    document.getElementById('welcome-screen').style.display = 'none';
+                    const simpleReg = document.getElementById('simple-reg-form');
+                    simpleReg.classList.remove('hidden');
+                    simpleReg.style.display = 'flex';
+                });
+            }
+            const simpleRegBack = document.getElementById('simple-reg-back');
+            if (simpleRegBack) {
+                simpleRegBack.addEventListener('click', () => {
+                    hapticTap('light');
+                    document.getElementById('simple-reg-form').classList.add('hidden');
+                    document.getElementById('simple-reg-form').style.display = 'none';
+                    const welcome = document.getElementById('welcome-screen');
+                    welcome.classList.remove('hidden');
+                    welcome.style.display = 'flex';
+                });
+            }
+            const simpleRegForm = document.getElementById('simple-reg-form');
+            if (simpleRegForm) {
+                simpleRegForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const btn = document.getElementById('simple-reg-submit');
+                    if (btn) { btn.disabled = true; btn.textContent = 'SAQLANMOQDA...'; }
+                    const formData = new FormData();
+                    formData.append('phone_number', document.getElementById('simple-phone').value.trim());
+                    formData.append('name', document.getElementById('simple-name').value.trim());
+                    formData.append('birth_year', document.getElementById('simple-birth_year').value);
+                    const genderRadio = simpleRegForm.querySelector('input[name="gender"]:checked');
+                    if (genderRadio) formData.append('gender', genderRadio.value);
+                    try {
+                        const response = await fetch('/profile/edit', { method: 'POST', body: formData, credentials: 'same-origin' });
+                        const data = await response.json();
+                        if (response.ok && data.success) {
+                            hapticTap('heavy');
+                            onboardingDone = true;
+                            await initUserData();
+                            closeOnboardingOverlay();
+                            window.showPage('feed');
+                            loadPageData('feed');
+                        } else {
+                            alert(data.message || "Xatolik. Qaytadan urinib ko'ring.");
+                        }
+                    } catch (err) {
+                        console.error(err);
+                        alert("Internet aloqasini tekshiring.");
+                    } finally {
+                        if (btn) { btn.disabled = false; btn.textContent = "DAVOM ETISH"; }
+                    }
+                });
+            }
+
+            function closeOnboardingOverlay() {
+                const overlay = document.getElementById('onboarding-overlay');
+                const nav = document.querySelector('nav');
+                const feedHeader = document.querySelector('#page-feed header');
+                const feedPage = document.getElementById('page-feed');
+                if (overlay) overlay.classList.add('hidden');
+                if (nav) nav.classList.remove('hidden');
+                if (feedHeader) feedHeader.style.display = '';
+                if (feedPage) feedPage.style.display = '';
+                document.querySelectorAll('.page-container').forEach(page => { page.style.display = ''; });
+            }
+            window.closeOnboardingOverlay = closeOnboardingOverlay;
+
             // Navigation event listeners
             document.querySelectorAll('.nav-link').forEach(link => {
                 link.addEventListener('click', (e) => {
@@ -1739,49 +1922,49 @@
                     updateProfileUI();
                 }
 
-                // Agar profil hali to'liq bo'lmasa, onboarding majburiy
-                if (userData && userData.user && !userData.user.profile_complete) {
+                // Agar minimal ro'yxatdan o'tmagan bo'lsa: ilovani tanishtirish + oddiy ro'yxatdan o'tish
+                if (userData && userData.user && !userData.user.profile_basic_complete) {
                     onboardingDone = false;
-                    openOnboarding();
+                    openOnboarding('welcome');
                 } else {
                     onboardingDone = true;
-                // Load page data
-                loadPageData(currentPage);
+                    // Load page data
+                    loadPageData(currentPage);
                 }
             }).catch(err => {
                 console.error('Initialization error:', err);
             });
         }
 
-        // Load page data
+        // Load page data — faqat birinchi marta yuklanadi, keyin cache'dan
         async function loadPageData(pageName) {
             switch(pageName) {
                 case 'feed':
+                    if (pageDataLoaded.feed) { updateFeedTariffInfo(); return; }
                     await loadFeedData();
                     break;
                 case 'requests':
-                    // Default to 'received' tab if not set
+                    if (pageDataLoaded.requests) { updateRequestsTariffInfo(); return; }
                     if (requestsCurrentTab !== 'received' && requestsCurrentTab !== 'sent') {
                         switchRequestsTab('received');
-                    } else {
-                    await loadRequestsData();
                     }
+                    await loadRequestsData();
                     break;
                 case 'chats':
+                    if (pageDataLoaded.chats) return;
                     await loadChatsData();
                     break;
                 case 'chat-view':
-                    if (currentChatId) {
-                        await loadChatView(currentChatId);
-                    }
+                    if (currentChatId) await loadChatView(currentChatId);
                     break;
                 case 'favorites':
+                    if (pageDataLoaded.favorites) return;
                     await loadFavoritesData();
                     break;
                 case 'profile':
+                    if (pageDataLoaded.profile) { updateProfileUI(); return; }
                     await loadProfileData();
                     break;
-                // onboarding sahifalari hozircha faqat UI
             }
         }
 
@@ -1828,34 +2011,34 @@
             5: ['partner_age_min', 'partner_age_max', 'partner_region', 'partner_religious_level', 'partner_marital_status', 'bio']
         };
 
-        function openOnboarding() {
+        function openOnboarding(mode) {
             const overlay = document.getElementById('onboarding-overlay');
+            const welcomeScreen = document.getElementById('welcome-screen');
+            const simpleRegForm = document.getElementById('simple-reg-form');
+            const onboardingForm = document.getElementById('onboarding-form');
             const nav = document.querySelector('nav');
-            // Feed header va qidiruv qismlarini yashirish
             const feedHeader = document.querySelector('#page-feed header');
             const feedPage = document.getElementById('page-feed');
             
-            if (overlay) {
-                overlay.classList.remove('hidden');
-            }
-            if (nav) {
-                nav.classList.add('hidden');
-            }
-            // Feed header va qidiruv qismlarini yashirish
-            if (feedHeader) {
-                feedHeader.style.display = 'none';
-            }
-            if (feedPage) {
-                feedPage.style.display = 'none';
-            }
-            // Barcha page-containerlarni yashirish
-            document.querySelectorAll('.page-container').forEach(page => {
-                page.style.display = 'none';
-            });
+            if (overlay) overlay.classList.remove('hidden');
+            if (nav) nav.classList.add('hidden');
+            if (feedHeader) feedHeader.style.display = 'none';
+            if (feedPage) feedPage.style.display = 'none';
+            document.querySelectorAll('.page-container').forEach(page => { page.style.display = 'none'; });
             
-            currentOnboardingStep = 1;
-            updateOnboardingUI();
-            initOnboardingListeners();
+            if (mode === 'welcome') {
+                if (welcomeScreen) { welcomeScreen.classList.remove('hidden'); welcomeScreen.style.display = 'flex'; }
+                if (simpleRegForm) { simpleRegForm.classList.add('hidden'); simpleRegForm.style.display = 'none'; }
+                if (onboardingForm) { onboardingForm.classList.add('hidden'); onboardingForm.style.display = 'none'; }
+            } else {
+                // To'liq profil (5 qadam)
+                if (welcomeScreen) { welcomeScreen.classList.add('hidden'); welcomeScreen.style.display = 'none'; }
+                if (simpleRegForm) { simpleRegForm.classList.add('hidden'); simpleRegForm.style.display = 'none'; }
+                if (onboardingForm) { onboardingForm.classList.remove('hidden'); onboardingForm.style.display = 'flex'; }
+                currentOnboardingStep = 1;
+                updateOnboardingUI();
+                initOnboardingListeners();
+            }
         }
 
         function initOnboardingListeners() {
@@ -2014,32 +2197,12 @@
                 if (response.ok && data.success) {
                     hapticTap('heavy');
                     onboardingDone = true;
-                    // Profil ma'lumotlarini yangilash
                     await initUserData();
-                    const overlay = document.getElementById('onboarding-overlay');
-                    const nav = document.querySelector('nav');
-                    const feedHeader = document.querySelector('#page-feed header');
-                    const feedPage = document.getElementById('page-feed');
-                    
-                    if (overlay) {
-                        overlay.classList.add('hidden');
+                    if (typeof window.closeOnboardingOverlay === 'function') {
+                        window.closeOnboardingOverlay();
                     }
-                    if (nav) {
-                        nav.classList.remove('hidden');
-                    }
-                    // Feed header va qidiruv qismlarini qayta ko'rsatish
-                    if (feedHeader) {
-                        feedHeader.style.display = '';
-                    }
-                    if (feedPage) {
-                        feedPage.style.display = '';
-                    }
-                    // Barcha page-containerlarni qayta ko'rsatish
-                    document.querySelectorAll('.page-container').forEach(page => {
-                        page.style.display = '';
-                    });
-                    // Asosiy sahifaga o'tish
                     window.showPage('feed');
+                    loadPageData('feed');
                 } else {
                     hapticTap('heavy');
                     alert(data.message || "Xatolik yuz berdi. Iltimos, qaytadan urinib ko'ring.");
@@ -2107,22 +2270,14 @@
         let feedHasMore = true;
 
         async function loadFeedData() {
-            // Wait for user data if not loaded yet
-            if (!userData) {
-                await initUserData();
-            }
+            if (!userData) await initUserData();
             updateFeedTariffInfo();
             const container = document.getElementById('feed-listings');
             const skeleton = document.getElementById('feed-skeleton');
-            
-            // Agar container bo'sh bo'lsa yoki skeleton hali ko'rsatilayotgan bo'lsa, yuklash
-            if (container) {
-                // Skeleton ko'rsatilgan bo'lsa yoki container bo'sh bo'lsa, yuklash
-                const hasContent = container.children.length > 0 && !skeleton;
-                if (!hasContent) {
-                await loadFeedListings(1);
-                }
-            }
+            if (!container) return;
+            const hasContent = container.children.length > 0 && (!skeleton || skeleton.style.display === 'none');
+            if (!hasContent) await loadFeedListings(1);
+            pageDataLoaded.feed = true;
         }
 
         function updateFeedTariffInfo() {
@@ -2183,14 +2338,9 @@
                 }
                 const data = await response.json();
 
-                // Skeleton yashirish va container tozalash
                 if (skeleton) {
                     skeleton.style.display = 'none';
-                    setTimeout(() => {
-                        if (skeleton && skeleton.parentNode) {
-                            skeleton.remove();
-                        }
-                    }, 100);
+                    if (skeleton.parentNode) skeleton.remove();
                 }
                 if (page === 1 && container) {
                     container.innerHTML = '';
@@ -2210,6 +2360,7 @@
                 const loadMore = document.getElementById('feed-load-more');
                 if (loadMore) loadMore.classList.toggle('hidden', !feedHasMore);
                 feedCurrentPage = page;
+                pageDataLoaded.feed = true;
 
             } catch (error) {
                 console.error('Error loading listings:', error);
@@ -2354,6 +2505,9 @@
                     if (typeof window.showNotification === 'function') {
                         window.showNotification('✅ ' + data.message);
                     }
+                    if (typeof window.invalidatePageCache === 'function') {
+                        window.invalidatePageCache('favorites');
+                    }
                 } else {
                     alert('Xatolik: ' + (data.error || 'Noma\'lum xatolik'));
                 }
@@ -2478,9 +2632,9 @@
         };
 
         window.sendFeedRequest = async function(receiverId) {
-            if (!hasActiveTariff) {
-                alert('So\'rov yuborish uchun tarif kerak. Iltimos, tarif sotib oling.');
-                window.showPage('profile');
+            const profileComplete = userData && userData.user && userData.user.profile_complete;
+            if (!profileComplete || !hasActiveTariff) {
+                document.getElementById('require-full-profile-modal').classList.remove('hidden');
                 return;
             }
             
@@ -2527,19 +2681,16 @@
         let requestsCurrentTab = 'received';
 
         async function loadRequestsData() {
-            // Wait for user data if not loaded yet
-            if (!userData) {
-                await initUserData();
-            }
+            if (!userData) await initUserData();
             updateRequestsTariffInfo();
-            // Load the current tab
             if (requestsCurrentTab === 'received') {
-            await loadReceivedRequests();
+                await loadReceivedRequests();
             } else if (requestsCurrentTab === 'sent') {
                 await loadSentRequests();
             } else {
                 switchRequestsTab('received');
             }
+            pageDataLoaded.requests = true;
         }
         
         async function loadRequestsDataOld() {
@@ -3053,6 +3204,7 @@
                 if (data.chats.length === 0) {
                     const emptyDiv = document.getElementById('chats-empty');
                     if (emptyDiv) emptyDiv.classList.remove('hidden');
+                    pageDataLoaded.chats = true;
                     return;
                 }
                 
@@ -3062,15 +3214,13 @@
                 data.chats.forEach(chat => {
                     container.appendChild(createChatCard(chat));
                 });
+                pageDataLoaded.chats = true;
 
             } catch (error) {
                 console.error('Error loading chats:', error);
                 if (skeleton) skeleton.style.display = 'none';
-                // Remove all children except skeleton
                 Array.from(container.children).forEach(child => {
-                    if (child.id !== 'chats-skeleton') {
-                        child.remove();
-                    }
+                    if (child.id !== 'chats-skeleton') child.remove();
                 });
                 const errorDiv = document.createElement('div');
                 errorDiv.className = 'text-center py-8 text-red-400';
@@ -3431,8 +3581,7 @@
             if (!container) return;
             
             try {
-                if (skeleton) setTimeout(() => skeleton.style.display = 'none', 100);
-                
+                if (skeleton) skeleton.style.display = 'none';
                 const response = await fetch('/favorites/api/list', {
                     method: 'GET',
                     headers: {
@@ -3465,6 +3614,7 @@
                         container.appendChild(createFavoriteCard(favorite));
                     }
                 });
+                pageDataLoaded.favorites = true;
                 
             } catch (error) {
                 console.error('Error loading favorites:', error);
@@ -3582,10 +3732,9 @@
         window.removeFavorite = removeFavorite;
 
         async function loadProfileData() {
-            if (!userData) {
-                await initUserData();
-            }
+            if (!userData) await initUserData();
             updateProfileUI();
+            pageDataLoaded.profile = true;
         }
 
         function updateProfileUI() {
@@ -3644,19 +3793,40 @@
             // E'lon yaratish tugmasini ko'rsatish/yashirish
             const createAdBtn = document.getElementById('profile-create-ad-btn');
             if (createAdBtn) {
-                if (!isActive && hasActiveTariff) {
+                if (!isActive && hasActiveTariff && user.profile_complete) {
                     createAdBtn.classList.remove('hidden');
                 } else {
                     createAdBtn.classList.add('hidden');
                 }
             }
+
+            // To'liq profil to'ldirish tugmasi (so'rov yuborish va e'lon joylash uchun)
+            const fullProfileBtn = document.getElementById('profile-full-profile-btn');
+            if (fullProfileBtn) {
+                if (user && !user.profile_complete) {
+                    fullProfileBtn.classList.remove('hidden');
+                    fullProfileBtn.style.display = '';
+                } else {
+                    fullProfileBtn.classList.add('hidden');
+                    fullProfileBtn.style.display = 'none';
+                }
+            }
         }
         
+        // To'liq profil modalini yopish va profil sahifasiga o'tish (to'liq profil to'ldirish uchun)
+        window.openFullProfileFromModal = function() {
+            document.getElementById('require-full-profile-modal').classList.add('hidden');
+            window.showPage('profile');
+            if (userData && userData.user && !userData.user.profile_complete) {
+                openOnboarding('full');
+            }
+        };
+
         // E'lon yaratish funksiyasi
         window.createAd = async function() {
-            if (!hasActiveTariff) {
-                alert('E\'lon yaratish uchun tarif kerak!');
-                window.showPage('profile');
+            const profileComplete = userData && userData.user && userData.user.profile_complete;
+            if (!profileComplete || !hasActiveTariff) {
+                document.getElementById('require-full-profile-modal').classList.remove('hidden');
                 return;
             }
             
@@ -3698,6 +3868,12 @@
         document.addEventListener('change', async (e) => {
             if (e.target.id === 'profile-toggle') {
                 const toggle = e.target;
+                const profileComplete = userData && userData.user && userData.user.profile_complete;
+                if (toggle.checked && (!profileComplete || !hasActiveTariff)) {
+                    document.getElementById('require-full-profile-modal').classList.remove('hidden');
+                    toggle.checked = false;
+                    return;
+                }
                 try {
                     const response = await fetch('/profile/toggle-active', {
                         method: 'POST',

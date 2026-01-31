@@ -166,6 +166,9 @@ def edit():
             profile = user.profile
 
             # Yangilanadigan maydonlar - to'g'ri tekshirib olish
+            phone_number = request.form.get('phone_number')
+            if phone_number is not None:
+                profile.phone_number = phone_number.strip() or profile.phone_number
             profile.name = request.form.get('name') or profile.name
             profile.gender = request.form.get('gender') or profile.gender
             birth_year = request.form.get('birth_year')
@@ -239,6 +242,8 @@ def toggle_active():
         user.profile.deactivate()
         message = "E'lon o'chirildi"
     else:
+        if not user.profile_completed:
+            return jsonify({'error': "To'liq profil to'ldiring"}), 400
         if not user.has_active_tariff:
             return jsonify({'error': 'Tarif kerak'}), 400
 

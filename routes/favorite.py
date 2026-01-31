@@ -1,13 +1,13 @@
 from flask import Blueprint, render_template, request, session, jsonify
 from models import User, Favorite, Profile
 from database import db
-from routes.auth import login_required, profile_required
+from routes.auth import login_required, profile_required, basic_profile_required
 
 favorite_bp = Blueprint('favorite', __name__, url_prefix='/favorites')
 
 
 @favorite_bp.route('/')
-@profile_required
+@basic_profile_required
 def index():
     """Sevimlilar sahifasi - SPA ga yo'naltirish"""
     user = User.query.get(session['user_id'])
@@ -15,7 +15,7 @@ def index():
 
 
 @favorite_bp.route('/api/list')
-@profile_required
+@basic_profile_required
 def get_favorites():
     """Sevimlilar ro'yxatini olish"""
     current_user = User.query.get(session['user_id'])
@@ -33,7 +33,7 @@ def get_favorites():
 
 
 @favorite_bp.route('/api/add', methods=['POST'])
-@profile_required
+@basic_profile_required
 def add_favorite():
     """Sevimliga qo'shish"""
     current_user = User.query.get(session['user_id'])
@@ -78,7 +78,7 @@ def add_favorite():
 
 
 @favorite_bp.route('/api/<int:favorite_id>/remove', methods=['POST'])
-@profile_required
+@basic_profile_required
 def remove_favorite(favorite_id):
     """Sevimlidan olib tashlash"""
     current_user = User.query.get(session['user_id'])

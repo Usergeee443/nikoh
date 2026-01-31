@@ -49,8 +49,15 @@ class User(db.Model):
         ).first()
 
     @property
+    def profile_basic_completed(self):
+        """Minimal ro'yxatdan o'tganmi? (telefon, ism, yosh, jins)"""
+        if not self.profile:
+            return False
+        return self.profile.basic_complete
+
+    @property
     def profile_completed(self):
-        """Profil to'liqmi?"""
+        """Profil to'liqmi? (so'rov yuborish va e'lon joylash uchun)"""
         if not self.profile:
             return False
         return self.profile.is_complete
