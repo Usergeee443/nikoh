@@ -883,7 +883,6 @@
                     <div id="feed-skeleton" class="space-y-4">
                         <div class="profile-card glass-card rounded-[22px] overflow-hidden skeleton" style="height: calc((100vh - 220px) / 2.8); min-height: 245px;"></div>
                         <div class="profile-card glass-card rounded-[22px] overflow-hidden skeleton" style="height: calc((100vh - 220px) / 2.8); min-height: 245px;"></div>
-                        <div class="profile-card glass-card rounded-[22px] overflow-hidden skeleton" style="height: calc((100vh - 220px) / 2.8); min-height: 245px;"></div>
                     </div>
                 </div>
                 <div class="text-center py-4 hidden" id="feed-load-more">
@@ -893,10 +892,10 @@
                 </div>
             </main>
 
-            <!-- Profile Detail Modal -->
-            <div id="feed-profile-modal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-                <div class="max-w-md w-full glass-card rounded-[28px] max-h-[90vh] overflow-y-auto" style="scrollbar-width: thin;">
-                    <div class="p-6" id="feed-profile-content"></div>
+            <!-- Profil batafsil (alohida sahifa ko'rinishida modal) -->
+            <div id="feed-profile-modal" class="hidden fixed inset-0 z-50 bg-background-dark overflow-y-auto">
+                <div class="max-w-md mx-auto w-full min-h-full bg-background-dark" id="feed-profile-modal-inner">
+                    <div id="feed-profile-content"></div>
                 </div>
             </div>
         </div>
@@ -2446,6 +2445,11 @@
             }
         }
 
+        const feedHeaders = {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+        };
+
         async function loadFeedListings(page = 1, topOnly = false) {
             if (feedIsLoading) return;
             feedIsLoading = true;
@@ -2453,13 +2457,106 @@
             const container = document.getElementById('feed-listings');
             const skeleton = document.getElementById('feed-skeleton');
 
-            try {
-                const response = await fetch(`/feed/api/listings?page=${page}&top_only=${topOnly}`, {
+            // Birinchi sahifa: avval 1 ta e'lonni tez yuklab ko'rsatamiz (0.5–1 s), keyin to'liq ro'yxat fonda
+            if (page === 1) {
+                try {
+                    const quickRes = await fetch(`/feed/api/listings?page=1&per_page=1&top_only=${topOnly}`, {
+                        method: 'GET',
+                        headers: feedHeaders,
+                        credentials: 'same-origin'
+                    });
+                    if (quickRes.status === 401 || quickRes.status === 403) {
+                        window.location.href = '/';
+                        return;
+                    }
+                    if (!quickRes.ok) throw new Error('Quick load failed');
+                    const quickData = await quickRes.json();
+
+                    if (skeleton) {
+                        skeleton.style.display = 'none';
+                        if (skeleton.parentNode) skeleton.remove();
+                    }
+                    if (container) container.innerHTML = '';
+
+                    if (quickData.listings.length === 0) {
+                        container.innerHTML = '<div class="text-center py-8 text-white/60">E\'lonlar topilmadi</div>';
+                        feedHasMore = false;
+                        feedCurrentPage = 1;
+                        pageDataLoaded.feed = true;
+                        return;
+                    }
+
+                    quickData.listings.forEach(listing => container.appendChild(createFeedListingCard(listing)));
+                    feedHasMore = quickData.has_next;
+                    feedCurrentPage = 1;
+                    pageDataLoaded.feed = true;
+                    const loadMore = document.getElementById('feed-load-more');
+                    if (loadMore) loadMore.classList.toggle('hidden', !feedHasMore);
+                } catch (err) {
+                    console.warn('Quick feed load failed, falling back to full load:', err);
+                    feedIsLoading = true;
+                    try {
+                        const fallbackRes = await fetch(`/feed/api/listings?page=1&per_page=20&top_only=${topOnly}`, {
+                            method: 'GET',
+                            headers: feedHeaders,
+                            credentials: 'same-origin'
+                        });
+                        if (fallbackRes.ok) {
+                            const fallbackData = await fallbackRes.json();
+                            if (skeleton) { skeleton.style.display = 'none'; if (skeleton.parentNode) skeleton.remove(); }
+                            if (container) container.innerHTML = '';
+                            if (fallbackData.listings.length === 0) {
+                                container.innerHTML = '<div class="text-center py-8 text-white/60">E\'lonlar topilmadi</div>';
+                            } else {
+                                fallbackData.listings.forEach(listing => container.appendChild(createFeedListingCard(listing)));
+                            }
+                            feedHasMore = fallbackData.has_next;
+                            feedCurrentPage = 1;
+                            pageDataLoaded.feed = true;
+                            const lm = document.getElementById('feed-load-more');
+                            if (lm) lm.classList.toggle('hidden', !feedHasMore);
+                        }
+                    } catch (e) {
+                        if (skeleton) skeleton.remove();
+                        if (container) container.innerHTML = '<div class="text-center py-8 text-red-400">Xatolik yuz berdi</div>';
+                    } finally {
+                        feedIsLoading = false;
+                    }
+                    return;
+                } finally {
+                    feedIsLoading = false;
+                }
+
+                // To'liq ro'yxatni fonda yuklash va konteynerni yangilash
+                fetch(`/feed/api/listings?page=1&per_page=20&top_only=${topOnly}`, {
                     method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    },
+                    headers: feedHeaders,
+                    credentials: 'same-origin'
+                })
+                    .then(r => {
+                        if (!r.ok) return null;
+                        return r.json();
+                    })
+                    .then(fullData => {
+                        if (!fullData || !fullData.listings || !container) return;
+                        const c = document.getElementById('feed-listings');
+                        if (!c || c.children.length === 0) return;
+                        c.innerHTML = '';
+                        fullData.listings.forEach(listing => c.appendChild(createFeedListingCard(listing)));
+                        feedHasMore = fullData.has_next;
+                        const lm = document.getElementById('feed-load-more');
+                        if (lm) lm.classList.toggle('hidden', !feedHasMore);
+                    })
+                    .catch(() => {});
+
+                return;
+            }
+
+            // page > 1: oddiy sahifa yuklash
+            try {
+                const response = await fetch(`/feed/api/listings?page=${page}&per_page=20&top_only=${topOnly}`, {
+                    method: 'GET',
+                    headers: feedHeaders,
                     credentials: 'same-origin'
                 });
                 if (!response.ok) {
@@ -2509,7 +2606,7 @@
             div.className = 'profile-card glass-card rounded-[22px] overflow-hidden relative flex flex-col group';
             div.style.height = 'calc((100vh - 220px) / 2.8)';
             div.style.minHeight = '245px';
-            div.onclick = () => window.location.href = `/feed/profile/${listing.user_id}`;
+            div.onclick = () => showFeedProfileFromListing(listing);
 
             // Har xil gradient ranglar yaratish
             const gradients = [
@@ -2652,67 +2749,71 @@
         
         window.toggleFavorite = toggleFavorite;
 
-        async function showFeedProfile(userId) {
-            const modal = document.getElementById('feed-profile-modal');
-            const content = document.getElementById('feed-profile-content');
-            if (!modal || !content) return;
-
-            content.innerHTML = '<div class="text-center py-8"><div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div></div>';
-            modal.classList.remove('hidden');
-
-            try {
-                const response = await fetch(`/feed/api/listing/${userId}`, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    },
-                    credentials: 'same-origin'
-                });
-                if (!response.ok) {
-                    if (response.status === 401 || response.status === 403) {
-                        window.location.href = '/';
-                        return;
-                    }
-                    throw new Error(`HTTP ${response.status}: Failed to load profile`);
-                }
-                const profile = await response.json();
-
-                const bgImage = profile.photo_url || 'https://via.placeholder.com/400x600?text=' + (profile.name || 'User');
-
-                content.innerHTML = `
-                    <div class="relative h-[45vh] w-full overflow-hidden rounded-2xl mb-4">
-                        <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('${bgImage}')"></div>
-                        <div class="absolute inset-0 profile-gradient"></div>
-                        <button onclick="window.closeFeedModal()" class="absolute top-4 right-4 size-10 glass-card rounded-full flex items-center justify-center text-white/80">
-                            <span class="material-symbols-outlined">close</span>
+        function renderFeedModalContent(profile, userId, actionHtml) {
+            const bioEsc = (profile.bio || '').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+            const gradients = ['linear-gradient(135deg, #667eea 0%, #764ba2 100%)','linear-gradient(135deg, #f093fb 0%, #f5576c 100%)','linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)','linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)','linear-gradient(135deg, #fa709a 0%, #fee140 100%)','linear-gradient(135deg, #30cfd0 0%, #330867 100%)','linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)','linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)','linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)','linear-gradient(135deg, #ff6e7f 0%, #bfe9ff 100%)'];
+            const gradientIndex = (profile.user_id || userId || 0) % gradients.length;
+            const gradient = gradients[gradientIndex];
+            return `
+                <header class="sticky top-0 z-50 bg-background-dark/95 backdrop-blur-xl border-b border-white/5 flex items-center px-5 py-4">
+                    <div class="max-w-md mx-auto w-full flex items-center justify-between">
+                        <button type="button" onclick="window.closeFeedModal()" class="size-10 flex items-center justify-center text-white/80 active:scale-95 transition-transform">
+                            <span class="material-symbols-outlined text-[28px]">chevron_left</span>
                         </button>
+                        <h1 class="text-lg font-extrabold tracking-tight text-white">Profil</h1>
+                        <div class="size-10 flex items-center justify-center">
+                            <span class="material-symbols-outlined text-white/40 text-[22px]">more_horiz</span>
+                        </div>
+                    </div>
+                </header>
+                <main class="max-w-md mx-auto" style="padding-bottom: 120px;">
+                    <section class="relative h-[45vh] w-full overflow-hidden">
+                        <div class="absolute inset-0" style="background: ${gradient}"></div>
+                        <div class="absolute inset-0 profile-gradient"></div>
                         <div class="absolute bottom-6 left-6 right-6">
                             <div class="flex items-center gap-2 mb-2">
-                                <span class="bg-primary/20 text-primary border border-primary/30 px-2 py-0.5 rounded text-[10px] font-black tracking-widest uppercase">#${profile.user_id || '0000'}</span>
+                                <span class="bg-primary/20 text-primary border border-primary/30 px-2 py-0.5 rounded text-[10px] font-black tracking-widest uppercase">#${profile.user_id || userId || '0000'}</span>
+                                <span class="flex items-center gap-1 bg-primary/20 text-primary border border-primary/30 px-2 py-0.5 rounded text-[10px] font-bold">
+                                    <span class="material-symbols-outlined text-[12px]" style="font-variation-settings: 'FILL' 1">verified</span>
+                                    TASDIQLANGAN
+                                </span>
                             </div>
                             <h1 class="text-3xl font-extrabold tracking-tight mb-1">${profile.name || 'Foydalanuvchi'}, <span class="text-white/70 font-medium text-2xl">${profile.age || '?'}</span></h1>
                             <div class="flex items-center gap-1.5 text-white/60 font-medium">
                                 <span class="material-symbols-outlined text-[18px] text-primary">location_on</span>
-                                ${profile.region || 'Toshkent'}
+                                ${profile.region || 'Toshkent'}${profile.nationality ? ', ' + profile.nationality : ''}
                             </div>
                         </div>
-                    </div>
-                    <div class="space-y-4">
+                    </section>
+                    <div class="px-5 space-y-4 -mt-2 relative z-10">
                         <div class="glass-card rounded-2xl p-4">
                             <div class="flex items-center gap-2 mb-4 border-b border-white/5 pb-2">
                                 <span class="material-symbols-outlined text-primary text-[20px]">straighten</span>
                                 <h3 class="text-[12px] font-black uppercase tracking-widest text-white/80">Jismoniy ma'lumotlar</h3>
                             </div>
                             <div class="grid grid-cols-2 gap-4">
-                                <div>
-                                    <p class="text-[10px] text-white/40 font-bold uppercase tracking-wider mb-1">Bo'yi</p>
-                                    <p class="text-[14px] text-white font-semibold">${profile.height || '-'} sm</p>
-                                </div>
-                                <div>
-                                    <p class="text-[10px] text-white/40 font-bold uppercase tracking-wider mb-1">Vazni</p>
-                                    <p class="text-[14px] text-white font-semibold">${profile.weight || '-'} kg</p>
-                                </div>
+                                <div><p class="text-[10px] text-white/40 font-bold uppercase tracking-wider mb-1">Bo'yi</p><p class="text-[14px] text-white font-semibold">${profile.height || '-'} sm</p></div>
+                                <div><p class="text-[10px] text-white/40 font-bold uppercase tracking-wider mb-1">Vazni</p><p class="text-[14px] text-white font-semibold">${profile.weight || '-'} kg</p></div>
+                            </div>
+                        </div>
+                        <div class="glass-card rounded-2xl p-4">
+                            <div class="flex items-center gap-2 mb-4 border-b border-white/5 pb-2">
+                                <span class="material-symbols-outlined text-primary text-[20px]">person_celebrate</span>
+                                <h3 class="text-[12px] font-black uppercase tracking-widest text-white/80">Shaxsiy holati</h3>
+                            </div>
+                            <div class="grid grid-cols-2 gap-y-4 gap-x-4">
+                                <div><p class="text-[10px] text-white/40 font-bold uppercase tracking-wider mb-1">Millati</p><p class="text-[14px] text-white font-semibold">${profile.nationality || 'O\'zbek'}</p></div>
+                                <div><p class="text-[10px] text-white/40 font-bold uppercase tracking-wider mb-1">Oilaviy holati</p><p class="text-[14px] text-white font-semibold">${profile.marital_status || 'Bo\'ydoq'}</p></div>
+                            </div>
+                        </div>
+                        <div class="glass-card rounded-2xl p-4">
+                            <div class="flex items-center gap-2 mb-4 border-b border-white/5 pb-2">
+                                <span class="material-symbols-outlined text-primary text-[20px]">school</span>
+                                <h3 class="text-[12px] font-black uppercase tracking-widest text-white/80">Ilm &amp; Kasb</h3>
+                            </div>
+                            <div class="grid grid-cols-2 gap-y-4 gap-x-4">
+                                <div><p class="text-[10px] text-white/40 font-bold uppercase tracking-wider mb-1">Ta'lim</p><p class="text-[14px] text-white font-semibold">${profile.education || '-'}</p></div>
+                                <div><p class="text-[10px] text-white/40 font-bold uppercase tracking-wider mb-1">Kasbi</p><p class="text-[14px] text-white font-semibold">${profile.profession || '-'}</p></div>
                             </div>
                         </div>
                         <div class="glass-card rounded-2xl p-4">
@@ -2721,47 +2822,82 @@
                                 <h3 class="text-[12px] font-black uppercase tracking-widest text-white/80">Diniy ma'lumotlar</h3>
                             </div>
                             <div class="grid grid-cols-2 gap-y-4 gap-x-4">
-                                <div>
-                                    <p class="text-[10px] text-white/40 font-bold uppercase tracking-wider mb-1">Namoz</p>
-                                    <p class="text-[14px] text-white font-semibold">${profile.prays || '-'}</p>
-                                </div>
-                                <div>
-                                    <p class="text-[10px] text-white/40 font-bold uppercase tracking-wider mb-1">Ro'za</p>
-                                    <p class="text-[14px] text-white font-semibold">${profile.fasts || '-'}</p>
-                                </div>
-                                <div class="col-span-2">
-                                    <p class="text-[10px] text-white/40 font-bold uppercase tracking-wider mb-1">Diniy daraja</p>
-                                    <p class="text-[14px] text-white font-semibold">${profile.religious_level || '-'}</p>
-                                </div>
+                                <div><p class="text-[10px] text-white/40 font-bold uppercase tracking-wider mb-1">Namoz</p><p class="text-[14px] text-white font-semibold">${profile.prays || '-'}</p></div>
+                                <div><p class="text-[10px] text-white/40 font-bold uppercase tracking-wider mb-1">Ro'za</p><p class="text-[14px] text-white font-semibold">${profile.fasts || '-'}</p></div>
+                                <div class="col-span-2"><p class="text-[10px] text-white/40 font-bold uppercase tracking-wider mb-1">Diniy daraja</p><p class="text-[14px] text-white font-semibold">${profile.religious_level || '-'}</p></div>
                             </div>
                         </div>
-                        ${profile.bio ? `
-                        <div class="glass-card rounded-2xl p-5">
-                            <h3 class="text-[13px] font-black uppercase tracking-widest text-primary mb-3">O'zim haqimda</h3>
-                            <p class="text-[14px] leading-relaxed text-white/80 font-medium">${profile.bio}</p>
-                        </div>
-                        ` : ''}
+                        ${bioEsc ? `<div class="glass-card rounded-2xl p-5"><h3 class="text-[13px] font-black uppercase tracking-widest text-primary mb-3">O'zim haqimda</h3><p class="text-[14px] leading-relaxed text-white/80 font-medium">${bioEsc}</p></div>` : ''}
+                        <div id="feed-profile-action">${actionHtml}</div>
                     </div>
-                    ${profile.request_sent && profile.request_status === 'accepted' && profile.chat_id ?
-                        `<button onclick="window.showChatView(${profile.chat_id})" class="mt-6 w-full h-14 bg-gradient-to-r from-primary to-green-500 rounded-2xl flex items-center justify-center gap-2 text-black font-extrabold text-[15px] tracking-widest uppercase neon-glow active:scale-95 transition-all">CHATGA O'TISH 💬</button>` :
-                        profile.request_sent && profile.request_status === 'pending' && profile.is_sender ?
-                        '<div class="mt-6 glass-card p-4 rounded-2xl text-center text-white/60">So\'rov yuborilgan, javob kutilmoqda</div>' :
-                        profile.request_sent && profile.request_status === 'pending' && !profile.is_sender ?
-                        '<div class="mt-6 glass-card p-4 rounded-2xl text-center text-white/60">Sizga so\'rov yuborilgan. So\'rovlar bo\'limida ko\'ring</div>' :
-                        profile.request_sent && profile.request_status === 'rejected' ?
-                        '<div class="mt-6 glass-card p-4 rounded-2xl text-center text-white/60">So\'rov rad etilgan</div>' :
-                        `<button onclick="window.sendFeedRequest(${userId})" class="mt-6 w-full h-14 bg-gradient-to-r from-primary to-green-500 rounded-2xl flex items-center justify-center gap-2 text-black font-extrabold text-[15px] tracking-widest uppercase neon-glow active:scale-95 transition-all">SO'ROV YUBORISH 💌</button>`
+                </main>
+            `;
+        }
+
+        function showFeedProfileFromListing(listing) {
+            const modal = document.getElementById('feed-profile-modal');
+            const content = document.getElementById('feed-profile-content');
+            if (!modal || !content) return;
+            hapticTap('light');
+            const userId = listing.user_id;
+            const actionPlaceholder = '<div class="mt-6 py-4 rounded-2xl text-center text-white/40 text-sm">Yuklanmoqda...</div>';
+            content.innerHTML = renderFeedModalContent(listing, userId, actionPlaceholder);
+            modal.classList.remove('hidden');
+            fetch(`/feed/api/listing/${userId}`, { method: 'GET', headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }, credentials: 'same-origin' })
+                .then(r => r.ok ? r.json() : null)
+                .then(profile => {
+                    if (!profile) return;
+                    const actionEl = document.getElementById('feed-profile-action');
+                    if (!actionEl) return;
+                    let actionHtml;
+                    if (profile.request_sent && profile.request_status === 'accepted' && profile.chat_id) {
+                        actionHtml = `<button onclick="window.closeFeedModal(); window.showChatView(${profile.chat_id})" class="mt-0 w-full h-14 bg-gradient-to-r from-primary to-green-500 rounded-2xl flex items-center justify-center gap-2 text-black font-extrabold text-[15px] tracking-widest uppercase neon-glow active:scale-95 transition-all">CHATGA O'TISH 💬</button>`;
+                    } else if (profile.request_sent && profile.request_status === 'pending' && profile.is_sender) {
+                        actionHtml = '<div class="mt-0 glass-card p-4 rounded-2xl text-center text-white/60">So\'rov yuborilgan, javob kutilmoqda</div>';
+                    } else if (profile.request_sent && profile.request_status === 'pending' && !profile.is_sender) {
+                        actionHtml = '<div class="mt-0 glass-card p-4 rounded-2xl text-center text-white/60">Sizga so\'rov yuborilgan. So\'rovlar bo\'limida ko\'ring</div>';
+                    } else if (profile.request_sent && profile.request_status === 'rejected') {
+                        actionHtml = '<div class="mt-0 glass-card p-4 rounded-2xl text-center text-white/60">So\'rov rad etilgan</div>';
+                    } else {
+                        actionHtml = `<button onclick="window.sendFeedRequest(${userId})" class="mt-0 w-full h-14 bg-gradient-to-r from-primary to-green-500 rounded-2xl flex items-center justify-center gap-2 text-black font-extrabold text-[15px] tracking-widest uppercase neon-glow active:scale-95 transition-all">SO'ROV YUBORISH 💌</button>`;
                     }
-                `;
-            } catch (error) {
-                console.error('Error loading profile:', error);
-                content.innerHTML = '<div class="text-center py-8 text-red-400">Xatolik yuz berdi</div>';
+                    actionEl.innerHTML = actionHtml;
+                })
+                .catch(() => {
+                    const actionEl = document.getElementById('feed-profile-action');
+                    if (actionEl) actionEl.innerHTML = `<button onclick="window.sendFeedRequest(${userId})" class="mt-0 w-full h-14 bg-primary text-black rounded-2xl py-4 font-bold">SO'ROV YUBORISH</button>`;
+                });
+        }
+
+        async function showFeedProfile(userId) {
+            const modal = document.getElementById('feed-profile-modal');
+            const content = document.getElementById('feed-profile-content');
+            if (!modal || !content) return;
+            content.innerHTML = '<div class="text-center py-12"><div class="animate-spin rounded-full h-10 w-10 border-2 border-primary border-t-transparent mx-auto"></div></div>';
+            modal.classList.remove('hidden');
+            try {
+                const response = await fetch(`/feed/api/listing/${userId}`, { method: 'GET', headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }, credentials: 'same-origin' });
+                if (!response.ok) throw new Error();
+                const profile = await response.json();
+                const actionHtml = profile.request_sent && profile.request_status === 'accepted' && profile.chat_id ?
+                    `<button onclick="window.closeFeedModal(); window.showChatView(${profile.chat_id})" class="mt-0 w-full h-14 bg-gradient-to-r from-primary to-green-500 rounded-2xl flex items-center justify-center gap-2 text-black font-extrabold text-[15px] tracking-widest uppercase neon-glow active:scale-95">CHATGA O'TISH 💬</button>` :
+                    profile.request_sent && profile.request_status === 'pending' && profile.is_sender ? '<div class="mt-0 glass-card p-4 rounded-2xl text-center text-white/60">So\'rov yuborilgan</div>' :
+                    profile.request_sent && profile.request_status === 'pending' && !profile.is_sender ? '<div class="mt-0 glass-card p-4 rounded-2xl text-center text-white/60">Sizga so\'rov yuborilgan</div>' :
+                    profile.request_sent && profile.request_status === 'rejected' ? '<div class="mt-0 glass-card p-4 rounded-2xl text-center text-white/60">So\'rov rad etilgan</div>' :
+                    `<button onclick="window.sendFeedRequest(${userId})" class="mt-0 w-full h-14 bg-primary text-black rounded-2xl py-4 font-bold">SO'ROV YUBORISH</button>`;
+                content.innerHTML = renderFeedModalContent(profile, userId, actionHtml);
+            } catch (e) {
+                content.innerHTML = '<div class="text-center py-8 text-red-400">Xatolik</div>';
             }
         }
 
         window.closeFeedModal = function() {
+            hapticTap('light');
             const modal = document.getElementById('feed-profile-modal');
-            if (modal) modal.classList.add('hidden');
+            if (modal) {
+                modal.classList.add('hidden');
+                modal.scrollTop = 0;
+            }
         };
 
         window.sendFeedRequest = async function(receiverId) {

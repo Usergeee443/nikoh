@@ -24,9 +24,10 @@ def get_listings():
     current_user = User.query.get(session['user_id'])
     current_profile = current_user.profile
 
-    # Pagination
+    # Pagination — birinchi sahifa tez yuklansi uchun kamroq (6 ta)
     page = request.args.get('page', 1, type=int)
-    per_page = 20
+    per_page = request.args.get('per_page', 20, type=int)
+    per_page = max(1, min(per_page, 50))
 
     # Filterlar
     show_top_only = request.args.get('top_only', 'false') == 'true'
@@ -106,13 +107,6 @@ def get_listings():
     pagination = query.paginate(page=page, per_page=per_page, error_out=False)
     profiles = pagination.items
     
-    # Debug: Query natijalarini tekshirish
-    import logging
-    logger = logging.getLogger(__name__)
-    logger.info(f"Feed query results: {len(profiles)} profiles found")
-    logger.info(f"Query filters: is_active=True, user_id!={current_user.id}, current_gender={current_profile.gender}")
-    logger.info(f"Total active profiles in DB: {Profile.query.filter(Profile.is_active == True).count()}")
-
     # Current user'ning favorites list'ini olish
     user_favorites = Favorite.query.filter_by(user_id=current_user.id).all()
     favorite_user_ids = {fav.favorite_user_id for fav in user_favorites}
