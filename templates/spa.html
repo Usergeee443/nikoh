@@ -249,6 +249,12 @@
             .chip-active {
                 @apply bg-primary text-black font-bold;
             }
+            .requests-tab-icon-only {
+                width: 2.5rem;
+                min-width: 2.5rem;
+                padding-left: 0;
+                padding-right: 0;
+            }
             .chip-inactive {
                 @apply bg-white/[0.05] text-white/60 border border-white/[0.05];
             }
@@ -2735,28 +2741,39 @@
 
         function switchRequestsTab(tab) {
             requestsCurrentTab = tab;
-            
-            // Update tariff info
             updateRequestsTariffInfo();
             
-            // Reset all tabs
-            document.getElementById('requests-received-tab')?.classList.remove('text-primary', 'active-neon-btn');
-            document.getElementById('requests-received-tab')?.classList.add('text-white/40');
-            document.getElementById('requests-sent-tab')?.classList.remove('text-primary', 'active-neon-btn');
-            document.getElementById('requests-sent-tab')?.classList.add('text-white/40');
+            const receivedTab = document.getElementById('requests-received-tab');
+            const sentTab = document.getElementById('requests-sent-tab');
+            const receivedLabel = document.getElementById('requests-received-label');
+            const sentLabel = document.getElementById('requests-sent-label');
             
-            // Hide all containers
+            // Barcha tablarni inactive qilish: faqat ikonka, kulrang
+            [receivedTab, sentTab].forEach(el => {
+                if (el) {
+                    el.classList.remove('text-primary', 'active-neon-btn');
+                    el.classList.add('text-white/40', 'requests-tab-icon-only');
+                }
+            });
+            [receivedLabel, sentLabel].forEach(el => { if (el) el.classList.add('hidden'); });
+            
             document.getElementById('requests-received-container')?.classList.add('hidden');
             document.getElementById('requests-sent-container')?.classList.add('hidden');
             
             if (tab === 'received') {
-                document.getElementById('requests-received-tab')?.classList.add('text-primary', 'active-neon-btn');
-                document.getElementById('requests-received-tab')?.classList.remove('text-white/40');
+                if (receivedTab) {
+                    receivedTab.classList.remove('text-white/40', 'requests-tab-icon-only');
+                    receivedTab.classList.add('text-primary', 'active-neon-btn');
+                }
+                if (receivedLabel) receivedLabel.classList.remove('hidden');
                 document.getElementById('requests-received-container')?.classList.remove('hidden');
                 loadReceivedRequests();
             } else if (tab === 'sent') {
-                document.getElementById('requests-sent-tab')?.classList.add('text-primary', 'active-neon-btn');
-                document.getElementById('requests-sent-tab')?.classList.remove('text-white/40');
+                if (sentTab) {
+                    sentTab.classList.remove('text-white/40', 'requests-tab-icon-only');
+                    sentTab.classList.add('text-primary', 'active-neon-btn');
+                }
+                if (sentLabel) sentLabel.classList.remove('hidden');
                 document.getElementById('requests-sent-container')?.classList.remove('hidden');
                 loadSentRequests();
             }
