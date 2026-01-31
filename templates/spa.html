@@ -912,11 +912,14 @@
                                     <span class="material-symbols-outlined text-[22px]">call_received</span>
                                     <span id="requests-received-badge" class="absolute -top-1.5 -right-1.5 badge-neon text-[9px] font-black text-black px-1.5 rounded-full min-w-[18px] h-[18px] flex items-center justify-center border-2 border-background-dark hidden">0</span>
                                 </div>
-                                <span class="text-[10px] font-black tracking-widest uppercase">Kelgan</span>
+                                <span id="requests-received-label" class="text-[10px] font-black tracking-widest uppercase">Kelgan</span>
                             </button>
-                            <button id="requests-sent-tab" onclick="switchRequestsTab('sent')" class="relative size-10 rounded-full glass-card flex items-center justify-center text-white/40">
-                                <span class="material-symbols-outlined text-[22px]">call_made</span>
-                                <span id="requests-sent-badge" class="absolute -top-1 -right-1 bg-white/20 text-[9px] font-black text-white px-1.5 rounded-full min-w-[18px] h-[18px] flex items-center justify-center border-2 border-background-dark hidden">0</span>
+                            <button id="requests-sent-tab" onclick="switchRequestsTab('sent')" class="relative h-10 px-3 pr-4 rounded-full glass-card flex items-center gap-2 text-white/40 requests-tab-icon-only">
+                                <div class="relative flex items-center justify-center">
+                                    <span class="material-symbols-outlined text-[22px]">call_made</span>
+                                    <span id="requests-sent-badge" class="absolute -top-1.5 -right-1.5 bg-white/20 text-[9px] font-black text-white px-1.5 rounded-full min-w-[18px] h-[18px] flex items-center justify-center border-2 border-background-dark hidden">0</span>
+                                </div>
+                                <span id="requests-sent-label" class="text-[10px] font-black tracking-widest uppercase hidden">Yuborilgan</span>
                             </button>
                         </div>
                     </div>
