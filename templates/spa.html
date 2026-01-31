@@ -1018,16 +1018,9 @@
         <!-- FAVORITES PAGE -->
         <div id="page-favorites" class="page-container">
             <header class="pt-8 pb-4 px-6 bg-background-dark/95 backdrop-blur-xl sticky top-0 z-50 border-b border-white/5">
-                <div class="max-w-md mx-auto flex items-center justify-between">
-                    <div class="flex items-center gap-3">
-                        <button onclick="window.showPage('feed')" class="size-10 rounded-full glass-card flex items-center justify-center text-white/70 active:scale-95 transition-transform">
-                            <span class="material-symbols-outlined text-[24px]">arrow_back_ios_new</span>
-                        </button>
-                        <div>
-                            <h1 class="text-xl font-extrabold tracking-tight">Sevimlilar</h1>
-                            <p class="text-[11px] text-white/40 mt-0.5">Saqlangan profillar ro'yxati</p>
-                        </div>
-                    </div>
+                <div class="max-w-md mx-auto">
+                    <h1 class="text-xl font-extrabold tracking-tight">Sevimlilar</h1>
+                    <p class="text-[11px] text-white/40 mt-0.5">Saqlangan profillar ro'yxati</p>
                 </div>
             </header>
             <main class="px-4" style="padding-bottom: 140px;">
@@ -1216,15 +1209,15 @@
                         </div>
                         <span class="material-symbols-outlined text-white/20 group-hover:text-primary transition-colors">chevron_right</span>
                     </a>
-                    <a href="/profile/edit" class="w-full glass-card rounded-2xl p-4 flex items-center justify-between group active:scale-[0.98] transition-transform">
+                    <button type="button" onclick="window.showPage('profile-edit')" class="w-full glass-card rounded-2xl p-4 flex items-center justify-between group active:scale-[0.98] transition-transform text-left">
                         <div class="flex items-center gap-4">
                             <div class="size-10 rounded-xl bg-white/5 flex items-center justify-center text-white/60">
                                 <span class="material-symbols-outlined text-[22px]">person_edit</span>
                             </div>
                             <p class="text-sm font-bold">Profilni tahrirlash</p>
                         </div>
-                        <span class="material-symbols-outlined text-white/20">chevron_right</span>
-                    </a>
+                        <span class="material-symbols-outlined text-white/20 group-hover:text-primary transition-colors">chevron_right</span>
+                    </button>
                     <button class="w-full glass-card rounded-2xl p-4 flex items-center justify-between group active:scale-[0.98] transition-transform">
                         <div class="flex items-center gap-4">
                             <div class="size-10 rounded-xl bg-white/5 flex items-center justify-center text-white/60">
@@ -1279,6 +1272,134 @@
                     <span class="text-xs font-black uppercase tracking-[0.2em]">Chiqish</span>
                 </button>
             </main>
+        </div>
+
+        <!-- PROFILNI TAHRIRLASH (bo'limlar bo'yicha) -->
+        <div id="page-profile-edit" class="page-container">
+            <header class="sticky top-0 z-30 flex items-center justify-between px-6 py-5 backdrop-blur-xl bg-background-dark/80 border-b border-white/5">
+                <div class="flex items-center gap-3">
+                    <button type="button" onclick="window.showPage('profile')" class="size-10 rounded-full glass-card flex items-center justify-center text-white/80 active:scale-95 transition-transform">
+                        <span class="material-symbols-outlined text-[22px]">arrow_back_ios_new</span>
+                    </button>
+                    <h1 class="text-xl font-extrabold tracking-tight text-white">Profilni tahrirlash</h1>
+                </div>
+                <button type="button" id="profile-edit-save-btn" class="bg-primary/10 hover:bg-primary/20 px-5 py-2 rounded-full transition-all active:scale-95 border border-primary/30 hidden">
+                    <span class="text-primary font-bold tracking-wide neon-text-glow">Saqlash</span>
+                </button>
+            </header>
+            <main class="flex-1 overflow-y-auto custom-scrollbar px-5 pb-32" style="padding-top: 16px;">
+                <div id="profile-edit-summary" class="mt-2 mb-8 flex flex-col items-center">
+                    <div class="size-24 rounded-[24px] overflow-hidden border-2 border-primary/30 bg-white/5 flex items-center justify-center text-3xl font-bold text-primary/60" id="profile-edit-avatar">?</div>
+                    <h2 id="profile-edit-name" class="mt-4 text-lg font-bold text-white">—</h2>
+                    <p id="profile-edit-region" class="text-sm text-white/50">—</p>
+                </div>
+                <div class="space-y-4">
+                    <h3 class="px-1 text-[10px] font-black uppercase tracking-[0.2em] text-white/40 mb-2">Shaxsiy ma'lumotlar</h3>
+                    <button type="button" onclick="openProfileEditSheet('diniy')" class="w-full glass-card rounded-2xl p-5 flex items-center justify-between group active:scale-[0.98] transition-all text-left">
+                        <div class="flex items-center gap-4">
+                            <div class="size-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary border border-primary/20">
+                                <span class="material-symbols-outlined text-[26px]">mosque</span>
+                            </div>
+                            <div>
+                                <p class="font-bold text-base text-white">Diniy</p>
+                                <p id="profile-edit-diniy-summary" class="text-sm text-white/50">Belgilanmagan</p>
+                            </div>
+                        </div>
+                        <span class="material-symbols-outlined text-white/30 group-hover:text-primary transition-colors">chevron_right</span>
+                    </button>
+                    <button type="button" onclick="openProfileEditSheet('joylashuv')" class="w-full glass-card rounded-2xl p-5 flex items-center justify-between group active:scale-[0.98] transition-all text-left">
+                        <div class="flex items-center gap-4">
+                            <div class="size-12 rounded-2xl bg-white/5 flex items-center justify-center text-white/60 border border-white/10">
+                                <span class="material-symbols-outlined text-[26px]">location_on</span>
+                            </div>
+                            <div>
+                                <p class="font-bold text-base text-white">Joylashuv</p>
+                                <p id="profile-edit-joylashuv-summary" class="text-sm text-white/50">Belgilanmagan</p>
+                            </div>
+                        </div>
+                        <span class="material-symbols-outlined text-white/30 group-hover:text-primary transition-colors">chevron_right</span>
+                    </button>
+                    <button type="button" onclick="openProfileEditSheet('oilaviy')" class="w-full glass-card rounded-2xl p-5 flex items-center justify-between group active:scale-[0.98] transition-all text-left">
+                        <div class="flex items-center gap-4">
+                            <div class="size-12 rounded-2xl bg-white/5 flex items-center justify-center text-white/60 border border-white/10">
+                                <span class="material-symbols-outlined text-[26px]">favorite</span>
+                            </div>
+                            <div>
+                                <p class="font-bold text-base text-white">Oilaviy holati</p>
+                                <p id="profile-edit-oilaviy-summary" class="text-sm text-white/50">Belgilanmagan</p>
+                            </div>
+                        </div>
+                        <span class="material-symbols-outlined text-white/30 group-hover:text-primary transition-colors">chevron_right</span>
+                    </button>
+                    <h3 class="pt-6 px-1 text-[10px] font-black uppercase tracking-[0.2em] text-white/40 mb-2">Qo'shimcha tafsilotlar</h3>
+                    <button type="button" onclick="openProfileEditSheet('jismoniy')" class="w-full glass-card rounded-2xl p-5 flex items-center justify-between group active:scale-[0.98] transition-all text-left">
+                        <div class="flex items-center gap-4">
+                            <div class="size-12 rounded-2xl bg-white/5 flex items-center justify-center text-white/60 border border-white/10">
+                                <span class="material-symbols-outlined text-[26px]">straighten</span>
+                            </div>
+                            <div>
+                                <p class="font-bold text-base text-white">Jismoniy</p>
+                                <p id="profile-edit-jismoniy-summary" class="text-sm text-white/50">Belgilanmagan</p>
+                            </div>
+                        </div>
+                        <span class="material-symbols-outlined text-white/30 group-hover:text-primary transition-colors">chevron_right</span>
+                    </button>
+                    <button type="button" onclick="openProfileEditSheet('talim')" class="w-full glass-card rounded-2xl p-5 flex items-center justify-between group active:scale-[0.98] transition-all text-left">
+                        <div class="flex items-center gap-4">
+                            <div class="size-12 rounded-2xl bg-white/5 flex items-center justify-center text-white/60 border border-white/10">
+                                <span class="material-symbols-outlined text-[26px]">school</span>
+                            </div>
+                            <div>
+                                <p class="font-bold text-base text-white">Ta'lim</p>
+                                <p id="profile-edit-talim-summary" class="text-sm text-white/50">Belgilanmagan</p>
+                            </div>
+                        </div>
+                        <span class="material-symbols-outlined text-white/30 group-hover:text-primary transition-colors">chevron_right</span>
+                    </button>
+                    <button type="button" onclick="openProfileEditSheet('ish')" class="w-full glass-card rounded-2xl p-5 flex items-center justify-between group active:scale-[0.98] transition-all text-left">
+                        <div class="flex items-center gap-4">
+                            <div class="size-12 rounded-2xl bg-white/5 flex items-center justify-center text-white/60 border border-white/10">
+                                <span class="material-symbols-outlined text-[26px]">work</span>
+                            </div>
+                            <div>
+                                <p class="font-bold text-base text-white">Ish &amp; Kasb</p>
+                                <p id="profile-edit-ish-summary" class="text-sm text-white/50">Belgilanmagan</p>
+                            </div>
+                        </div>
+                        <span class="material-symbols-outlined text-white/30 group-hover:text-primary transition-colors">chevron_right</span>
+                    </button>
+                    <button type="button" onclick="openProfileEditSheet('bio')" class="w-full glass-card rounded-2xl p-5 flex items-center justify-between group active:scale-[0.98] transition-all text-left border border-dashed border-primary/20 bg-primary/5">
+                        <div class="flex items-center gap-4">
+                            <div class="size-12 rounded-2xl bg-primary/20 flex items-center justify-center text-primary">
+                                <span class="material-symbols-outlined text-[26px]">history_edu</span>
+                            </div>
+                            <div>
+                                <p class="font-bold text-base text-white">O'zim haqimda</p>
+                                <p id="profile-edit-bio-summary" class="text-sm text-primary/60 italic">Belgilanmagan</p>
+                            </div>
+                        </div>
+                        <span class="material-symbols-outlined text-primary">add_circle</span>
+                    </button>
+                </div>
+            </main>
+        </div>
+
+        <!-- Profil tahrirlash bo'limi bottom sheet -->
+        <div id="profile-edit-sheet" class="fixed inset-0 z-50 pointer-events-none">
+            <div id="profile-edit-sheet-overlay" class="absolute inset-0 bg-black/60 backdrop-blur-sm opacity-0 transition-opacity pointer-events-none"></div>
+            <div id="profile-edit-sheet-content" class="absolute bottom-0 left-0 right-0 max-w-md mx-auto glass-card rounded-t-[32px] border-t-2 border-primary/30 pt-3 pb-10 px-6 shadow-[0_-10px_40px_rgba(0,0,0,0.8)] transform translate-y-full transition-transform duration-300 pointer-events-auto">
+                <div class="w-12 h-1.5 bg-white/20 rounded-full mx-auto mb-6"></div>
+                <div class="flex justify-between items-center mb-6">
+                    <h4 id="profile-edit-sheet-title" class="text-xl font-bold">Bo'lim</h4>
+                    <button type="button" onclick="closeProfileEditSheet()" class="size-10 rounded-full flex items-center justify-center text-white/50 hover:bg-white/10">
+                        <span class="material-symbols-outlined">close</span>
+                    </button>
+                </div>
+                <div id="profile-edit-sheet-body" class="space-y-4"></div>
+                <button type="button" id="profile-edit-sheet-save" onclick="saveProfileEditSheet()" class="mt-6 w-full bg-primary text-black font-bold py-3.5 rounded-2xl active:scale-[0.98] transition-all">
+                    Saqlash
+                </button>
+            </div>
         </div>
 
         <!-- TOP PAGE -->
@@ -1973,6 +2094,9 @@
                 case 'profile':
                     if (pageDataLoaded.profile) { updateProfileUI(); return; }
                     await loadProfileData();
+                    break;
+                case 'profile-edit':
+                    await loadProfileEditPage();
                     break;
             }
         }
@@ -3756,6 +3880,154 @@
             updateProfileUI();
             pageDataLoaded.profile = true;
         }
+
+        let currentProfileEditSection = null;
+
+        async function loadProfileEditPage() {
+            if (!userData) await initUserData();
+            updateProfileEditSummaries();
+        }
+
+        function updateProfileEditSummaries() {
+            const p = userData?.profile || {};
+            const el = (id, text) => { const e = document.getElementById(id); if (e) e.textContent = text || '—'; };
+            const avatar = document.getElementById('profile-edit-avatar');
+            if (avatar) avatar.textContent = (p.name || '?').charAt(0).toUpperCase();
+            el('profile-edit-name', p.name ? `${p.name}${p.age ? ', ' + p.age : ''}` : '—');
+            el('profile-edit-region', p.region ? `${p.region}${p.nationality ? ', ' + p.nationality : ''}` : '—');
+            el('profile-edit-diniy-summary', [p.prays, p.fasts, p.religious_level].filter(Boolean).join(', ') || 'Belgilanmagan');
+            el('profile-edit-joylashuv-summary', [p.region, p.nationality].filter(Boolean).join(', ') || 'Belgilanmagan');
+            el('profile-edit-oilaviy-summary', p.marital_status || 'Belgilanmagan');
+            el('profile-edit-jismoniy-summary', [p.height && p.height + ' sm', p.weight && p.weight + ' kg'].filter(Boolean).join(', ') || 'Belgilanmagan');
+            el('profile-edit-talim-summary', p.education || 'Belgilanmagan');
+            el('profile-edit-ish-summary', p.profession ? (p.is_working ? p.profession + ', Ishlaman' : p.profession) : 'Belgilanmagan');
+            const bioEl = document.getElementById('profile-edit-bio-summary');
+            if (bioEl) { bioEl.textContent = (p.bio || '').trim() ? (p.bio.slice(0, 40) + (p.bio.length > 40 ? '…' : '')) : 'Belgilanmagan'; bioEl.classList.toggle('italic', !p.bio); }
+        }
+
+        function openProfileEditSheet(section) {
+            currentProfileEditSection = section;
+            hapticTap('light');
+            const sheet = document.getElementById('profile-edit-sheet');
+            const overlay = document.getElementById('profile-edit-sheet-overlay');
+            const content = document.getElementById('profile-edit-sheet-content');
+            const title = document.getElementById('profile-edit-sheet-title');
+            const body = document.getElementById('profile-edit-sheet-body');
+            const p = userData?.profile || {};
+            if (!sheet || !body) return;
+            sheet.classList.remove('pointer-events-none');
+            overlay.classList.remove('pointer-events-none');
+            overlay.classList.add('opacity-100');
+            content.classList.remove('translate-y-full');
+            const titles = { diniy: 'Diniy ma\'lumotlar', joylashuv: 'Joylashuv', oilaviy: 'Oilaviy holati', jismoniy: 'Jismoniy', talim: 'Ta\'lim', ish: 'Ish & Kasb', bio: 'O\'zim haqimda' };
+            title.textContent = titles[section] || 'Tahrirlash';
+            const regionOpts = ['Toshkent shahar','Toshkent viloyati','Samarqand','Buxoro','Andijon','Farg\'ona','Namangan','Qashqadaryo','Surxondaryo','Xorazm','Navoiy','Jizzax','Sirdaryo','Qoraqalpog\'iston'];
+            const yearOpts = Array.from({length: 48}, (_, i) => 2006 - i);
+            if (section === 'diniy') {
+                body.innerHTML = `
+                    <p class="text-[11px] font-bold text-white/60 mb-2">Namoz</p>
+                    <div class="space-y-2">
+                        ${['Ha','Ba\'zan','Yo\'q'].map(v => `<label class="flex items-center justify-between p-4 rounded-2xl border cursor-pointer transition-all ${(p.prays === v) ? 'border-primary bg-primary/10' : 'border-white/10 bg-white/5'}"><span>${v}</span><input type="radio" name="prays" value="${v}" ${(p.prays === v) ? 'checked' : ''} class="hidden"></label>`).join('')}
+                    </div>
+                    <p class="text-[11px] font-bold text-white/60 mb-2 mt-4">Ro'za</p>
+                    <div class="space-y-2">
+                        ${['Ha','Ba\'zan','Yo\'q'].map(v => `<label class="flex items-center justify-between p-4 rounded-2xl border cursor-pointer transition-all ${(p.fasts === v) ? 'border-primary bg-primary/10' : 'border-white/10 bg-white/5'}"><span>${v}</span><input type="radio" name="fasts" value="${v}" ${(p.fasts === v) ? 'checked' : ''} class="hidden"></label>`).join('')}
+                    </div>
+                    <p class="text-[11px] font-bold text-white/60 mb-2 mt-4">Diniy daraja</p>
+                    <div class="space-y-2">
+                        ${['Jiddiy','O\'rtacha','Yengil'].map(v => `<label class="flex items-center justify-between p-4 rounded-2xl border cursor-pointer transition-all ${(p.religious_level === v) ? 'border-primary bg-primary/10' : 'border-white/10 bg-white/5'}"><span>${v}</span><input type="radio" name="religious_level" value="${v}" ${(p.religious_level === v) ? 'checked' : ''} class="hidden"></label>`).join('')}
+                    </div>
+                `;
+            } else if (section === 'joylashuv') {
+                body.innerHTML = `
+                    <label class="block text-[11px] font-bold text-white/60 mb-2">Hudud</label>
+                    <select name="region" class="w-full glass-card rounded-2xl px-4 py-3 text-white border border-white/10 bg-white/5 mb-4">${regionOpts.map(r => `<option value="${r}" ${(p.region === r) ? 'selected' : ''}>${r}</option>`).join('')}</select>
+                    <label class="block text-[11px] font-bold text-white/60 mb-2">Millat</label>
+                    <select name="nationality" class="w-full glass-card rounded-2xl px-4 py-3 text-white border border-white/10 bg-white/5">${['O\'zbek','Rus','Tojik','Qozoq','Qoraqalpoq','Boshqa'].map(n => `<option value="${n}" ${(p.nationality === n) ? 'selected' : ''}>${n}</option>`).join('')}</select>
+                `;
+            } else if (section === 'oilaviy') {
+                body.innerHTML = `
+                    <div class="space-y-2">
+                        ${['Bo\'ydoq','Ajrashgan'].map(v => `<label class="flex items-center justify-between p-4 rounded-2xl border cursor-pointer transition-all ${(p.marital_status === v) ? 'border-primary bg-primary/10' : 'border-white/10 bg-white/5'}"><span>${v}</span><input type="radio" name="marital_status" value="${v}" ${(p.marital_status === v) ? 'checked' : ''} class="hidden"></label>`).join('')}
+                    </div>
+                `;
+            } else if (section === 'jismoniy') {
+                body.innerHTML = `
+                    <label class="block text-[11px] font-bold text-white/60 mb-2">Bo'y (sm)</label>
+                    <select name="height" class="w-full glass-card rounded-2xl px-4 py-3 text-white border border-white/10 bg-white/5 mb-4">${Array.from({length: 81}, (_, i) => 140 + i).map(h => `<option value="${h}" ${(p.height === h) ? 'selected' : ''}>${h} sm</option>`).join('')}</select>
+                    <label class="block text-[11px] font-bold text-white/60 mb-2">Vazn (kg)</label>
+                    <select name="weight" class="w-full glass-card rounded-2xl px-4 py-3 text-white border border-white/10 bg-white/5">${Array.from({length: 111}, (_, i) => 40 + i).map(w => `<option value="${w}" ${(p.weight === w) ? 'selected' : ''}>${w} kg</option>`).join('')}</select>
+                `;
+            } else if (section === 'talim') {
+                body.innerHTML = `
+                    <div class="space-y-2">
+                        ${['Oliy','O\'rta maxsus','O\'rta'].map(v => `<label class="flex items-center justify-between p-4 rounded-2xl border cursor-pointer transition-all ${(p.education === v) ? 'border-primary bg-primary/10' : 'border-white/10 bg-white/5'}"><span>${v}</span><input type="radio" name="education" value="${v}" ${(p.education === v) ? 'checked' : ''} class="hidden"></label>`).join('')}
+                    </div>
+                `;
+            } else if (section === 'ish') {
+                body.innerHTML = `
+                    <label class="block text-[11px] font-bold text-white/60 mb-2">Kasb</label>
+                    <input type="text" name="profession" value="${(p.profession || '').replace(/"/g, '&quot;')}" placeholder="Masalan: Dasturchi" class="w-full glass-card rounded-2xl px-4 py-3 text-white border border-white/10 bg-white/5 mb-4">
+                    <p class="text-[11px] font-bold text-white/60 mb-2">Ishlaysizmi?</p>
+                    <div class="flex gap-3">
+                        <label class="flex-1 flex items-center justify-between p-4 rounded-2xl border cursor-pointer transition-all ${p.is_working === true ? 'border-primary bg-primary/10' : 'border-white/10 bg-white/5'}"><span>Ha</span><input type="radio" name="is_working" value="true" ${p.is_working === true ? 'checked' : ''} class="hidden"></label>
+                        <label class="flex-1 flex items-center justify-between p-4 rounded-2xl border cursor-pointer transition-all ${p.is_working === false ? 'border-primary bg-primary/10' : 'border-white/10 bg-white/5'}"><span>Yo'q</span><input type="radio" name="is_working" value="false" ${p.is_working === false ? 'checked' : ''} class="hidden"></label>
+                    </div>
+                `;
+            } else if (section === 'bio') {
+                body.innerHTML = `
+                    <label class="block text-[11px] font-bold text-white/60 mb-2">O'zingiz haqingizda (qisqacha)</label>
+                    <textarea name="bio" rows="5" placeholder="O'zingiz haqingizda yozing..." class="w-full glass-card rounded-2xl px-4 py-3 text-white border border-white/10 bg-white/5 resize-none">${(p.bio || '').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</textarea>
+                `;
+            }
+            body.querySelectorAll('input[type=radio]').forEach(radio => {
+                radio.addEventListener('change', function() {
+                    body.querySelectorAll('label').forEach(l => l.classList.remove('border-primary', 'bg-primary/10'));
+                    body.querySelectorAll('input[type=radio]:checked').forEach(r => r.closest('label')?.classList.add('border-primary', 'bg-primary/10'));
+                });
+            });
+        }
+
+        function closeProfileEditSheet() {
+            const sheet = document.getElementById('profile-edit-sheet');
+            const overlay = document.getElementById('profile-edit-sheet-overlay');
+            const content = document.getElementById('profile-edit-sheet-content');
+            if (sheet) sheet.classList.add('pointer-events-none');
+            if (overlay) { overlay.classList.remove('opacity-100'); overlay.classList.add('pointer-events-none'); }
+            if (content) content.classList.add('translate-y-full');
+            currentProfileEditSection = null;
+        }
+
+        async function saveProfileEditSheet() {
+            if (!currentProfileEditSection) return;
+            const body = document.getElementById('profile-edit-sheet-body');
+            if (!body) return;
+            const formData = new FormData();
+            body.querySelectorAll('input, select, textarea').forEach(el => {
+                if (el.name && (el.type !== 'radio' || el.checked)) formData.append(el.name, el.value);
+            });
+            const btn = document.getElementById('profile-edit-sheet-save');
+            if (btn) { btn.disabled = true; btn.textContent = 'Saqlanmoqda...'; }
+            try {
+                const response = await fetch('/profile/edit', { method: 'POST', body: formData, credentials: 'same-origin' });
+                const data = await response.json();
+                if (response.ok && data.success) {
+                    if (typeof window.showNotification === 'function') window.showNotification('✅ Saqlandi');
+                    await initUserData();
+                    updateProfileEditSummaries();
+                    if (pageDataLoaded.profile) updateProfileUI();
+                    closeProfileEditSheet();
+                } else {
+                    alert(data.message || 'Xatolik');
+                }
+            } catch (e) {
+                alert('Xatolik yuz berdi');
+            } finally {
+                if (btn) { btn.disabled = false; btn.textContent = 'Saqlash'; }
+            }
+        }
+
+        document.getElementById('profile-edit-sheet-overlay')?.addEventListener('click', closeProfileEditSheet);
 
         function updateProfileUI() {
             if (!userData) return;
