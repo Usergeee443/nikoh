@@ -2262,6 +2262,12 @@
                     onboardingDone = true;
                 // Load page data
                 loadPageData(currentPage);
+                // Asosiy sahifa e'lonlarini tez ko'rsatish uchun backgroundda prefetch
+                if (currentPage !== 'feed') {
+                    setTimeout(function() {
+                        if (typeof loadFeedListings === 'function' && !pageDataLoaded.feed) loadFeedListings(1);
+                    }, 350);
+                }
                 }
             }).catch(err => {
                 console.error('Initialization error:', err);
@@ -2689,98 +2695,65 @@
             const container = document.getElementById('feed-listings');
             const skeleton = document.getElementById('feed-skeleton');
 
-            // Birinchi sahifa: avval 1 ta e'lonni tez yuklab ko'rsatamiz (0.5–1 s), keyin to'liq ro'yxat fonda
+            // Birinchi sahifa: 1 ta va 20 ta parallel yuklash — qaysi birinchi kelsa tez ko'rsatamiz
             if (page === 1) {
-            try {
-                    const quickRes = await fetch(`/feed/api/listings?page=1&per_page=1&top_only=${topOnly}&gender=${encodeURIComponent(feedGender)}&sort=${encodeURIComponent(feedSort)}`, {
-                    method: 'GET',
-                        headers: feedHeaders,
-                        credentials: 'same-origin'
-                    });
-                    if (quickRes.status === 401 || quickRes.status === 403) {
-                        window.location.href = '/';
-                        return;
+                const urlBase = `/feed/api/listings?page=1&top_only=${topOnly}&gender=${encodeURIComponent(feedGender)}&sort=${encodeURIComponent(feedSort)}`;
+                let fullReceived = false;
+                function applyFull(data) {
+                    if (!data || !data.listings || fullReceived) return;
+                    fullReceived = true;
+                    const c = document.getElementById('feed-listings');
+                    if (skeleton) { skeleton.style.display = 'none'; if (skeleton.parentNode) skeleton.remove(); }
+                    if (!c) return;
+                    c.innerHTML = '';
+                    if (data.listings.length === 0) {
+                        c.innerHTML = '<div class="text-center py-8 text-white/60">E\'lonlar topilmadi</div>';
+                    } else {
+                        data.listings.forEach(listing => c.appendChild(createFeedListingCard(listing)));
                     }
-                    if (!quickRes.ok) throw new Error('Quick load failed');
-                    const quickData = await quickRes.json();
-
-                    if (skeleton) {
-                        skeleton.style.display = 'none';
-                        if (skeleton.parentNode) skeleton.remove();
-                    }
-                    if (container) container.innerHTML = '';
-
-                    if (quickData.listings.length === 0) {
-                        container.innerHTML = '<div class="text-center py-8 text-white/60">E\'lonlar topilmadi</div>';
-                        feedHasMore = false;
-                        feedCurrentPage = 1;
-                        pageDataLoaded.feed = true;
-                        return;
-                    }
-
-                    quickData.listings.forEach(listing => container.appendChild(createFeedListingCard(listing)));
-                    feedHasMore = quickData.has_next;
+                    feedHasMore = data.has_next;
                     feedCurrentPage = 1;
                     pageDataLoaded.feed = true;
-                    const loadMore = document.getElementById('feed-load-more');
-                    if (loadMore) loadMore.classList.toggle('hidden', !feedHasMore);
-                } catch (err) {
-                    console.warn('Quick feed load failed, falling back to full load:', err);
-                    feedIsLoading = true;
-                    try {
-                        const fallbackRes = await fetch(`/feed/api/listings?page=1&per_page=20&top_only=${topOnly}&gender=${encodeURIComponent(feedGender)}&sort=${encodeURIComponent(feedSort)}`, {
-                            method: 'GET',
-                            headers: feedHeaders,
-                            credentials: 'same-origin'
-                        });
-                        if (fallbackRes.ok) {
-                            const fallbackData = await fallbackRes.json();
-                            if (skeleton) { skeleton.style.display = 'none'; if (skeleton.parentNode) skeleton.remove(); }
-                            if (container) container.innerHTML = '';
-                            if (fallbackData.listings.length === 0) {
-                                container.innerHTML = '<div class="text-center py-8 text-white/60">E\'lonlar topilmadi</div>';
-                            } else {
-                                fallbackData.listings.forEach(listing => container.appendChild(createFeedListingCard(listing)));
-                            }
-                            feedHasMore = fallbackData.has_next;
-                            feedCurrentPage = 1;
-                            pageDataLoaded.feed = true;
-                            const lm = document.getElementById('feed-load-more');
-                            if (lm) lm.classList.toggle('hidden', !feedHasMore);
-                        }
-                    } catch (e) {
-                        if (skeleton) skeleton.remove();
-                        if (container) container.innerHTML = '<div class="text-center py-8 text-red-400">Xatolik yuz berdi</div>';
-                    } finally {
-                        feedIsLoading = false;
-                    }
-                    return;
-                } finally {
-                    feedIsLoading = false;
+                    const lm = document.getElementById('feed-load-more');
+                    if (lm) lm.classList.toggle('hidden', !feedHasMore);
                 }
-
-                // To'liq ro'yxatni fonda yuklash va konteynerni yangilash
-                fetch(`/feed/api/listings?page=1&per_page=20&top_only=${topOnly}&gender=${encodeURIComponent(feedGender)}&sort=${encodeURIComponent(feedSort)}`, {
-                    method: 'GET',
-                    headers: feedHeaders,
-                    credentials: 'same-origin'
-                })
-                    .then(r => {
-                        if (!r.ok) return null;
-                        return r.json();
-                    })
-                    .then(fullData => {
-                        if (!fullData || !fullData.listings || !container) return;
-                        const c = document.getElementById('feed-listings');
-                        if (!c || c.children.length === 0) return;
-                        c.innerHTML = '';
-                        fullData.listings.forEach(listing => c.appendChild(createFeedListingCard(listing)));
-                        feedHasMore = fullData.has_next;
-                        const lm = document.getElementById('feed-load-more');
-                        if (lm) lm.classList.toggle('hidden', !feedHasMore);
-                    })
-                    .catch(() => {});
-
+                function applyQuick(data) {
+                    if (fullReceived || !data || !data.listings || data.listings.length === 0) return;
+                    if (skeleton) { skeleton.style.display = 'none'; if (skeleton.parentNode) skeleton.remove(); }
+                    if (container) container.innerHTML = '';
+                    data.listings.forEach(listing => container.appendChild(createFeedListingCard(listing)));
+                    feedHasMore = data.has_next;
+                    feedCurrentPage = 1;
+                    pageDataLoaded.feed = true;
+                    const lm = document.getElementById('feed-load-more');
+                    if (lm) lm.classList.toggle('hidden', !feedHasMore);
+                }
+                try {
+                    const quickPromise = fetch(urlBase + '&per_page=1', { method: 'GET', headers: feedHeaders, credentials: 'same-origin' })
+                        .then(r => { if (r.status === 401 || r.status === 403) { window.location.href = '/'; return null; } return r.ok ? r.json() : null; });
+                    const fullPromise = fetch(urlBase + '&per_page=20', { method: 'GET', headers: feedHeaders, credentials: 'same-origin' })
+                        .then(r => { if (r.status === 401 || r.status === 403) { window.location.href = '/'; return null; } return r.ok ? r.json() : null; });
+                    quickPromise.then(quickData => { if (quickData) applyQuick(quickData); }).catch(() => {});
+                    fullPromise.then(fullData => { if (fullData) applyFull(fullData); }).catch(() => {});
+                    await Promise.race([quickPromise, fullPromise]);
+                    if (!fullReceived) {
+                        const fullData = await fullPromise;
+                        if (fullData) applyFull(fullData);
+                        else {
+                            const quickData = await quickPromise;
+                            if (quickData && quickData.listings && quickData.listings.length === 0) {
+                                if (skeleton) { skeleton.style.display = 'none'; if (skeleton.parentNode) skeleton.remove(); }
+                                if (container) container.innerHTML = '<div class="text-center py-8 text-white/60">E\'lonlar topilmadi</div>';
+                                feedHasMore = false;
+                                pageDataLoaded.feed = true;
+                            }
+                        }
+                    }
+                } catch (err) {
+                    if (skeleton) skeleton.style.display = 'none';
+                    if (container) container.innerHTML = '<div class="text-center py-8 text-red-400">Xatolik yuz berdi</div>';
+                }
+                feedIsLoading = false;
                 return;
             }
 
@@ -4300,15 +4273,16 @@
             const regionOpts = ['Toshkent shahar','Toshkent viloyati','Samarqand','Buxoro','Andijon','Farg\'ona','Namangan','Qashqadaryo','Surxondaryo','Xorazm','Navoiy','Jizzax','Sirdaryo','Qoraqalpog\'iston'];
             const yearOpts = Array.from({length: 48}, (_, i) => 2006 - i);
             if (section === 'shaxsiy') {
-                const isWoman = (p.gender === 'Ayol');
+                const defaultGender = (p.gender && (p.gender === 'Erkak' || p.gender === 'Ayol')) ? p.gender : 'Ayol';
+                const isWoman = (defaultGender === 'Ayol');
                 const maritalOpts = isWoman ? ['Qiz bola', 'Beva', 'Ajrashgan'] : ['Bo\'ydoq', 'Oilali', 'Ajrashgan'];
                 body.innerHTML = `
                     <label class="block text-[11px] font-bold text-white/60 mb-2">Ism</label>
                     <input type="text" name="name" value="${(p.name || '').replace(/"/g, '&quot;')}" placeholder="Ism" class="w-full glass-card rounded-2xl px-4 py-3 text-white border border-white/10 bg-white/5 mb-4">
                     <label class="block text-[11px] font-bold text-white/60 mb-2">Jins</label>
                     <div class="flex gap-3 mb-4">
-                        <label class="flex-1 flex items-center justify-between p-4 rounded-2xl border cursor-pointer transition-all ${p.gender === 'Erkak' ? 'border-primary bg-primary/10' : 'border-white/10 bg-white/5'}"><span>Erkak</span><input type="radio" name="gender" value="Erkak" ${p.gender === 'Erkak' ? 'checked' : ''} class="hidden"></label>
-                        <label class="flex-1 flex items-center justify-between p-4 rounded-2xl border cursor-pointer transition-all ${p.gender === 'Ayol' ? 'border-primary bg-primary/10' : 'border-white/10 bg-white/5'}"><span>Ayol</span><input type="radio" name="gender" value="Ayol" ${p.gender === 'Ayol' ? 'checked' : ''} class="hidden"></label>
+                        <label class="flex-1 flex items-center justify-between p-4 rounded-2xl border cursor-pointer transition-all ${defaultGender === 'Erkak' ? 'border-primary bg-primary/10' : 'border-white/10 bg-white/5'}"><span>Erkak</span><input type="radio" name="gender" value="Erkak" ${defaultGender === 'Erkak' ? 'checked' : ''} class="hidden"></label>
+                        <label class="flex-1 flex items-center justify-between p-4 rounded-2xl border cursor-pointer transition-all ${defaultGender === 'Ayol' ? 'border-primary bg-primary/10' : 'border-white/10 bg-white/5'}"><span>Ayol</span><input type="radio" name="gender" value="Ayol" ${defaultGender === 'Ayol' ? 'checked' : ''} class="hidden"></label>
                     </div>
                     <label class="block text-[11px] font-bold text-white/60 mb-2">Tug'ilgan yil</label>
                     <select name="birth_year" class="w-full glass-card rounded-2xl px-4 py-3 text-white border border-white/10 bg-white/5 mb-4">${yearOpts.map(y => `<option value="${y}" ${(p.birth_year === y) ? 'selected' : ''}>${y}</option>`).join('')}</select>
@@ -4498,7 +4472,7 @@
                     credentials: 'same-origin',
                     body: JSON.stringify({
                         name: (d.name || '').trim(),
-                        gender: d.gender,
+                        gender: (d.gender && String(d.gender).trim()) ? String(d.gender).trim() : '',
                         birth_year: d.birth_year ? parseInt(d.birth_year, 10) : null,
                         region: d.region || '',
                         nationality: d.nationality || '',
@@ -4522,16 +4496,18 @@
                         bio: (d.bio || '').trim()
                     })
                 });
-                const data = await r.json();
+                let data = {};
+                try { data = await r.json(); } catch (_) { data = {}; }
                 if (r.ok && data.success) {
                     if (typeof window.showNotification === 'function') window.showNotification('✅ E\'lon qo\'shildi');
                     window.showPage('profile');
                     loadProfileListings();
                 } else {
-                    alert(data.error || 'Xatolik yuz berdi');
+                    const msg = data.message || data.error || 'Xatolik yuz berdi';
+                    alert(msg);
                 }
             } catch (e) {
-                alert('Xatolik yuz berdi');
+                alert('Xatolik yuz berdi. Internet aloqangizni tekshiring.');
             } finally {
                 if (btn) { btn.disabled = false; btn.textContent = 'E\'lonni saqlash'; }
             }

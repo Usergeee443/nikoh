@@ -101,9 +101,11 @@ def get_listings():
     pagination = query.paginate(page=page, per_page=per_page, error_out=False)
     profiles = pagination.items
 
-    # Bitta so'rov: TOP bo'lgan user_id lar (N+1 yo'q)
+    # Tez javob: per_page=1 da qo'shimcha so'rovlarni o'tkazib yuboramiz (birinchi kartochka tez chiqadi)
+    quick_first_paint = (page == 1 and per_page == 1)
     top_user_ids = set()
-    if profiles:
+    favorite_user_ids = set()
+    if not quick_first_paint and profiles:
         from models.tariff import UserTariff as UT
         rows = db.session.query(UT.user_id).filter(
             UT.is_active == True,
@@ -112,9 +114,7 @@ def get_listings():
             db.or_(UT.top_expires_at.is_(None), UT.top_expires_at > now)
         ).distinct().all()
         top_user_ids = {r[0] for r in rows}
-
-    # Bitta so'rov: joriy foydalanuvchi sevimlilari
-    favorite_user_ids = {fav.favorite_user_id for fav in Favorite.query.filter_by(user_id=current_user.id).all()}
+        favorite_user_ids = {fav.favorite_user_id for fav in Favorite.query.filter_by(user_id=current_user.id).all()}
 
     listings = [
         _listing_dict(

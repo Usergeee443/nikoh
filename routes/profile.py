@@ -284,56 +284,81 @@ def list_my_listings():
     })
 
 
+def _parse_bool(v):
+    """JSON true/false yoki 'true'/'false' string ni boolean ga aylantirish"""
+    if v is None:
+        return None
+    if isinstance(v, bool):
+        return v
+    if isinstance(v, str):
+        return v.lower() in ('true', '1', 'ha', 'yes')
+    return bool(v)
+
+
+def _parse_int(v):
+    try:
+        return int(v) if v not in (None, '') else None
+    except (TypeError, ValueError):
+        return None
+
+
 @profile_bp.route('/api/listings', methods=['POST'])
 @login_required
 def create_listing():
     """Yangi e'lon yaratish (boshqa shaxs uchun — aka, opa, ota va h.k.)"""
     user = User.query.get(session['user_id'])
-    data = request.get_json() or {}
-    # Minimal: name, gender, birth_year (yosh)
+    data = request.get_json(silent=True) or {}
+    # FormData dan kelgan bo'lsa (Content-Type boshqacha)
+    if not data and request.content_type and 'application/json' not in request.content_type:
+        data = {k: v for k, v in request.form.items()} or {}
     name = (data.get('name') or '').strip()
-    gender = data.get('gender')
-    birth_year = data.get('birth_year')
+    gender_raw = data.get('gender')
+    gender = None
+    if gender_raw is not None and str(gender_raw).strip():
+        g = str(gender_raw).strip()
+        if g in ('Erkak', 'Ayol'):
+            gender = g
+        elif g.lower() in ('erkak', 'ayol'):
+            gender = g.capitalize()
     if not name or not gender:
-        return jsonify({'error': 'Ism va jins kerak'}), 400
-    try:
-        birth_year = int(birth_year) if birth_year else None
-    except (TypeError, ValueError):
-        birth_year = None
-    def _int(v):
-        try:
-            return int(v) if v not in (None, '') else None
-        except (TypeError, ValueError):
-            return None
+        return jsonify({'error': 'Ism va jins kerak', 'message': 'Shaxsiy bo\'limda ism va jinsni to\'ldiring.'}), 400
+    birth_year = _parse_int(data.get('birth_year'))
 
     # Yangi profil — is_primary=False, barcha maydonlar asosiy e'lon kabi
-    profile = Profile(
-        user_id=user.id,
-        is_primary=False,
-        name=name,
-        gender=gender,
-        birth_year=birth_year,
-        region=data.get('region') or '',
-        nationality=data.get('nationality') or '',
-        marital_status=data.get('marital_status') or '',
-        height=_int(data.get('height')),
-        weight=_int(data.get('weight')),
-        aqida=data.get('aqida') or None,
-        prays=data.get('prays') or '',
-        fasts=data.get('fasts') or '',
-        quran_reading=data.get('quran_reading') or None,
-        mazhab=data.get('mazhab') or None,
-        religious_level=data.get('religious_level') or '',
-        education=data.get('education') or '',
-        profession=data.get('profession') or '',
-        is_working=data.get('is_working') if data.get('is_working') is not None else None,
-        partner_age_min=_int(data.get('partner_age_min')),
-        partner_age_max=_int(data.get('partner_age_max')),
-        partner_region=data.get('partner_region') or '',
-        partner_religious_level=data.get('partner_religious_level') or '',
-        partner_marital_status=data.get('partner_marital_status') or '',
-        bio=data.get('bio') or ''
-    )
-    db.session.add(profile)
-    db.session.commit()
-    return jsonify({'success': True, 'profile': profile.to_dict(), 'id': profile.id})
+    try:
+        profile = Profile(
+            user_id=user.id,
+            is_primary=False,
+            name=name,
+            gender=str(gender),
+            birth_year=birth_year,
+            region=(data.get('region') or '')[:100] or None,
+            nationality=(data.get('nationality') or '')[:50] or None,
+            marital_status=(data.get('marital_status') or '')[:20] or None,
+            height=_parse_int(data.get('height')),
+            weight=_parse_int(data.get('weight')),
+            aqida=(data.get('aqida') or '')[:50] or None,
+            prays=(data.get('prays') or '')[:20] or None,
+            fasts=(data.get('fasts') or '')[:10] or None,
+            quran_reading=(data.get('quran_reading') or '')[:50] or None,
+            mazhab=(data.get('mazhab') or '')[:30] or None,
+            religious_level=(data.get('religious_level') or '')[:20] or None,
+            education=(data.get('education') or '')[:100] or None,
+            profession=(data.get('profession') or '')[:100] or None,
+            is_working=_parse_bool(data.get('is_working')),
+            partner_age_min=_parse_int(data.get('partner_age_min')),
+            partner_age_max=_parse_int(data.get('partner_age_max')),
+            partner_region=(data.get('partner_region') or '')[:100] or None,
+            partner_religious_level=(data.get('partner_religious_level') or '')[:20] or None,
+            partner_marital_status=(data.get('partner_marital_status') or '')[:20] or None,
+            bio=(data.get('bio') or '').strip() or None
+        )
+        db.session.add(profile)
+        db.session.commit()
+        return jsonify({'success': True, 'profile': profile.to_dict(), 'id': profile.id})
+    except Exception as e:
+        db.session.rollback()
+        err_msg = str(e)
+        if 'Duplicate' in err_msg or 'UNIQUE' in err_msg or 'unique' in err_msg:
+            return jsonify({'error': 'Bunday e\'lon allaqachon mavjud', 'message': 'E\'lon saqlanmadi.'}), 500
+        return jsonify({'error': err_msg, 'message': 'E\'lon saqlanmadi. Qaytadan urinib ko\'ring.'}), 500
