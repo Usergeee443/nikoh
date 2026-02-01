@@ -17,116 +17,100 @@ def index():
     return render_template('spa.html', user=user)
 
 
+def _listing_dict(profile, is_top, is_favorite):
+    """Ro'yxat kartochkasi uchun yengil JSON (N+1 va to'liq to_dict dan qochish)."""
+    age = (datetime.utcnow().year - profile.birth_year) if profile.birth_year else None
+    return {
+        'id': profile.id,
+        'user_id': profile.user_id,
+        'name': profile.name,
+        'age': age,
+        'gender': profile.gender,
+        'region': profile.region,
+        'nationality': profile.nationality,
+        'marital_status': profile.marital_status,
+        'height': profile.height,
+        'weight': profile.weight,
+        'religious_level': profile.religious_level,
+        'education': profile.education,
+        'views': 0,
+        'likes': 0,
+        'is_top': is_top,
+        'is_favorite': is_favorite,
+    }
+
+
 @feed_bp.route('/api/listings')
 @basic_profile_required
 def get_listings():
-    """E'lonlarni olish (API)"""
+    """E'lonlarni olish (API) — N+1 bartaraf, yengil JSON."""
     current_user = User.query.get(session['user_id'])
     current_profile = current_user.profile
 
-    # Pagination — birinchi sahifa tez yuklansi uchun kamroq (6 ta)
     page = request.args.get('page', 1, type=int)
     per_page = request.args.get('per_page', 20, type=int)
     per_page = max(1, min(per_page, 50))
 
-    # Filterlar
     show_top_only = request.args.get('top_only', 'false') == 'true'
+    request_gender = request.args.get('gender', type=str)
 
-    # Base query
+    # Jins: to'g'ridan-to'g'ri filter (exists() so'rov olib tashlandi)
+    if request_gender in ('Erkak', 'Ayol'):
+        filter_gender = request_gender
+    else:
+        filter_gender = 'Ayol' if current_profile.gender == 'Erkak' else 'Erkak'
+
     query = Profile.query.filter(
         Profile.is_active == True,
-        Profile.user_id != current_user.id
+        Profile.user_id != current_user.id,
+        Profile.gender == filter_gender
+    ).join(User)
+
+    from models.tariff import UserTariff
+    now = datetime.utcnow()
+    top_condition = db.and_(
+        UserTariff.user_id == User.id,
+        UserTariff.is_active == True,
+        UserTariff.is_top == True,
+        db.or_(UserTariff.top_expires_at.is_(None), UserTariff.top_expires_at > now)
     )
 
-    # Jinsi bo'yicha filter (qarshi jins)
-    # Avval qarshi jins bo'yicha filter qo'llaymiz
-    if current_profile.gender == 'Erkak':
-        opposite_gender = 'Ayol'
-    else:
-        opposite_gender = 'Erkak'
-    
-    # Qarshi jins bo'yicha filter qo'llash
-    query_with_gender = query.filter(Profile.gender == opposite_gender)
-    
-    # Agar qarshi jins bo'yicha e'lonlar topilmasa, jins filterini qoldiramiz
-    # (bu test uchun, keyinroq o'chirilishi mumkin)
-    # Avval tekshiramiz, qarshi jins bo'yicha e'lonlar bormi?
-    # exists() ishlatamiz, bu count() dan tezroq
-    has_opposite_gender = db.session.query(query_with_gender.exists()).scalar()
-    
-    if has_opposite_gender:
-        # Qarshi jins bo'yicha e'lonlar bor, filter qo'llaymiz
-        query = query_with_gender
-    # Agar qarshi jins bo'yicha e'lonlar yo'q bo'lsa, jins filterini qoldiramiz
-    # (query o'zgarishsiz qoladi - faqat is_active va user_id filterlari qoladi)
-
-    # Juftga talablar filterlari olib tashlandi
-    # Bu filterlar ilovani ochgandan keyin filter funksiyasi orqali ishlatilishi mumkin
-
-    # User bilan join qilish (zarur, chunki UserTariff bilan join qilish uchun)
-    query = query.join(User)
-    
-    # TOP e'lonlar
-    from models.tariff import UserTariff
-    
     if show_top_only:
-        # Faqat TOP tarifga ega foydalanuvchilarni ko'rsatish
-        query = query.join(UserTariff, db.and_(
-            UserTariff.user_id == User.id,
-            UserTariff.is_active == True,
-            UserTariff.is_top == True,
-            db.or_(
-                UserTariff.top_expires_at.is_(None),
-                UserTariff.top_expires_at > datetime.utcnow()
-            )
-        ))
+        query = query.join(UserTariff, top_condition)
     else:
-        # TOP e'lonlarni birinchi o'ringa qo'yish uchun outerjoin
-        query = query.outerjoin(
-            UserTariff, 
-            db.and_(
-                UserTariff.user_id == User.id,
-                UserTariff.is_active == True,
-                UserTariff.is_top == True,
-                db.or_(
-                    UserTariff.top_expires_at.is_(None),
-                    UserTariff.top_expires_at > datetime.utcnow()
-                )
-            )
-        )
+        query = query.outerjoin(UserTariff, top_condition)
 
-    # Saralash: avval TOP, keyin yangilari
-    # Faqat is_active == True bo'lgan e'lonlar ko'rsatilishi kerak (allaqachon filter qilingan)
-    # UserTariff.is_top NULL bo'lishi mumkin, shuning uchun CASE ishlatamiz
     query = query.order_by(
         db.desc(case((UserTariff.is_top == True, 1), else_=0)),
         db.desc(Profile.activated_at)
     )
 
-    # Pagination
     pagination = query.paginate(page=page, per_page=per_page, error_out=False)
     profiles = pagination.items
-    
-    # Current user'ning favorites list'ini olish
-    user_favorites = Favorite.query.filter_by(user_id=current_user.id).all()
-    favorite_user_ids = {fav.favorite_user_id for fav in user_favorites}
 
-    # JSON formatga o'tkazish
-    listings = []
-    for profile in profiles:
-        # TOP statusini tekshirish
-        is_top = False
-        if profile.user.has_active_tariff:
-            active_tariff = profile.user.active_tariff
-            if active_tariff and active_tariff.is_top and not active_tariff.is_top_expired:
-                is_top = True
+    # Bitta so'rov: TOP bo'lgan user_id lar (N+1 yo'q)
+    top_user_ids = set()
+    if profiles:
+        from models.tariff import UserTariff as UT
+        rows = db.session.query(UT.user_id).filter(
+            UT.is_active == True,
+            UT.is_top == True,
+            UT.user_id.in_([p.user_id for p in profiles]),
+            db.or_(UT.top_expires_at.is_(None), UT.top_expires_at > now)
+        ).distinct().all()
+        top_user_ids = {r[0] for r in rows}
 
-        listing = profile.to_dict()
-        listing['is_top'] = is_top
-        listing['user_id'] = profile.user_id
-        listing['is_favorite'] = profile.user_id in favorite_user_ids
+    # Bitta so'rov: joriy foydalanuvchi sevimlilari
+    favorite_user_ids = {fav.favorite_user_id for fav in Favorite.query.filter_by(user_id=current_user.id).all()}
 
-        listings.append(listing)
+    listings = [
+        _listing_dict(
+            profile,
+            is_top=(profile.user_id in top_user_ids),
+            is_favorite=(profile.user_id in favorite_user_ids)
+        )
+        for profile in profiles
+    ]
 
     return jsonify({
         'listings': listings,

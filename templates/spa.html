@@ -258,6 +258,9 @@
             .chip-inactive {
                 @apply bg-white/[0.05] text-white/60 border border-white/[0.05];
             }
+            .feed-gender-kuyov { background: rgba(64, 255, 0, 0.15); border: 1px solid rgba(64, 255, 0, 0.5); color: #22c55e; }
+            .feed-gender-kelin { background: rgba(236, 72, 153, 0.2); border: 1px solid rgba(236, 72, 153, 0.5); color: #ec4899; }
+            .feed-gender-inactive { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.5); }
             .sort-option-active {
                 background: rgba(64, 255, 0, 0.12);
                 border-color: rgba(64, 255, 0, 0.5);
@@ -587,7 +590,8 @@
                             </div>
                             <div>
                                 <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-white/60 mb-3">Oilaviy holatingiz</label>
-                                <div class="grid grid-cols-2 gap-3">
+                                <div id="onboarding-marital-options" class="grid grid-cols-2 gap-3">
+                                    <!-- Ayollar: Qiz bola, Beva, Ajrashgan. Erkaklar: Bo'ydoq, Oilali, Ajrashgan (JS to'ldiradi) -->
                                     <label class="onboarding-option-card">
                                         <input type="radio" name="marital_status" value="Bo'ydoq" required class="hidden">
                                         <div class="card-inner">
@@ -596,7 +600,7 @@
                                         </div>
                                     </label>
                                     <label class="onboarding-option-card">
-                                        <input type="radio" name="marital_status" value="Ajrashgan" required class="hidden">
+                                        <input type="radio" name="marital_status" value="Ajrashgan" class="hidden">
                                         <div class="card-inner">
                                             <span class="material-symbols-outlined text-2xl mb-2">group</span>
                                             <span class="font-bold">Ajrashgan</span>
@@ -821,7 +825,10 @@
                                     <select name="partner_marital_status" required class="w-full glass-card glass-input rounded-2xl px-4 py-4 text-sm">
                                         <option value="">Tanlang</option>
                                         <option value="Bo'ydoq">Bo'ydoq</option>
+                                        <option value="Oilali">Oilali</option>
                                         <option value="Ajrashgan">Ajrashgan</option>
+                                        <option value="Qiz bola">Qiz bola</option>
+                                        <option value="Beva">Beva</option>
                                     </select>
                                 </div>
                             </div>
@@ -853,17 +860,27 @@
                             </div>
                             <h1 class="text-lg logo-text uppercase font-extrabold tracking-wider">Nikoh</h1>
                         </div>
-                        <div id="feed-tariff-badge" class="px-3 py-1.5 rounded-full">
-                            <p class="text-[10px] font-black text-primary uppercase tracking-wider">0 SO'ROV</p>
+                        <div class="flex items-center gap-2">
+                            <button type="button" id="feed-kuyov-btn" class="feed-gender-btn h-9 px-3 rounded-full text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5 transition-all active:scale-95" title="Kuyovlar">
+                                <span class="material-symbols-outlined text-[18px]">male</span>
+                                <span>Kuyov</span>
+                            </button>
+                            <button type="button" id="feed-kelin-btn" class="feed-gender-btn h-9 px-3 rounded-full text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5 transition-all active:scale-95" title="Kelinlar">
+                                <span class="material-symbols-outlined text-[18px]">female</span>
+                                <span>Kelin</span>
+                            </button>
                         </div>
                     </div>
-                    <div class="flex items-center gap-2.5">
+                    <div class="flex items-center gap-2">
                         <div class="relative flex-1">
                             <div class="absolute inset-y-0 left-4 flex items-center pointer-events-none">
                                 <span class="material-symbols-outlined text-white/40 text-[18px]">search</span>
                             </div>
                             <input id="feed-search" class="w-full h-11 search-glass rounded-2xl pl-11 pr-4 text-[13px] text-white/60 focus:outline-none focus:border-primary/40 transition-all placeholder:text-white/20 bg-transparent" placeholder="Ism yoki ID qidirish..." type="text"/>
                         </div>
+                        <button id="feed-sort-btn" class="size-9 search-glass rounded-xl flex items-center justify-center text-white/50 hover:text-primary hover:border-primary/40 transition-all active:scale-95" title="Saralash">
+                            <span class="material-symbols-outlined text-[18px]">sort</span>
+                        </button>
                         <button id="feed-filter" class="size-11 search-glass rounded-full flex items-center justify-center text-white/60 hover:text-primary hover:border-primary/40 transition-all active:scale-95">
                             <span class="material-symbols-outlined text-[22px] font-light">tune</span>
                         </button>
@@ -1014,22 +1031,50 @@
             </div>
         </div>
 
-        <!-- FAVORITES PAGE -->
+        <!-- FAVORITES PAGE (Asosiy sahifa bilan bir xil header) -->
         <div id="page-favorites" class="page-container">
-            <header class="pt-8 pb-4 px-6 bg-background-dark/95 backdrop-blur-xl sticky top-0 z-50 border-b border-white/5">
+            <header class="sticky top-0 z-50 bg-background-dark/95 backdrop-blur-xl pt-4 pb-4 px-5">
                 <div class="max-w-md mx-auto">
-                    <h1 class="text-xl font-extrabold tracking-tight">Sevimlilar</h1>
-                    <p class="text-[11px] text-white/40 mt-0.5">Saqlangan profillar ro'yxati</p>
+                    <div class="flex items-center justify-between mb-5">
+                        <div class="flex items-center gap-2">
+                            <div class="size-7 bg-primary rounded-lg flex items-center justify-center neon-glow">
+                                <span class="material-symbols-outlined text-black text-[18px] font-bold">diamond</span>
+                            </div>
+                            <h1 class="text-lg logo-text uppercase font-extrabold tracking-wider">Nikoh</h1>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button type="button" id="favorites-kuyov-btn" class="feed-gender-btn h-9 px-3 rounded-full text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5 transition-all active:scale-95" title="Kuyovlar">
+                                <span class="material-symbols-outlined text-[18px]">male</span>
+                                <span>Kuyov</span>
+                            </button>
+                            <button type="button" id="favorites-kelin-btn" class="feed-gender-btn h-9 px-3 rounded-full text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5 transition-all active:scale-95" title="Kelinlar">
+                                <span class="material-symbols-outlined text-[18px]">female</span>
+                                <span>Kelin</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <div class="relative flex-1">
+                            <div class="absolute inset-y-0 left-4 flex items-center pointer-events-none">
+                                <span class="material-symbols-outlined text-white/40 text-[18px]">search</span>
+                            </div>
+                            <input id="favorites-search" class="w-full h-11 search-glass rounded-2xl pl-11 pr-4 text-[13px] text-white/60 focus:outline-none focus:border-primary/40 transition-all placeholder:text-white/20 bg-transparent" placeholder="Sevimli profilni qidirish..." type="text"/>
+                        </div>
+                        <button id="favorites-sort-btn" class="size-9 search-glass rounded-xl flex items-center justify-center text-white/50 hover:text-primary hover:border-primary/40 transition-all active:scale-95" title="Saralash">
+                            <span class="material-symbols-outlined text-[18px]">sort</span>
+                        </button>
+                        <button id="favorites-filter-btn" class="size-11 search-glass rounded-full flex items-center justify-center text-white/60 hover:text-primary hover:border-primary/40 transition-all active:scale-95">
+                            <span class="material-symbols-outlined text-[22px] font-light">tune</span>
+                        </button>
+                    </div>
                 </div>
             </header>
-            <main class="px-4" style="padding-bottom: 140px;">
-                <div class="max-w-md mx-auto space-y-4 pt-4">
-                    <div id="favorites-skeleton" class="space-y-4">
-                        <div class="profile-card glass-card rounded-[22px] overflow-hidden skeleton" style="height: 220px;"></div>
-                        <div class="profile-card glass-card rounded-[22px] overflow-hidden skeleton" style="height: 220px;"></div>
-                    </div>
-                    <div id="favorites-list" class="space-y-4"></div>
+            <main class="max-w-md mx-auto px-4 w-full" style="padding-top: 20px; padding-bottom: 140px;">
+                <div id="favorites-skeleton" class="space-y-4">
+                    <div class="profile-card glass-card rounded-[22px] overflow-hidden skeleton" style="height: calc((100vh - 220px) / 2.8); min-height: 245px;"></div>
+                    <div class="profile-card glass-card rounded-[22px] overflow-hidden skeleton" style="height: calc((100vh - 220px) / 2.8); min-height: 245px;"></div>
                 </div>
+                <div id="favorites-list" class="space-y-4"></div>
             </main>
             <div class="fixed top-0 left-0 w-full h-full pointer-events-none -z-10 overflow-hidden opacity-30">
                 <div class="absolute top-[-20%] right-[-10%] w-[80%] h-[80%] bg-primary/10 blur-[180px] rounded-full"></div>
@@ -2240,6 +2285,25 @@
                     nextBtn.textContent = 'DAVOM ETISH';
                 }
             }
+            if (currentOnboardingStep === 2) updateOnboardingMaritalOptions();
+        }
+        function updateOnboardingMaritalOptions() {
+            const container = document.getElementById('onboarding-marital-options');
+            if (!container) return;
+            const gender = document.querySelector('#onboarding-form input[name="gender"]:checked')?.value;
+            const isWoman = gender === 'Ayol';
+            const options = isWoman
+                ? [{ v: 'Qiz bola', icon: 'person' }, { v: 'Beva', icon: 'heart_broken' }, { v: 'Ajrashgan', icon: 'group_remove' }]
+                : [{ v: 'Bo\'ydoq', icon: 'person_add' }, { v: 'Oilali', icon: 'family_restroom' }, { v: 'Ajrashgan', icon: 'group_remove' }];
+            container.innerHTML = options.map((o, i) => `
+                <label class="onboarding-option-card">
+                    <input type="radio" name="marital_status" value="${o.v}" ${i === 0 ? 'required' : ''} class="hidden">
+                    <div class="card-inner">
+                        <span class="material-symbols-outlined text-2xl mb-2">${o.icon}</span>
+                        <span class="font-bold">${o.v}</span>
+                    </div>
+                </label>
+            `).join('');
         }
 
         function validateCurrentStep() {
@@ -2403,6 +2467,11 @@
 
         async function loadFeedData() {
             if (!userData) await initUserData();
+            if (userData?.user?.gender && !window._feedGenderInitialized) {
+                window._feedGenderInitialized = true;
+                feedGender = userData.user.gender === 'Erkak' ? 'Ayol' : 'Erkak';
+                updateFeedGenderUI();
+            }
             updateFeedTariffInfo();
             const container = document.getElementById('feed-listings');
             const skeleton = document.getElementById('feed-skeleton');
@@ -2460,7 +2529,7 @@
             // Birinchi sahifa: avval 1 ta e'lonni tez yuklab ko'rsatamiz (0.5–1 s), keyin to'liq ro'yxat fonda
             if (page === 1) {
                 try {
-                    const quickRes = await fetch(`/feed/api/listings?page=1&per_page=1&top_only=${topOnly}`, {
+                    const quickRes = await fetch(`/feed/api/listings?page=1&per_page=1&top_only=${topOnly}&gender=${encodeURIComponent(feedGender)}`, {
                         method: 'GET',
                         headers: feedHeaders,
                         credentials: 'same-origin'
@@ -2496,7 +2565,7 @@
                     console.warn('Quick feed load failed, falling back to full load:', err);
                     feedIsLoading = true;
                     try {
-                        const fallbackRes = await fetch(`/feed/api/listings?page=1&per_page=20&top_only=${topOnly}`, {
+                        const fallbackRes = await fetch(`/feed/api/listings?page=1&per_page=20&top_only=${topOnly}&gender=${encodeURIComponent(feedGender)}`, {
                             method: 'GET',
                             headers: feedHeaders,
                             credentials: 'same-origin'
@@ -2528,7 +2597,7 @@
                 }
 
                 // To'liq ro'yxatni fonda yuklash va konteynerni yangilash
-                fetch(`/feed/api/listings?page=1&per_page=20&top_only=${topOnly}`, {
+                fetch(`/feed/api/listings?page=1&per_page=20&top_only=${topOnly}&gender=${encodeURIComponent(feedGender)}`, {
                     method: 'GET',
                     headers: feedHeaders,
                     credentials: 'same-origin'
@@ -2554,7 +2623,7 @@
 
             // page > 1: oddiy sahifa yuklash
             try {
-                const response = await fetch(`/feed/api/listings?page=${page}&per_page=20&top_only=${topOnly}`, {
+                const response = await fetch(`/feed/api/listings?page=${page}&per_page=20&top_only=${topOnly}&gender=${encodeURIComponent(feedGender)}`, {
                     method: 'GET',
                     headers: feedHeaders,
                     credentials: 'same-origin'
@@ -3854,48 +3923,44 @@
 
         // PROFILE PAGE
         // FAVORITES PAGE
+        let favoritesCache = [];
+        function renderFavoritesListWithFilter() {
+            const container = document.getElementById('favorites-list');
+            if (!container) return;
+            const q = (document.getElementById('favorites-search')?.value || '').trim().toLowerCase();
+            const filtered = favoritesCache.filter(f => {
+                const listing = f.favorite_user;
+                if (!listing) return false;
+                if (listing.gender && listing.gender !== feedGender) return false;
+                if (q && !(listing.name || '').toLowerCase().includes(q) && !String(listing.user_id || '').includes(q)) return false;
+                return true;
+            });
+            container.innerHTML = '';
+            if (filtered.length === 0) {
+                container.innerHTML = '<div class="text-center py-8 text-white/60">Sevimlilar yo\'q</div>';
+                return;
+            }
+            filtered.forEach(favorite => container.appendChild(createFavoriteCard(favorite)));
+        }
         async function loadFavoritesData() {
             const container = document.getElementById('favorites-list');
             const skeleton = document.getElementById('favorites-skeleton');
-            
             if (!container) return;
-            
             try {
-                if (skeleton) skeleton.style.display = 'none';
                 const response = await fetch('/favorites/api/list', {
                     method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    },
+                    headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
                     credentials: 'same-origin'
                 });
-                
                 if (!response.ok) {
-                    if (response.status === 401 || response.status === 403) {
-                        window.location.href = '/';
-                        return;
-                    }
+                    if (response.status === 401 || response.status === 403) { window.location.href = '/'; return; }
                     throw new Error(`HTTP ${response.status}: Failed to load favorites`);
                 }
-                
                 const data = await response.json();
-                
-                if (skeleton) skeleton.remove();
-                container.innerHTML = '';
-                
-                if (data.favorites.length === 0) {
-                    container.innerHTML = '<div class="text-center py-8 text-white/60">Sevimlilar yo\'q</div>';
-                    return;
-                }
-                
-                data.favorites.forEach(favorite => {
-                    if (favorite.favorite_user) {
-                        container.appendChild(createFavoriteCard(favorite));
-                    }
-                });
+                if (skeleton) { skeleton.style.display = 'none'; skeleton.remove(); }
+                favoritesCache = (data.favorites || []).filter(f => f.favorite_user);
                 pageDataLoaded.favorites = true;
-                
+                renderFavoritesListWithFilter();
             } catch (error) {
                 console.error('Error loading favorites:', error);
                 if (skeleton) skeleton.remove();
@@ -3909,7 +3974,7 @@
             div.className = 'profile-card glass-card rounded-[22px] overflow-hidden relative flex flex-col group';
             div.style.height = 'calc((100vh - 220px) / 2.8)';
             div.style.minHeight = '245px';
-            div.onclick = () => window.location.href = `/feed/profile/${listing.user_id || favorite.favorite_user_id}`;
+            div.onclick = () => (typeof showFeedProfileFromListing === 'function' ? showFeedProfileFromListing(listing) : (window.location.href = `/feed/profile/${listing.user_id || favorite.favorite_user_id}`));
 
             // Har xil gradient ranglar yaratish
             const gradients = [
@@ -4031,7 +4096,7 @@
             if (avatar) avatar.textContent = (p.name || '?').charAt(0).toUpperCase();
             el('profile-edit-name', p.name ? `${p.name}${p.age ? ', ' + p.age : ''}` : '—');
             el('profile-edit-region', p.region ? `${p.region}${p.nationality ? ', ' + p.nationality : ''}` : '—');
-            el('profile-edit-diniy-summary', [p.prays, p.fasts, p.religious_level].filter(Boolean).join(', ') || 'Belgilanmagan');
+            el('profile-edit-diniy-summary', [p.aqida, p.prays, p.quran_reading, p.mazhab, p.religious_level].filter(Boolean).join(', ') || 'Belgilanmagan');
             el('profile-edit-joylashuv-summary', [p.region, p.nationality].filter(Boolean).join(', ') || 'Belgilanmagan');
             el('profile-edit-oilaviy-summary', p.marital_status || 'Belgilanmagan');
             el('profile-edit-jismoniy-summary', [p.height && p.height + ' sm', p.weight && p.weight + ' kg'].filter(Boolean).join(', ') || 'Belgilanmagan');
@@ -4061,13 +4126,25 @@
             const yearOpts = Array.from({length: 48}, (_, i) => 2006 - i);
             if (section === 'diniy') {
                 body.innerHTML = `
-                    <p class="text-[11px] font-bold text-white/60 mb-2">Namoz</p>
+                    <p class="text-[11px] font-bold text-white/60 mb-2">Aqidasi</p>
                     <div class="space-y-2">
-                        ${['Ha','Ba\'zan','Yo\'q'].map(v => `<label class="flex items-center justify-between p-4 rounded-2xl border cursor-pointer transition-all ${(p.prays === v) ? 'border-primary bg-primary/10' : 'border-white/10 bg-white/5'}"><span>${v}</span><input type="radio" name="prays" value="${v}" ${(p.prays === v) ? 'checked' : ''} class="hidden"></label>`).join('')}
+                        ${['Ahli Sunna','Ash\'ariya','Moturidiya','Boshqa'].map(v => `<label class="flex items-center justify-between p-4 rounded-2xl border cursor-pointer transition-all ${(p.aqida === v) ? 'border-primary bg-primary/10' : 'border-white/10 bg-white/5'}"><span>${v}</span><input type="radio" name="aqida" value="${v}" ${(p.aqida === v) ? 'checked' : ''} class="hidden"></label>`).join('')}
+                    </div>
+                    <p class="text-[11px] font-bold text-white/60 mb-2 mt-4">Namoz</p>
+                    <div class="space-y-2">
+                        ${['5 vaqt to\'liq','Faqat juma','O\'qimaydi','Boshlash niyatida'].map(v => `<label class="flex items-center justify-between p-4 rounded-2xl border cursor-pointer transition-all ${(p.prays === v) ? 'border-primary bg-primary/10' : 'border-white/10 bg-white/5'}"><span>${v}</span><input type="radio" name="prays" value="${v}" ${(p.prays === v) ? 'checked' : ''} class="hidden"></label>`).join('')}
+                    </div>
+                    <p class="text-[11px] font-bold text-white/60 mb-2 mt-4">Qur'on o'qish</p>
+                    <div class="space-y-2">
+                        ${['Bilmaydi','O\'qishni biladi','Ravon o\'qiydi','Hofizi Qur\'on'].map(v => `<label class="flex items-center justify-between p-4 rounded-2xl border cursor-pointer transition-all ${(p.quran_reading === v) ? 'border-primary bg-primary/10' : 'border-white/10 bg-white/5'}"><span>${v}</span><input type="radio" name="quran_reading" value="${v}" ${(p.quran_reading === v) ? 'checked' : ''} class="hidden"></label>`).join('')}
+                    </div>
+                    <p class="text-[11px] font-bold text-white/60 mb-2 mt-4">Mazhabi</p>
+                    <div class="space-y-2">
+                        ${['Hanafi','Shafi\'i','Maliki','Hanbali'].map(v => `<label class="flex items-center justify-between p-4 rounded-2xl border cursor-pointer transition-all ${(p.mazhab === v) ? 'border-primary bg-primary/10' : 'border-white/10 bg-white/5'}"><span>${v}</span><input type="radio" name="mazhab" value="${v}" ${(p.mazhab === v) ? 'checked' : ''} class="hidden"></label>`).join('')}
                     </div>
                     <p class="text-[11px] font-bold text-white/60 mb-2 mt-4">Ro'za</p>
                     <div class="space-y-2">
-                        ${['Ha','Ba\'zan','Yo\'q'].map(v => `<label class="flex items-center justify-between p-4 rounded-2xl border cursor-pointer transition-all ${(p.fasts === v) ? 'border-primary bg-primary/10' : 'border-white/10 bg-white/5'}"><span>${v}</span><input type="radio" name="fasts" value="${v}" ${(p.fasts === v) ? 'checked' : ''} class="hidden"></label>`).join('')}
+                        ${['Ha','Yo\'q'].map(v => `<label class="flex items-center justify-between p-4 rounded-2xl border cursor-pointer transition-all ${(p.fasts === v) ? 'border-primary bg-primary/10' : 'border-white/10 bg-white/5'}"><span>${v}</span><input type="radio" name="fasts" value="${v}" ${(p.fasts === v) ? 'checked' : ''} class="hidden"></label>`).join('')}
                     </div>
                     <p class="text-[11px] font-bold text-white/60 mb-2 mt-4">Diniy daraja</p>
                     <div class="space-y-2">
@@ -4082,9 +4159,11 @@
                     <select name="nationality" class="w-full glass-card rounded-2xl px-4 py-3 text-white border border-white/10 bg-white/5">${['O\'zbek','Rus','Tojik','Qozoq','Qoraqalpoq','Boshqa'].map(n => `<option value="${n}" ${(p.nationality === n) ? 'selected' : ''}>${n}</option>`).join('')}</select>
                 `;
             } else if (section === 'oilaviy') {
+                const isWoman = (userData && userData.user && userData.user.gender === 'Ayol');
+                const options = isWoman ? ['Qiz bola', 'Beva', 'Ajrashgan'] : ['Bo\'ydoq', 'Oilali', 'Ajrashgan'];
                 body.innerHTML = `
                     <div class="space-y-2">
-                        ${['Bo\'ydoq','Ajrashgan'].map(v => `<label class="flex items-center justify-between p-4 rounded-2xl border cursor-pointer transition-all ${(p.marital_status === v) ? 'border-primary bg-primary/10' : 'border-white/10 bg-white/5'}"><span>${v}</span><input type="radio" name="marital_status" value="${v}" ${(p.marital_status === v) ? 'checked' : ''} class="hidden"></label>`).join('')}
+                        ${options.map(v => `<label class="flex items-center justify-between p-4 rounded-2xl border cursor-pointer transition-all ${(p.marital_status === v) ? 'border-primary bg-primary/10' : 'border-white/10 bg-white/5'}"><span>${v}</span><input type="radio" name="marital_status" value="${v}" ${(p.marital_status === v) ? 'checked' : ''} class="hidden"></label>`).join('')}
                     </div>
                 `;
             } else if (section === 'jismoniy') {
@@ -4345,18 +4424,34 @@
         const filterSheets = {};
 
         function openFilterSheet(sheetId) {
-            // Barcha sheet'larni yopish
             document.querySelectorAll('.bottom-sheet').forEach(sheet => {
                 sheet.classList.remove('active');
             });
-            // Overlay'ni ko'rsatish
             const overlay = document.getElementById('filter-overlay');
             if (overlay) overlay.style.display = 'block';
-            // Tanlangan sheet'ni ko'rsatish
             const sheet = document.getElementById(sheetId);
             if (sheet) {
                 sheet.classList.add('active');
                 currentFilterSheet = sheetId;
+            }
+            if (sheetId === 'filter-family-sheet') {
+                const cards = document.querySelectorAll('#filter-family-status-cards .filter-family-opt');
+                cards.forEach(btn => {
+                    const forG = btn.getAttribute('data-for-gender');
+                    const show = forG === feedGender || forG === 'both';
+                    btn.style.display = show ? '' : 'none';
+                    const isSelected = (filterState.family && filterState.family.status === btn.getAttribute('data-value'));
+                    btn.classList.toggle('selected', isSelected);
+                    btn.classList.toggle('border-primary/50', isSelected);
+                    btn.classList.toggle('bg-primary/5', isSelected);
+                    btn.classList.toggle('neon-glow', isSelected);
+                    const icon = btn.querySelector('.material-symbols-outlined');
+                    if (icon) icon.classList.toggle('text-primary', isSelected), icon.classList.toggle('text-white/40', !isSelected);
+                    const span = btn.querySelector('.text-xs');
+                    if (span) span.classList.toggle('text-primary', isSelected), span.classList.toggle('text-white/80', !isSelected);
+                    const check = btn.querySelector('.absolute');
+                    if (check) check.style.display = isSelected ? '' : 'none';
+                });
             }
         }
 
@@ -4463,8 +4558,9 @@
                 if (e.target.closest('.status-card')) {
                     const card = e.target.closest('.status-card');
                     const container = card.closest('div');
-                    
-                    // Boshqa card'larni unselect qilish
+                    if (card.classList.contains('filter-family-opt') && filterState.family) {
+                        filterState.family.status = card.getAttribute('data-value') || filterState.family.status;
+                    }
                     const siblings = container.querySelectorAll('.status-card');
                     siblings.forEach(s => {
                         s.classList.remove('selected', 'border-primary/50', 'bg-primary/5', 'neon-glow');
@@ -4481,8 +4577,6 @@
                         const checkIcon = s.querySelector('.absolute');
                         if (checkIcon) checkIcon.remove();
                     });
-                    
-                    // Tanlangan card'ni select qilish
                     card.classList.add('selected', 'border-primary/50', 'bg-primary/5', 'neon-glow');
                     const icon = card.querySelector('.material-symbols-outlined');
                     if (icon) {
@@ -4493,6 +4587,12 @@
                     if (text) {
                         text.classList.remove('text-white');
                         text.classList.add('text-primary');
+                    }
+                    if (card.classList.contains('filter-family-opt') && !card.querySelector('.absolute')) {
+                        const check = document.createElement('div');
+                        check.className = 'absolute top-2 right-2';
+                        check.innerHTML = '<span class="material-symbols-outlined text-[14px] text-primary">check_circle</span>';
+                        card.appendChild(check);
                     }
                     // Check icon qo'shish
                     if (!card.querySelector('.absolute')) {
@@ -4526,6 +4626,29 @@
             });
         }
 
+        let feedGender = 'Ayol'; // default: Kelin (ayollar ko'rsatiladi)
+        function updateFeedGenderUI() {
+            const kuyov = document.getElementById('feed-kuyov-btn');
+            const kelin = document.getElementById('feed-kelin-btn');
+            if (kuyov) kuyov.className = 'feed-gender-btn h-9 px-3 rounded-full text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5 transition-all active:scale-95 ' + (feedGender === 'Erkak' ? 'feed-gender-kuyov' : 'feed-gender-inactive');
+            if (kelin) kelin.className = 'feed-gender-btn h-9 px-3 rounded-full text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5 transition-all active:scale-95 ' + (feedGender === 'Ayol' ? 'feed-gender-kelin' : 'feed-gender-inactive');
+        }
+        function updateFavoritesGenderUI() {
+            const kuyov = document.getElementById('favorites-kuyov-btn');
+            const kelin = document.getElementById('favorites-kelin-btn');
+            if (kuyov) kuyov.className = 'feed-gender-btn h-9 px-3 rounded-full text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5 transition-all active:scale-95 ' + (feedGender === 'Erkak' ? 'feed-gender-kuyov' : 'feed-gender-inactive');
+            if (kelin) kelin.className = 'feed-gender-btn h-9 px-3 rounded-full text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5 transition-all active:scale-95 ' + (feedGender === 'Ayol' ? 'feed-gender-kelin' : 'feed-gender-inactive');
+        }
+        function setFeedGender(gender) {
+            if (feedGender === gender) return;
+            feedGender = gender;
+            updateFeedGenderUI();
+            updateFavoritesGenderUI();
+            pageDataLoaded.feed = false;
+            loadFeedData();
+            if (pageDataLoaded.favorites) renderFavoritesListWithFilter();
+        }
+
         // Filter button event listener
         document.addEventListener('DOMContentLoaded', () => {
             const filterBtn = document.getElementById('feed-filter');
@@ -4534,6 +4657,28 @@
                     openFilterSheet('filter-main-sheet');
                 });
             }
+            const sortBtn = document.getElementById('feed-sort-btn');
+            if (sortBtn) {
+                sortBtn.addEventListener('click', () => {
+                    openFilterSheet('filter-sort-sheet');
+                });
+            }
+            const kuyovBtn = document.getElementById('feed-kuyov-btn');
+            const kelinBtn = document.getElementById('feed-kelin-btn');
+            if (kuyovBtn) kuyovBtn.addEventListener('click', () => setFeedGender('Erkak'));
+            if (kelinBtn) kelinBtn.addEventListener('click', () => setFeedGender('Ayol'));
+            updateFeedGenderUI();
+            const favKuyov = document.getElementById('favorites-kuyov-btn');
+            const favKelin = document.getElementById('favorites-kelin-btn');
+            if (favKuyov) favKuyov.addEventListener('click', () => setFeedGender('Erkak'));
+            if (favKelin) favKelin.addEventListener('click', () => setFeedGender('Ayol'));
+            const favSort = document.getElementById('favorites-sort-btn');
+            const favFilter = document.getElementById('favorites-filter-btn');
+            if (favSort) favSort.addEventListener('click', () => openFilterSheet('filter-sort-sheet'));
+            if (favFilter) favFilter.addEventListener('click', () => openFilterSheet('filter-main-sheet'));
+            const favSearch = document.getElementById('favorites-search');
+            if (favSearch) favSearch.addEventListener('input', () => { if (pageDataLoaded.favorites) renderFavoritesListWithFilter(); });
+            updateFavoritesGenderUI();
 
             // Close buttons
             document.querySelectorAll('.filter-close-btn').forEach(btn => {
@@ -4545,6 +4690,51 @@
             if (overlay) {
                 overlay.addEventListener('click', closeFilterSheet);
             }
+
+            // Joylashuv: mamlakat qidiruv va bosganda shaharlar
+            const LOCATION_CITIES = {
+                "O'zbekiston": ["Toshkent", "Samarqand", "Namangan", "Farg'ona", "Buxoro", "Andijon", "Qashqadaryo", "Surxondaryo", "Xorazm", "Navoiy", "Jizzax", "Sirdaryo", "Qoraqalpog'iston"],
+                "Qirg'iziston": ["Bishkek", "O'sh", "Jalal-Abad", "Qorako'l", "Naryn", "Batlken", "Talas"],
+                "Rossiya": ["Moskva", "Sankt-Peterburg", "Qozon", "Novosibirsk", "Yekaterinburg", "Samara", "Rostov"],
+                "Qozog'iston": ["Olmaota", "Ostona", "Shymkent", "Qarag'anda", "Aqtobe", "Pavlodar", "Semey"],
+                "Tojikiston": ["Dushanbe", "Xujand", "Qurghonteppa", "Kulob", "Istaravshan", "Panjakent"]
+            };
+            const locationSearch = document.getElementById('filter-location-search');
+            if (locationSearch) {
+                locationSearch.addEventListener('input', function() {
+                    const q = (this.value || '').trim().toLowerCase();
+                    document.querySelectorAll('#filter-location-list .location-country-block').forEach(block => {
+                        const name = (block.getAttribute('data-country-name') || '').toLowerCase();
+                        block.style.display = (q === '' || name.includes(q)) ? '' : 'none';
+                    });
+                });
+            }
+            document.querySelectorAll('.location-country-header').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const block = this.closest('.location-country-block');
+                    const citiesEl = block && block.querySelector('.location-cities');
+                    const chevron = this.querySelector('.location-chevron');
+                    if (!citiesEl) return;
+                    const isHidden = citiesEl.classList.contains('hidden');
+                    if (isHidden) {
+                        citiesEl.classList.remove('hidden');
+                        if (chevron) { chevron.classList.remove('text-white/20'); chevron.classList.add('text-primary'); chevron.style.transform = 'rotate(90deg)'; }
+                        if (citiesEl.children.length === 0) {
+                            const countryName = block.getAttribute('data-country-name');
+                            const cities = LOCATION_CITIES[countryName] || [];
+                            cities.forEach(city => {
+                                const label = document.createElement('label');
+                                label.className = 'flex items-center justify-between group cursor-pointer';
+                                label.innerHTML = `<span class="text-sm font-medium text-white/80 group-active:text-white">${city}</span><input name="location_city" value="${city.replace(/"/g, '&quot;')}" class="location-city-cb custom-checkbox" type="checkbox"/>`;
+                                citiesEl.appendChild(label);
+                            });
+                        }
+                    } else {
+                        citiesEl.classList.add('hidden');
+                        if (chevron) { chevron.classList.add('text-white/20'); chevron.classList.remove('text-primary'); chevron.style.transform = ''; }
+                    }
+                });
+            });
 
             // Filter handlers'ni ishga tushirish
             initFilterHandlers();
@@ -4955,85 +5145,74 @@
                     <div class="absolute inset-y-0 left-4 flex items-center pointer-events-none">
                         <span class="material-symbols-outlined text-white/40 text-[20px]">search</span>
                     </div>
-                    <input class="w-full h-12 glass-input rounded-xl pl-12 pr-4 text-sm font-medium text-white placeholder-white/20" placeholder="Davlat yoki shaharni qidirish..." type="text"/>
+                    <input id="filter-location-search" class="w-full h-12 glass-input rounded-xl pl-12 pr-4 text-sm font-medium text-white placeholder-white/20" placeholder="Mamlakatni qidirish, bosib shaharlarni tanlang..." type="text"/>
                 </div>
             </div>
             <div class="flex-1 overflow-y-auto ios-scroll-hide px-6 pb-12">
-                <div class="space-y-3">
-                    <div class="bg-white/[0.03] border border-white/[0.05] rounded-[2rem] overflow-hidden">
-                        <div class="flex items-center justify-between p-5 border-b border-white/[0.04]">
+                <div id="filter-location-list" class="space-y-3">
+                    <div class="location-country-block bg-white/[0.03] border border-white/[0.05] rounded-[2rem] overflow-hidden" data-country-name="O'zbekiston">
+                        <button type="button" class="location-country-header w-full flex items-center justify-between p-5 border-b border-white/[0.04] text-left active:bg-white/[0.05] transition-colors">
                             <div class="flex items-center gap-3">
                                 <span class="text-2xl">🇺🇿</span>
                                 <span class="font-bold">O'zbekiston</span>
                             </div>
-                            <span class="material-symbols-outlined text-primary transform rotate-90">chevron_right</span>
-                        </div>
-                        <div class="px-5 py-4 space-y-5 bg-white/[0.01]">
-                            <div class="flex items-center justify-between">
-                                <span class="text-xs font-bold text-white/40 uppercase tracking-widest">Barchasini tanlash</span>
-                                <label class="relative inline-flex items-center cursor-pointer">
-                                    <input class="sr-only peer" type="checkbox"/>
-                                    <div class="w-11 h-6 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white/40 peer-checked:after:bg-black after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
-                                </label>
-                            </div>
-                            <div class="space-y-4 pt-2">
-                                <label class="flex items-center justify-between group cursor-pointer">
-                                    <span class="text-sm font-medium text-white/80 group-active:text-white">Toshkent</span>
-                                    <input checked="" class="custom-checkbox" type="checkbox"/>
-                                </label>
-                                <label class="flex items-center justify-between group cursor-pointer">
-                                    <span class="text-sm font-medium text-white/80 group-active:text-white">Samarqand</span>
-                                    <input class="custom-checkbox" type="checkbox"/>
-                                </label>
-                                <label class="flex items-center justify-between group cursor-pointer">
-                                    <span class="text-sm font-medium text-white/80 group-active:text-white">Namangan</span>
-                                    <input class="custom-checkbox" type="checkbox"/>
-                                </label>
-                                <label class="flex items-center justify-between group cursor-pointer">
-                                    <span class="text-sm font-medium text-white/80 group-active:text-white">Farg'ona</span>
-                                    <input class="custom-checkbox" type="checkbox"/>
-                                </label>
-                                <label class="flex items-center justify-between group cursor-pointer">
-                                    <span class="text-sm font-medium text-white/80 group-active:text-white">Buxoro</span>
-                                    <input class="custom-checkbox" type="checkbox"/>
-                                </label>
-                            </div>
+                            <span class="material-symbols-outlined text-primary transform rotate-90 location-chevron">chevron_right</span>
+                        </button>
+                        <div class="location-cities px-5 py-4 space-y-4 bg-white/[0.01]">
+                            <label class="flex items-center justify-between group cursor-pointer"><span class="text-sm font-medium text-white/80 group-active:text-white">Toshkent</span><input name="location_city" value="Toshkent" class="location-city-cb custom-checkbox" type="checkbox"/></label>
+                            <label class="flex items-center justify-between group cursor-pointer"><span class="text-sm font-medium text-white/80 group-active:text-white">Samarqand</span><input name="location_city" value="Samarqand" class="location-city-cb custom-checkbox" type="checkbox"/></label>
+                            <label class="flex items-center justify-between group cursor-pointer"><span class="text-sm font-medium text-white/80 group-active:text-white">Namangan</span><input name="location_city" value="Namangan" class="location-city-cb custom-checkbox" type="checkbox"/></label>
+                            <label class="flex items-center justify-between group cursor-pointer"><span class="text-sm font-medium text-white/80 group-active:text-white">Farg'ona</span><input name="location_city" value="Farg'ona" class="location-city-cb custom-checkbox" type="checkbox"/></label>
+                            <label class="flex items-center justify-between group cursor-pointer"><span class="text-sm font-medium text-white/80 group-active:text-white">Buxoro</span><input name="location_city" value="Buxoro" class="location-city-cb custom-checkbox" type="checkbox"/></label>
+                            <label class="flex items-center justify-between group cursor-pointer"><span class="text-sm font-medium text-white/80 group-active:text-white">Andijon</span><input name="location_city" value="Andijon" class="location-city-cb custom-checkbox" type="checkbox"/></label>
                         </div>
                     </div>
-                    <button class="w-full flex items-center justify-between p-5 bg-white/[0.03] border border-white/[0.05] rounded-3xl active:bg-white/[0.06] transition-colors">
-                        <div class="flex items-center gap-3">
-                            <span class="text-2xl">🇰🇬</span>
-                            <span class="font-bold text-white/80">Qirg'iziston</span>
-                        </div>
-                        <span class="material-symbols-outlined text-white/20">chevron_right</span>
-                    </button>
-                    <button class="w-full flex items-center justify-between p-5 bg-white/[0.03] border border-white/[0.05] rounded-3xl active:bg-white/[0.06] transition-colors">
-                        <div class="flex items-center gap-3">
-                            <span class="text-2xl">🇷🇺</span>
-                            <span class="font-bold text-white/80">Rossiya</span>
-                        </div>
-                        <span class="material-symbols-outlined text-white/20">chevron_right</span>
-                    </button>
-                    <button class="w-full flex items-center justify-between p-5 bg-white/[0.03] border border-white/[0.05] rounded-3xl active:bg-white/[0.06] transition-colors">
-                        <div class="flex items-center gap-3">
-                            <span class="text-2xl">🇰🇿</span>
-                            <span class="font-bold text-white/80">Qozog'iston</span>
-                        </div>
-                        <span class="material-symbols-outlined text-white/20">chevron_right</span>
-                    </button>
-                    <button class="w-full flex items-center justify-between p-5 bg-white/[0.03] border border-white/[0.05] rounded-3xl active:bg-white/[0.06] transition-colors">
-                        <div class="flex items-center gap-3">
-                            <span class="text-2xl">🇹🇯</span>
-                            <span class="font-bold text-white/80">Tojikiston</span>
-                        </div>
-                        <span class="material-symbols-outlined text-white/20">chevron_right</span>
-                    </button>
+                    <div class="location-country-block bg-white/[0.03] border border-white/[0.05] rounded-3xl overflow-hidden" data-country-name="Qirg'iziston">
+                        <button type="button" class="location-country-header w-full flex items-center justify-between p-5 active:bg-white/[0.06] transition-colors text-left">
+                            <div class="flex items-center gap-3">
+                                <span class="text-2xl">🇰🇬</span>
+                                <span class="font-bold text-white/80">Qirg'iziston</span>
+                            </div>
+                            <span class="material-symbols-outlined text-white/20 location-chevron">chevron_right</span>
+                        </button>
+                        <div class="location-cities hidden px-5 py-4 space-y-4 bg-white/[0.01]"></div>
+                    </div>
+                    <div class="location-country-block bg-white/[0.03] border border-white/[0.05] rounded-3xl overflow-hidden" data-country-name="Rossiya">
+                        <button type="button" class="location-country-header w-full flex items-center justify-between p-5 active:bg-white/[0.06] transition-colors text-left">
+                            <div class="flex items-center gap-3">
+                                <span class="text-2xl">🇷🇺</span>
+                                <span class="font-bold text-white/80">Rossiya</span>
+                            </div>
+                            <span class="material-symbols-outlined text-white/20 location-chevron">chevron_right</span>
+                        </button>
+                        <div class="location-cities hidden px-5 py-4 space-y-4 bg-white/[0.01]"></div>
+                    </div>
+                    <div class="location-country-block bg-white/[0.03] border border-white/[0.05] rounded-3xl overflow-hidden" data-country-name="Qozog'iston">
+                        <button type="button" class="location-country-header w-full flex items-center justify-between p-5 active:bg-white/[0.06] transition-colors text-left">
+                            <div class="flex items-center gap-3">
+                                <span class="text-2xl">🇰🇿</span>
+                                <span class="font-bold text-white/80">Qozog'iston</span>
+                            </div>
+                            <span class="material-symbols-outlined text-white/20 location-chevron">chevron_right</span>
+                        </button>
+                        <div class="location-cities hidden px-5 py-4 space-y-4 bg-white/[0.01]"></div>
+                    </div>
+                    <div class="location-country-block bg-white/[0.03] border border-white/[0.05] rounded-3xl overflow-hidden" data-country-name="Tojikiston">
+                        <button type="button" class="location-country-header w-full flex items-center justify-between p-5 active:bg-white/[0.06] transition-colors text-left">
+                            <div class="flex items-center gap-3">
+                                <span class="text-2xl">🇹🇯</span>
+                                <span class="font-bold text-white/80">Tojikiston</span>
+                            </div>
+                            <span class="material-symbols-outlined text-white/20 location-chevron">chevron_right</span>
+                        </button>
+                        <div class="location-cities hidden px-5 py-4 space-y-4 bg-white/[0.01]"></div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Oilaviy holati Filter Sheet -->
+    <!-- Oilaviy holati Filter Sheet (variantlar jinsga qarab: Kelin=ayol, Kuyov=erkak) -->
     <div id="filter-family-sheet" class="bottom-sheet">
         <div class="max-w-md mx-auto h-[85vh] flex flex-col">
             <div class="handle"></div>
@@ -5044,19 +5223,24 @@
             <div class="flex-1 overflow-y-auto px-6 pb-10 space-y-8 ios-scroll-hide">
                 <div class="space-y-4">
                     <p class="text-[10px] font-bold text-white/40 uppercase tracking-widest ml-1">Holat</p>
-                    <div class="grid grid-cols-3 gap-3">
-                        <button class="status-card">
+                    <div id="filter-family-status-cards" class="grid grid-cols-3 gap-3">
+                        <button type="button" class="status-card filter-family-opt" data-value="Bo'ydoq" data-for-gender="Erkak">
                             <span class="material-symbols-outlined mb-2 text-white/40">person_add</span>
                             <span class="text-xs font-bold">Bo'ydoq</span>
                         </button>
-                        <button class="status-card selected border-primary/50 bg-primary/5 neon-glow">
-                            <span class="material-symbols-outlined mb-2 text-primary">group_remove</span>
-                            <span class="text-xs font-bold text-primary">Ajrashgan</span>
-                            <div class="absolute top-2 right-2">
-                                <span class="material-symbols-outlined text-[14px] text-primary">check_circle</span>
-                            </div>
+                        <button type="button" class="status-card filter-family-opt" data-value="Oilali" data-for-gender="Erkak">
+                            <span class="material-symbols-outlined mb-2 text-white/40">family_restroom</span>
+                            <span class="text-xs font-bold">Oilali</span>
                         </button>
-                        <button class="status-card">
+                        <button type="button" class="status-card filter-family-opt" data-value="Ajrashgan" data-for-gender="both">
+                            <span class="material-symbols-outlined mb-2 text-white/40">group_remove</span>
+                            <span class="text-xs font-bold">Ajrashgan</span>
+                        </button>
+                        <button type="button" class="status-card filter-family-opt" data-value="Qiz bola" data-for-gender="Ayol">
+                            <span class="material-symbols-outlined mb-2 text-white/40">person</span>
+                            <span class="text-xs font-bold">Qiz bola</span>
+                        </button>
+                        <button type="button" class="status-card filter-family-opt" data-value="Beva" data-for-gender="Ayol">
                             <span class="material-symbols-outlined mb-2 text-white/40">heart_broken</span>
                             <span class="text-xs font-bold">Beva</span>
                         </button>

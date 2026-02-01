@@ -10,6 +10,11 @@ class Config:
     # MySQL DSN (mysql+pymysql) - DATABASE_URL orqali beriladi, default sifatida lokal MySQL misoli
     SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL', 'mysql+pymysql://user:password@localhost:3306/nikoh')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    # Ulanish pool: eski/uzilgan ulanishlardan qochish (Lost connection / Operation timed out)
+    SQLALCHEMY_ENGINE_OPTIONS = {
+        "pool_pre_ping": True,   # ulanishdan oldin tekshirish, uzilgan bo'lsa yangisini olish
+        "pool_recycle": 280,    # 280 sekunddan keyin ulanishni yangilash (MySQL wait_timeout dan oldin)
+    }
 
     # Telegram Bot settings
     TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')

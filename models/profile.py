@@ -12,7 +12,7 @@ class Profile(db.Model):
     # 5.1 Shaxsiy ma'lumotlar
     phone_number = db.Column(db.String(20))  # Telefon raqam (oddiy ro'yxatdan o'tish)
     name = db.Column(db.String(100))
-    gender = db.Column(db.String(10))  # Erkak / Ayol
+    gender = db.Column(db.String(10), index=True)  # Erkak / Ayol
     birth_year = db.Column(db.Integer)
     region = db.Column(db.String(100))  # Viloyat/Shahar
     nationality = db.Column(db.String(50))
@@ -22,10 +22,13 @@ class Profile(db.Model):
     height = db.Column(db.Integer)  # Bo'y (sm)
     weight = db.Column(db.Integer)  # Vazn (kg)
 
-    # 5.3 Diniy ma'lumotlar
-    prays = db.Column(db.String(20))  # Doimiy / Ba'zan / O'qimaydi
-    fasts = db.Column(db.String(10))  # Ha / Yo'q
-    religious_level = db.Column(db.String(20))  # Past / O'rtacha / Yuqori
+    # 5.3 Diniy ma'lumotlar (aqida, namoz, qur'on o'qish, mazhab)
+    aqida = db.Column(db.String(50))  # Ahli Sunna, Ash'ariya, Moturidiya, Boshqa
+    prays = db.Column(db.String(20))  # Namoz: Ha / Ba'zan / Yo'q
+    fasts = db.Column(db.String(10))  # Ro'za: Ha / Yo'q
+    quran_reading = db.Column(db.String(50))  # Bilmaydi, O'qishni biladi, Ravon o'qiydi, Hofizi Qur'on
+    mazhab = db.Column(db.String(30))  # Hanafi, Shafi'i, Maliki, Hanbali
+    religious_level = db.Column(db.String(20))  # Jiddiy / O'rtacha / Yengil
 
     # 5.4 Ta'lim va kasb
     education = db.Column(db.String(100))
@@ -41,8 +44,8 @@ class Profile(db.Model):
 
     # 6. E'lon ma'lumotlari
     bio = db.Column(db.Text)  # Qisqa tavsif
-    is_active = db.Column(db.Boolean, default=False)  # E'lon aktiv/passiv
-    activated_at = db.Column(db.DateTime)
+    is_active = db.Column(db.Boolean, default=False, index=True)  # E'lon aktiv/passiv
+    activated_at = db.Column(db.DateTime, index=True)
 
     # Timestamps
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
@@ -144,8 +147,11 @@ class Profile(db.Model):
             'marital_status': self.marital_status,
             'height': self.height,
             'weight': self.weight,
+            'aqida': self.aqida,
             'prays': self.prays,
             'fasts': self.fasts,
+            'quran_reading': self.quran_reading,
+            'mazhab': self.mazhab,
             'religious_level': self.religious_level,
             'education': self.education,
             'profession': self.profession,

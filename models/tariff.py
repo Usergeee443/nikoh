@@ -19,13 +19,13 @@ class UserTariff(db.Model):
     top_duration_days = db.Column(db.Integer, default=3)  # TOP da turish muddati
 
     # Holatlar
-    is_active = db.Column(db.Boolean, default=False)
-    is_top = db.Column(db.Boolean, default=True)  # TOP da ko'rsatish
+    is_active = db.Column(db.Boolean, default=False, index=True)
+    is_top = db.Column(db.Boolean, default=True, index=True)  # TOP da ko'rsatish
 
     # Vaqtlar
     activated_at = db.Column(db.DateTime)
-    expires_at = db.Column(db.DateTime)
-    top_expires_at = db.Column(db.DateTime)
+    expires_at = db.Column(db.DateTime, index=True)
+    top_expires_at = db.Column(db.DateTime, index=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     # Payment request relationship

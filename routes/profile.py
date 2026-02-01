@@ -185,8 +185,11 @@ def edit():
             if weight:
                 profile.weight = int(weight)
             
+            profile.aqida = request.form.get('aqida') or profile.aqida
             profile.prays = request.form.get('prays') or profile.prays
             profile.fasts = request.form.get('fasts') or profile.fasts
+            profile.quran_reading = request.form.get('quran_reading') or profile.quran_reading
+            profile.mazhab = request.form.get('mazhab') or profile.mazhab
             profile.religious_level = request.form.get('religious_level') or profile.religious_level
             profile.education = request.form.get('education') or profile.education
             profile.profession = request.form.get('profession') or profile.profession

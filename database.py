@@ -18,4 +18,31 @@ def init_db(app):
                 ))
                 conn.commit()
         except Exception:
-            pass  # Ustun allaqachon mavjud
+            pass
+        for col, typ in [
+            ('aqida', 'VARCHAR(50)'),
+            ('quran_reading', 'VARCHAR(50)'),
+            ('mazhab', 'VARCHAR(30)'),
+        ]:
+            try:
+                with db.engine.connect() as conn:
+                    conn.execute(text(f"ALTER TABLE profiles ADD COLUMN {col} {typ}"))
+                    conn.commit()
+            except Exception:
+                pass
+        # Feed tezligi uchun indekslar (mavjud DB uchun)
+        for stmt in [
+            "CREATE INDEX IF NOT EXISTS ix_profiles_is_active ON profiles(is_active)",
+            "CREATE INDEX IF NOT EXISTS ix_profiles_gender ON profiles(gender)",
+            "CREATE INDEX IF NOT EXISTS ix_profiles_activated_at ON profiles(activated_at)",
+            "CREATE INDEX IF NOT EXISTS ix_user_tariffs_is_active ON user_tariffs(is_active)",
+            "CREATE INDEX IF NOT EXISTS ix_user_tariffs_is_top ON user_tariffs(is_top)",
+            "CREATE INDEX IF NOT EXISTS ix_user_tariffs_expires_at ON user_tariffs(expires_at)",
+            "CREATE INDEX IF NOT EXISTS ix_user_tariffs_top_expires_at ON user_tariffs(top_expires_at)",
+        ]:
+            try:
+                with db.engine.connect() as conn:
+                    conn.execute(text(stmt))
+                    conn.commit()
+            except Exception:
+                pass
