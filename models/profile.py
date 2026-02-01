@@ -7,7 +7,8 @@ class Profile(db.Model):
     __tablename__ = 'profiles'
 
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False, unique=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False, index=True)  # bir user bir nechta e'lon (profil) yarata oladi
+    is_primary = db.Column(db.Boolean, default=True)  # asosiy profil (o'zi) yoki qo'shimcha (aka/opa uchun)
 
     # 5.1 Shaxsiy ma'lumotlar
     phone_number = db.Column(db.String(20))  # Telefon raqam (oddiy ro'yxatdan o'tish)

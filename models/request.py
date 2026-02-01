@@ -1,5 +1,6 @@
 from database import db
 from datetime import datetime
+from models.profile import Profile
 
 
 class MatchRequest(db.Model):
@@ -9,6 +10,7 @@ class MatchRequest(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     sender_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     receiver_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    receiver_profile_id = db.Column(db.Integer, db.ForeignKey('profiles.id'), nullable=True)  # qaysi e'lon (profil) uchun so'rov
 
     # So'rov ma'lumotlari
     message = db.Column(db.Text)  # Qo'shimcha xabar (ixtiyoriy)
@@ -51,11 +53,18 @@ class MatchRequest(db.Model):
         self.status = 'accepted'
         self.responded_at = datetime.utcnow()
 
-        # Chat yaratish
+        # Chat yaratish (qaysi profil/e'lon uchun ekanini saqlash)
+        from models.user import User
+        recv = User.query.get(self.receiver_id)
+        sendr = User.query.get(self.sender_id)
+        prof_receiver = Profile.query.get(self.receiver_profile_id) if self.receiver_profile_id else (recv.profile if recv else None)
+        prof_sender = sendr.profile if sendr else None
         new_chat = Chat(
             match_request_id=self.id,
             user1_id=self.sender_id,
-            user2_id=self.receiver_id
+            user2_id=self.receiver_id,
+            profile1_id=prof_sender.id if prof_sender else None,
+            profile2_id=prof_receiver.id if prof_receiver else None
         )
         db.session.add(new_chat)
         db.session.commit()

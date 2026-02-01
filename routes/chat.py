@@ -21,10 +21,17 @@ def index():
 @chat_bp.route('/api/list')
 @basic_profile_required
 def get_chats():
-    """Foydalanuvchining barcha chatlarini olish"""
+    """Foydalanuvchining chatlarini olish (profile_id bo'lsa shu e'lon uchun)"""
     current_user = User.query.get(session['user_id'])
+    profile_id = request.args.get('profile_id', type=int)
 
     chats = current_user.get_chats()
+    # Bir nechta e'lon bo'lsa: faqat shu profil uchun chatlarni filtrlash
+    if profile_id is not None:
+        chats = [c for c in chats if c.get_my_profile_id(current_user.id) == profile_id]
+
+    # Mening e'lonlarim (ism bo'yicha filtrlash uchun tepada tablar)
+    my_profiles = [{'id': p.id, 'name': p.name or 'E\'lon'} for p in current_user.profiles.order_by('id').all()]
 
     chats_data = []
     for chat in chats:
@@ -44,8 +51,10 @@ def get_chats():
             Message.is_read == False
         ).count()
 
+        my_profile_id = chat.get_my_profile_id(current_user.id) if hasattr(chat, 'get_my_profile_id') else None
         chat_data = {
             'id': chat.id,
+            'profile_id': my_profile_id,
             'other_user': {
                 'id': other_user.id,
                 'name': other_user.profile.name if other_user.profile else 'Foydalanuvchi',
@@ -68,7 +77,8 @@ def get_chats():
 
     return jsonify({
         'chats': chats_data,
-        'count': len(chats_data)
+        'count': len(chats_data),
+        'my_profiles': my_profiles
     })
 
 

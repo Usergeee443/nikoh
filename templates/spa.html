@@ -1005,6 +1005,7 @@
             </header>
             <main class="px-4" style="padding-bottom: 140px;">
                 <div class="max-w-md mx-auto space-y-3 pt-4">
+                    <div id="chats-profile-tabs" class="flex gap-2 overflow-x-auto pb-2 mb-2 scrollbar-hide hidden"></div>
                     <div class="flex items-center justify-between px-2 mb-4">
                         <h3 class="text-[10px] font-black uppercase tracking-[0.2em] text-white/30">Faol suhbatlar</h3>
                         <button class="flex items-center gap-1.5 text-[10px] font-bold text-primary active:opacity-50 transition-opacity">
@@ -1261,6 +1262,23 @@
                         </div>
                         <span class="material-symbols-outlined text-white/20 group-hover:text-primary transition-colors">chevron_right</span>
                     </button>
+                    <!-- E'lonlarim (aka/opa uchun alohida e'lon yaratish) -->
+                    <div id="profile-listings-section" class="space-y-2">
+                        <h3 class="px-2 text-[10px] font-black uppercase tracking-[0.2em] text-white/30 mb-2">E'lonlarim</h3>
+                        <div id="profile-listings-list" class="space-y-2"></div>
+                        <button type="button" id="profile-add-listing-btn" onclick="window.showPage('add-listing')" class="w-full glass-card rounded-2xl p-4 flex items-center justify-between group active:scale-[0.98] transition-transform border border-dashed border-primary/30 bg-primary/5">
+                            <div class="flex items-center gap-4">
+                                <div class="size-10 rounded-xl bg-primary/20 flex items-center justify-center text-primary">
+                                    <span class="material-symbols-outlined text-[22px]">add_circle</span>
+                                </div>
+                                <div class="text-left">
+                                    <p class="text-sm font-bold text-primary">Yangi e'lon qo'shish</p>
+                                    <p class="text-[10px] text-white/50">Aka, opa, ota uchun alohida e'lon</p>
+                                </div>
+                            </div>
+                            <span class="material-symbols-outlined text-primary">chevron_right</span>
+                        </button>
+                    </div>
                     <button class="w-full glass-card rounded-2xl p-4 flex items-center justify-between group active:scale-[0.98] transition-transform">
                         <div class="flex items-center gap-4">
                             <div class="size-10 rounded-xl bg-white/5 flex items-center justify-center text-white/60">
@@ -1427,21 +1445,162 @@
             </main>
         </div>
 
-        <!-- Profil tahrirlash bo'limi bottom sheet -->
-        <div id="profile-edit-sheet" class="fixed inset-0 z-50 pointer-events-none">
-            <div id="profile-edit-sheet-overlay" class="absolute inset-0 bg-black/60 backdrop-blur-sm opacity-0 transition-opacity pointer-events-none"></div>
-            <div id="profile-edit-sheet-content" class="absolute bottom-0 left-0 right-0 max-w-md mx-auto glass-card rounded-t-[32px] border-t-2 border-primary/30 pt-3 pb-10 px-6 shadow-[0_-10px_40px_rgba(0,0,0,0.8)] transform translate-y-full transition-transform duration-300 pointer-events-auto">
-                <div class="w-12 h-1.5 bg-white/20 rounded-full mx-auto mb-6"></div>
-                <div class="flex justify-between items-center mb-6">
-                    <h4 id="profile-edit-sheet-title" class="text-xl font-bold">Bo'lim</h4>
-                    <button type="button" onclick="closeProfileEditSheet()" class="size-10 rounded-full flex items-center justify-center text-white/50 hover:bg-white/10">
-                        <span class="material-symbols-outlined">close</span>
+        <!-- Yangi e'lon qo'shish (aka/opa uchun — asosiy profil tahrirlash bilan bir xil dizayn) -->
+        <div id="page-add-listing" class="page-container">
+            <header class="sticky top-0 z-30 flex items-center justify-between px-6 py-5 backdrop-blur-xl bg-background-dark/80 border-b border-white/5">
+                <div class="flex items-center gap-3">
+                    <button type="button" onclick="window.showPage('profile')" class="size-10 rounded-full glass-card flex items-center justify-center text-white/80 active:scale-95 transition-transform">
+                        <span class="material-symbols-outlined text-[22px]">arrow_back_ios_new</span>
+                    </button>
+                    <h1 class="text-xl font-extrabold tracking-tight text-white">Yangi e'lon qo'shish</h1>
+                </div>
+            </header>
+            <main class="flex-1 overflow-y-auto custom-scrollbar px-5 pb-32" style="padding-top: 16px;">
+                <p class="text-sm text-white/50 mb-6">Aka, opa, ota uchun barcha ma'lumotlarni to'ldiring — asosiy e'lon kabi.</p>
+                <div id="add-listing-summary" class="mt-2 mb-6 flex flex-col items-center">
+                    <div class="size-24 rounded-[24px] overflow-hidden border-2 border-primary/30 bg-white/5 flex items-center justify-center text-3xl font-bold text-primary/60" id="add-listing-avatar">?</div>
+                    <h2 id="add-listing-name" class="mt-4 text-lg font-bold text-white">—</h2>
+                    <p id="add-listing-region" class="text-sm text-white/50">—</p>
+                </div>
+                <div class="space-y-4">
+                    <h3 class="px-1 text-[10px] font-black uppercase tracking-[0.2em] text-white/40 mb-2">Shaxsiy ma'lumotlar</h3>
+                    <button type="button" onclick="openProfileEditSheet('shaxsiy', window.newListingDraft)" class="w-full glass-card rounded-2xl p-5 flex items-center justify-between group active:scale-[0.98] transition-all text-left">
+                        <div class="flex items-center gap-4">
+                            <div class="size-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary border border-primary/20">
+                                <span class="material-symbols-outlined text-[26px]">person</span>
+                            </div>
+                            <div>
+                                <p class="font-bold text-base text-white">Ism, jins, yosh, joylashuv</p>
+                                <p id="add-listing-shaxsiy-summary" class="text-sm text-white/50">Belgilanmagan</p>
+                            </div>
+                        </div>
+                        <span class="material-symbols-outlined text-white/30 group-hover:text-primary transition-colors">chevron_right</span>
+                    </button>
+                    <button type="button" onclick="openProfileEditSheet('diniy', window.newListingDraft)" class="w-full glass-card rounded-2xl p-5 flex items-center justify-between group active:scale-[0.98] transition-all text-left">
+                        <div class="flex items-center gap-4">
+                            <div class="size-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary border border-primary/20">
+                                <span class="material-symbols-outlined text-[26px]">mosque</span>
+                            </div>
+                            <div>
+                                <p class="font-bold text-base text-white">Diniy</p>
+                                <p id="add-listing-diniy-summary" class="text-sm text-white/50">Belgilanmagan</p>
+                            </div>
+                        </div>
+                        <span class="material-symbols-outlined text-white/30 group-hover:text-primary transition-colors">chevron_right</span>
+                    </button>
+                    <button type="button" onclick="openProfileEditSheet('joylashuv', window.newListingDraft)" class="w-full glass-card rounded-2xl p-5 flex items-center justify-between group active:scale-[0.98] transition-all text-left">
+                        <div class="flex items-center gap-4">
+                            <div class="size-12 rounded-2xl bg-white/5 flex items-center justify-center text-white/60 border border-white/10">
+                                <span class="material-symbols-outlined text-[26px]">location_on</span>
+                            </div>
+                            <div>
+                                <p class="font-bold text-base text-white">Joylashuv</p>
+                                <p id="add-listing-joylashuv-summary" class="text-sm text-white/50">Belgilanmagan</p>
+                            </div>
+                        </div>
+                        <span class="material-symbols-outlined text-white/30 group-hover:text-primary transition-colors">chevron_right</span>
+                    </button>
+                    <button type="button" onclick="openProfileEditSheet('oilaviy', window.newListingDraft)" class="w-full glass-card rounded-2xl p-5 flex items-center justify-between group active:scale-[0.98] transition-all text-left">
+                        <div class="flex items-center gap-4">
+                            <div class="size-12 rounded-2xl bg-white/5 flex items-center justify-center text-white/60 border border-white/10">
+                                <span class="material-symbols-outlined text-[26px]">favorite</span>
+                            </div>
+                            <div>
+                                <p class="font-bold text-base text-white">Oilaviy holati</p>
+                                <p id="add-listing-oilaviy-summary" class="text-sm text-white/50">Belgilanmagan</p>
+                            </div>
+                        </div>
+                        <span class="material-symbols-outlined text-white/30 group-hover:text-primary transition-colors">chevron_right</span>
+                    </button>
+                    <h3 class="pt-6 px-1 text-[10px] font-black uppercase tracking-[0.2em] text-white/40 mb-2">Qo'shimcha tafsilotlar</h3>
+                    <button type="button" onclick="openProfileEditSheet('jismoniy', window.newListingDraft)" class="w-full glass-card rounded-2xl p-5 flex items-center justify-between group active:scale-[0.98] transition-all text-left">
+                        <div class="flex items-center gap-4">
+                            <div class="size-12 rounded-2xl bg-white/5 flex items-center justify-center text-white/60 border border-white/10">
+                                <span class="material-symbols-outlined text-[26px]">straighten</span>
+                            </div>
+                            <div>
+                                <p class="font-bold text-base text-white">Jismoniy</p>
+                                <p id="add-listing-jismoniy-summary" class="text-sm text-white/50">Belgilanmagan</p>
+                            </div>
+                        </div>
+                        <span class="material-symbols-outlined text-white/30 group-hover:text-primary transition-colors">chevron_right</span>
+                    </button>
+                    <button type="button" onclick="openProfileEditSheet('talim', window.newListingDraft)" class="w-full glass-card rounded-2xl p-5 flex items-center justify-between group active:scale-[0.98] transition-all text-left">
+                        <div class="flex items-center gap-4">
+                            <div class="size-12 rounded-2xl bg-white/5 flex items-center justify-center text-white/60 border border-white/10">
+                                <span class="material-symbols-outlined text-[26px]">school</span>
+                            </div>
+                            <div>
+                                <p class="font-bold text-base text-white">Ta'lim</p>
+                                <p id="add-listing-talim-summary" class="text-sm text-white/50">Belgilanmagan</p>
+                            </div>
+                        </div>
+                        <span class="material-symbols-outlined text-white/30 group-hover:text-primary transition-colors">chevron_right</span>
+                    </button>
+                    <button type="button" onclick="openProfileEditSheet('ish', window.newListingDraft)" class="w-full glass-card rounded-2xl p-5 flex items-center justify-between group active:scale-[0.98] transition-all text-left">
+                        <div class="flex items-center gap-4">
+                            <div class="size-12 rounded-2xl bg-white/5 flex items-center justify-center text-white/60 border border-white/10">
+                                <span class="material-symbols-outlined text-[26px]">work</span>
+                            </div>
+                            <div>
+                                <p class="font-bold text-base text-white">Ish &amp; Kasb</p>
+                                <p id="add-listing-ish-summary" class="text-sm text-white/50">Belgilanmagan</p>
+                            </div>
+                        </div>
+                        <span class="material-symbols-outlined text-white/30 group-hover:text-primary transition-colors">chevron_right</span>
+                    </button>
+                    <button type="button" onclick="openProfileEditSheet('juftga', window.newListingDraft)" class="w-full glass-card rounded-2xl p-5 flex items-center justify-between group active:scale-[0.98] transition-all text-left">
+                        <div class="flex items-center gap-4">
+                            <div class="size-12 rounded-2xl bg-white/5 flex items-center justify-center text-white/60 border border-white/10">
+                                <span class="material-symbols-outlined text-[26px]">handshake</span>
+                            </div>
+                            <div>
+                                <p class="font-bold text-base text-white">Juftga talablari</p>
+                                <p id="add-listing-juftga-summary" class="text-sm text-white/50">Belgilanmagan</p>
+                            </div>
+                        </div>
+                        <span class="material-symbols-outlined text-white/30 group-hover:text-primary transition-colors">chevron_right</span>
+                    </button>
+                    <button type="button" onclick="openProfileEditSheet('bio', window.newListingDraft)" class="w-full glass-card rounded-2xl p-5 flex items-center justify-between group active:scale-[0.98] transition-all text-left border border-dashed border-primary/20 bg-primary/5">
+                        <div class="flex items-center gap-4">
+                            <div class="size-12 rounded-2xl bg-primary/20 flex items-center justify-center text-primary">
+                                <span class="material-symbols-outlined text-[26px]">history_edu</span>
+                            </div>
+                            <div>
+                                <p class="font-bold text-base text-white">O'zim haqimda</p>
+                                <p id="add-listing-bio-summary" class="text-sm text-primary/60 italic">Belgilanmagan</p>
+                            </div>
+                        </div>
+                        <span class="material-symbols-outlined text-primary">add_circle</span>
                     </button>
                 </div>
-                <div id="profile-edit-sheet-body" class="space-y-4"></div>
-                <button type="button" id="profile-edit-sheet-save" onclick="saveProfileEditSheet()" class="mt-6 w-full bg-primary text-black font-bold py-3.5 rounded-2xl active:scale-[0.98] transition-all">
-                    Saqlash
+                <button type="button" id="add-listing-save-btn" onclick="window.saveNewListing()" class="mt-10 w-full bg-primary text-black font-black py-4 rounded-2xl text-base uppercase tracking-wider active:scale-[0.98] transition-all neon-glow">
+                    E'lonni saqlash
                 </button>
+            </main>
+        </div>
+
+        <!-- Profil tahrirlash bo'limi bottom sheet (scroll + X yopish) -->
+        <div id="profile-edit-sheet" class="fixed inset-0 z-50 pointer-events-none">
+            <div id="profile-edit-sheet-overlay" class="absolute inset-0 bg-black/60 backdrop-blur-sm opacity-0 transition-opacity pointer-events-none z-10" onclick="closeProfileEditSheet()"></div>
+            <div id="profile-edit-sheet-content" class="absolute bottom-0 left-0 right-0 max-w-md mx-auto glass-card rounded-t-[32px] border-t-2 border-primary/30 shadow-[0_-10px_40px_rgba(0,0,0,0.8)] transform translate-y-full transition-transform duration-300 pointer-events-auto z-20 flex flex-col max-h-[85vh] overflow-hidden">
+                <div class="shrink-0 pt-3 px-6 pb-2">
+                    <div class="w-12 h-1.5 bg-white/20 rounded-full mx-auto mb-4"></div>
+                    <div class="flex justify-between items-center gap-3">
+                        <h4 id="profile-edit-sheet-title" class="text-xl font-bold truncate">Bo'lim</h4>
+                        <button type="button" onclick="closeProfileEditSheet()" class="size-10 shrink-0 rounded-full flex items-center justify-center text-white hover:bg-white/10 active:scale-95 border border-white/10" title="Yopish">
+                            <span class="material-symbols-outlined text-[24px]">close</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="flex-1 min-h-0 overflow-y-auto overflow-x-hidden px-6 pb-4" style="-webkit-overflow-scrolling: touch;">
+                    <div id="profile-edit-sheet-body" class="space-y-4 pb-2"></div>
+                </div>
+                <div class="shrink-0 px-6 pb-6 pt-2 border-t border-white/5">
+                    <button type="button" id="profile-edit-sheet-save" onclick="saveProfileEditSheet()" class="w-full bg-primary text-black font-bold py-3.5 rounded-2xl active:scale-[0.98] transition-all">
+                        Saqlash
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -2140,6 +2299,10 @@
                     break;
                 case 'profile-edit':
                     await loadProfileEditPage();
+                    break;
+                case 'add-listing':
+                    window.newListingDraft = window.newListingDraft || {};
+                    updateAddListingSummaries();
                     break;
             }
         }
@@ -2912,7 +3075,9 @@
             const actionPlaceholder = '<div class="mt-6 py-4 rounded-2xl text-center text-white/40 text-sm">Yuklanmoqda...</div>';
             content.innerHTML = renderFeedModalContent(listing, userId, actionPlaceholder);
             modal.classList.remove('hidden');
-            fetch(`/feed/api/listing/${userId}`, { method: 'GET', headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }, credentials: 'same-origin' })
+            const profileId = listing.id || '';
+            const url = profileId ? `/feed/api/listing/${userId}?profile_id=${profileId}` : `/feed/api/listing/${userId}`;
+            fetch(url, { method: 'GET', headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }, credentials: 'same-origin' })
                 .then(r => r.ok ? r.json() : null)
                 .then(profile => {
                     if (!profile) return;
@@ -2928,7 +3093,8 @@
                     } else if (profile.request_sent && profile.request_status === 'rejected') {
                         actionHtml = '<div class="mt-0 glass-card p-4 rounded-2xl text-center text-white/60">So\'rov rad etilgan</div>';
                     } else {
-                        actionHtml = `<button onclick="window.sendFeedRequest(${userId})" class="mt-0 w-full h-14 bg-gradient-to-r from-primary to-green-500 rounded-2xl flex items-center justify-center gap-2 text-black font-extrabold text-[15px] tracking-widest uppercase neon-glow active:scale-95 transition-all">SO'ROV YUBORISH 💌</button>`;
+                        const profileId = profile.id || '';
+                        actionHtml = `<button onclick="window.sendFeedRequest(${userId}, ${profileId})" class="mt-0 w-full h-14 bg-gradient-to-r from-primary to-green-500 rounded-2xl flex items-center justify-center gap-2 text-black font-extrabold text-[15px] tracking-widest uppercase neon-glow active:scale-95 transition-all">SO'ROV YUBORISH 💌</button>`;
                     }
                     actionEl.innerHTML = actionHtml;
                 })
@@ -2938,22 +3104,24 @@
                 });
         }
 
-        async function showFeedProfile(userId) {
+        async function showFeedProfile(userId, profileId) {
             const modal = document.getElementById('feed-profile-modal');
             const content = document.getElementById('feed-profile-content');
             if (!modal || !content) return;
             content.innerHTML = '<div class="text-center py-12"><div class="animate-spin rounded-full h-10 w-10 border-2 border-primary border-t-transparent mx-auto"></div></div>';
             modal.classList.remove('hidden');
             try {
-                const response = await fetch(`/feed/api/listing/${userId}`, { method: 'GET', headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }, credentials: 'same-origin' });
+                const url = profileId ? `/feed/api/listing/${userId}?profile_id=${profileId}` : `/feed/api/listing/${userId}`;
+                const response = await fetch(url, { method: 'GET', headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }, credentials: 'same-origin' });
                 if (!response.ok) throw new Error();
                 const profile = await response.json();
+                const pid = profile.id || profileId || '';
                 const actionHtml = profile.request_sent && profile.request_status === 'accepted' && profile.chat_id ?
                     `<button onclick="window.closeFeedModal(); window.showChatView(${profile.chat_id})" class="mt-0 w-full h-14 bg-gradient-to-r from-primary to-green-500 rounded-2xl flex items-center justify-center gap-2 text-black font-extrabold text-[15px] tracking-widest uppercase neon-glow active:scale-95">CHATGA O'TISH 💬</button>` :
                     profile.request_sent && profile.request_status === 'pending' && profile.is_sender ? '<div class="mt-0 glass-card p-4 rounded-2xl text-center text-white/60">So\'rov yuborilgan</div>' :
                     profile.request_sent && profile.request_status === 'pending' && !profile.is_sender ? '<div class="mt-0 glass-card p-4 rounded-2xl text-center text-white/60">Sizga so\'rov yuborilgan</div>' :
                     profile.request_sent && profile.request_status === 'rejected' ? '<div class="mt-0 glass-card p-4 rounded-2xl text-center text-white/60">So\'rov rad etilgan</div>' :
-                    `<button onclick="window.sendFeedRequest(${userId})" class="mt-0 w-full h-14 bg-primary text-black rounded-2xl py-4 font-bold">SO'ROV YUBORISH</button>`;
+                    `<button onclick="window.sendFeedRequest(${userId}, ${pid})" class="mt-0 w-full h-14 bg-primary text-black rounded-2xl py-4 font-bold">SO'ROV YUBORISH</button>`;
                 content.innerHTML = renderFeedModalContent(profile, userId, actionHtml);
             } catch (e) {
                 content.innerHTML = '<div class="text-center py-8 text-red-400">Xatolik</div>';
@@ -2969,7 +3137,7 @@
             }
         };
 
-        window.sendFeedRequest = async function(receiverId) {
+        window.sendFeedRequest = async function(receiverId, profileId) {
             const profileComplete = userData && userData.user && userData.user.profile_complete;
             if (!profileComplete || !hasActiveTariff) {
                 document.getElementById('require-full-profile-modal').classList.remove('hidden');
@@ -2979,10 +3147,12 @@
             if (!confirm('Ushbu foydalanuvchiga so\'rov yuborasizmi?')) return;
 
             try {
+                const body = { receiver_id: receiverId };
+                if (profileId) body.receiver_profile_id = profileId;
                 const response = await fetch('/requests/api/send', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({receiver_id: receiverId})
+                    body: JSON.stringify(body)
                 });
 
                 const data = await response.json();
@@ -3507,9 +3677,12 @@
         });
 
         // CHATS PAGE
-        async function loadChatsData() {
+        let chatsSelectedProfileId = null;
+        async function loadChatsData(profileId) {
+            if (profileId !== undefined) chatsSelectedProfileId = profileId;
             const container = document.getElementById('chats-list');
             const skeleton = document.getElementById('chats-skeleton');
+            const tabsEl = document.getElementById('chats-profile-tabs');
             
             if (!container) {
                 console.error('chats-list container not found');
@@ -3517,38 +3690,43 @@
             }
             
             try {
-                // Show skeleton if it exists
-                if (skeleton) {
-                    skeleton.style.display = 'block';
-                }
-                
-                const response = await fetch('/chat/api/list', {
+                if (skeleton) skeleton.style.display = 'block';
+                const url = profileId != null ? `/chat/api/list?profile_id=${profileId}` : '/chat/api/list';
+                const response = await fetch(url, {
                     method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    },
+                    headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
                     credentials: 'same-origin'
                 });
                 if (!response.ok) {
-                    if (response.status === 401 || response.status === 403) {
-                        window.location.href = '/';
-                        return;
-                    }
+                    if (response.status === 401 || response.status === 403) { window.location.href = '/'; return; }
                     throw new Error(`HTTP ${response.status}: Failed to load chats`);
                 }
                 const data = await response.json();
 
-                // Hide skeleton and clear container
-                if (skeleton) {
-                    skeleton.style.display = 'none';
-                }
-                // Remove all children except skeleton
+                if (skeleton) skeleton.style.display = 'none';
                 Array.from(container.children).forEach(child => {
-                    if (child.id !== 'chats-skeleton') {
-                        child.remove();
-                    }
+                    if (child.id !== 'chats-skeleton') child.remove();
                 });
+
+                const myProfiles = data.my_profiles || [];
+                if (tabsEl && myProfiles.length > 1) {
+                    tabsEl.classList.remove('hidden');
+                    tabsEl.innerHTML = '';
+                    myProfiles.forEach(p => {
+                        const btn = document.createElement('button');
+                        btn.type = 'button';
+                        btn.className = 'chats-profile-tab shrink-0 px-4 py-2 rounded-full text-[12px] font-bold transition-all ' + (chatsSelectedProfileId === p.id ? 'bg-primary text-black' : 'glass-card text-white/70');
+                        btn.textContent = p.name || 'E\'lon';
+                        btn.onclick = () => { chatsSelectedProfileId = p.id; loadChatsData(p.id); };
+                        tabsEl.appendChild(btn);
+                    });
+                    const allBtn = document.createElement('button');
+                    allBtn.type = 'button';
+                    allBtn.className = 'chats-profile-tab shrink-0 px-4 py-2 rounded-full text-[12px] font-bold transition-all ' + (chatsSelectedProfileId === null ? 'bg-primary text-black' : 'glass-card text-white/70');
+                    allBtn.textContent = 'Barchasi';
+                    allBtn.onclick = () => { chatsSelectedProfileId = null; loadChatsData(null); };
+                    tabsEl.insertBefore(allBtn, tabsEl.firstChild);
+                } else if (tabsEl) tabsEl.classList.add('hidden');
 
                 if (data.chats.length === 0) {
                     const emptyDiv = document.getElementById('chats-empty');
@@ -3556,15 +3734,10 @@
                     pageDataLoaded.chats = true;
                     return;
                 }
-                
                 const emptyDiv = document.getElementById('chats-empty');
                 if (emptyDiv) emptyDiv.classList.add('hidden');
-
-                data.chats.forEach(chat => {
-                    container.appendChild(createChatCard(chat));
-                });
+                data.chats.forEach(chat => container.appendChild(createChatCard(chat)));
                 pageDataLoaded.chats = true;
-
             } catch (error) {
                 console.error('Error loading chats:', error);
                 if (skeleton) skeleton.style.display = 'none';
@@ -4106,25 +4279,49 @@
             if (bioEl) { bioEl.textContent = (p.bio || '').trim() ? (p.bio.slice(0, 40) + (p.bio.length > 40 ? '…' : '')) : 'Belgilanmagan'; bioEl.classList.toggle('italic', !p.bio); }
         }
 
-        function openProfileEditSheet(section) {
+        let _sheetDataSource = null;
+        function openProfileEditSheet(section, dataSource) {
             currentProfileEditSection = section;
+            _sheetDataSource = dataSource || null;
             hapticTap('light');
             const sheet = document.getElementById('profile-edit-sheet');
             const overlay = document.getElementById('profile-edit-sheet-overlay');
             const content = document.getElementById('profile-edit-sheet-content');
             const title = document.getElementById('profile-edit-sheet-title');
             const body = document.getElementById('profile-edit-sheet-body');
-            const p = userData?.profile || {};
+            const p = _sheetDataSource || userData?.profile || {};
             if (!sheet || !body) return;
             sheet.classList.remove('pointer-events-none');
             overlay.classList.remove('pointer-events-none');
             overlay.classList.add('opacity-100');
             content.classList.remove('translate-y-full');
-            const titles = { diniy: 'Diniy ma\'lumotlar', joylashuv: 'Joylashuv', oilaviy: 'Oilaviy holati', jismoniy: 'Jismoniy', talim: 'Ta\'lim', ish: 'Ish & Kasb', bio: 'O\'zim haqimda' };
+            const titles = { shaxsiy: 'Ism, jins, yosh', diniy: 'Diniy ma\'lumotlar', joylashuv: 'Joylashuv', oilaviy: 'Oilaviy holati', jismoniy: 'Jismoniy', talim: 'Ta\'lim', ish: 'Ish & Kasb', juftga: 'Juftga talablari', bio: 'O\'zim haqimda' };
             title.textContent = titles[section] || 'Tahrirlash';
             const regionOpts = ['Toshkent shahar','Toshkent viloyati','Samarqand','Buxoro','Andijon','Farg\'ona','Namangan','Qashqadaryo','Surxondaryo','Xorazm','Navoiy','Jizzax','Sirdaryo','Qoraqalpog\'iston'];
             const yearOpts = Array.from({length: 48}, (_, i) => 2006 - i);
-            if (section === 'diniy') {
+            if (section === 'shaxsiy') {
+                const isWoman = (p.gender === 'Ayol');
+                const maritalOpts = isWoman ? ['Qiz bola', 'Beva', 'Ajrashgan'] : ['Bo\'ydoq', 'Oilali', 'Ajrashgan'];
+                body.innerHTML = `
+                    <label class="block text-[11px] font-bold text-white/60 mb-2">Ism</label>
+                    <input type="text" name="name" value="${(p.name || '').replace(/"/g, '&quot;')}" placeholder="Ism" class="w-full glass-card rounded-2xl px-4 py-3 text-white border border-white/10 bg-white/5 mb-4">
+                    <label class="block text-[11px] font-bold text-white/60 mb-2">Jins</label>
+                    <div class="flex gap-3 mb-4">
+                        <label class="flex-1 flex items-center justify-between p-4 rounded-2xl border cursor-pointer transition-all ${p.gender === 'Erkak' ? 'border-primary bg-primary/10' : 'border-white/10 bg-white/5'}"><span>Erkak</span><input type="radio" name="gender" value="Erkak" ${p.gender === 'Erkak' ? 'checked' : ''} class="hidden"></label>
+                        <label class="flex-1 flex items-center justify-between p-4 rounded-2xl border cursor-pointer transition-all ${p.gender === 'Ayol' ? 'border-primary bg-primary/10' : 'border-white/10 bg-white/5'}"><span>Ayol</span><input type="radio" name="gender" value="Ayol" ${p.gender === 'Ayol' ? 'checked' : ''} class="hidden"></label>
+                    </div>
+                    <label class="block text-[11px] font-bold text-white/60 mb-2">Tug'ilgan yil</label>
+                    <select name="birth_year" class="w-full glass-card rounded-2xl px-4 py-3 text-white border border-white/10 bg-white/5 mb-4">${yearOpts.map(y => `<option value="${y}" ${(p.birth_year === y) ? 'selected' : ''}>${y}</option>`).join('')}</select>
+                    <label class="block text-[11px] font-bold text-white/60 mb-2">Hudud</label>
+                    <select name="region" class="w-full glass-card rounded-2xl px-4 py-3 text-white border border-white/10 bg-white/5 mb-4">${regionOpts.map(r => `<option value="${r}" ${(p.region === r) ? 'selected' : ''}>${r}</option>`).join('')}</select>
+                    <label class="block text-[11px] font-bold text-white/60 mb-2">Millat</label>
+                    <select name="nationality" class="w-full glass-card rounded-2xl px-4 py-3 text-white border border-white/10 bg-white/5 mb-4">${['O\'zbek','Rus','Tojik','Qozoq','Qoraqalpoq','Boshqa'].map(n => `<option value="${n}" ${(p.nationality === n) ? 'selected' : ''}>${n}</option>`).join('')}</select>
+                    <label class="block text-[11px] font-bold text-white/60 mb-2">Oilaviy holati</label>
+                    <div class="space-y-2">
+                        ${maritalOpts.map(v => `<label class="flex items-center justify-between p-4 rounded-2xl border cursor-pointer transition-all ${(p.marital_status === v) ? 'border-primary bg-primary/10' : 'border-white/10 bg-white/5'}"><span>${v}</span><input type="radio" name="marital_status" value="${v}" ${(p.marital_status === v) ? 'checked' : ''} class="hidden"></label>`).join('')}
+                    </div>
+                `;
+            } else if (section === 'diniy') {
                 body.innerHTML = `
                     <p class="text-[11px] font-bold text-white/60 mb-2">Aqidasi</p>
                     <div class="space-y-2">
@@ -4159,7 +4356,7 @@
                     <select name="nationality" class="w-full glass-card rounded-2xl px-4 py-3 text-white border border-white/10 bg-white/5">${['O\'zbek','Rus','Tojik','Qozoq','Qoraqalpoq','Boshqa'].map(n => `<option value="${n}" ${(p.nationality === n) ? 'selected' : ''}>${n}</option>`).join('')}</select>
                 `;
             } else if (section === 'oilaviy') {
-                const isWoman = (userData && userData.user && userData.user.gender === 'Ayol');
+                const isWoman = (p.gender === 'Ayol');
                 const options = isWoman ? ['Qiz bola', 'Beva', 'Ajrashgan'] : ['Bo\'ydoq', 'Oilali', 'Ajrashgan'];
                 body.innerHTML = `
                     <div class="space-y-2">
@@ -4189,6 +4386,24 @@
                         <label class="flex-1 flex items-center justify-between p-4 rounded-2xl border cursor-pointer transition-all ${p.is_working === false ? 'border-primary bg-primary/10' : 'border-white/10 bg-white/5'}"><span>Yo'q</span><input type="radio" name="is_working" value="false" ${p.is_working === false ? 'checked' : ''} class="hidden"></label>
                     </div>
                 `;
+            } else if (section === 'juftga') {
+                const ageOpts = Array.from({length: 50}, (_, i) => 18 + i);
+                body.innerHTML = `
+                    <label class="block text-[11px] font-bold text-white/60 mb-2">Yosh oralig'i (min)</label>
+                    <select name="partner_age_min" class="w-full glass-card rounded-2xl px-4 py-3 text-white border border-white/10 bg-white/5 mb-4">${ageOpts.map(a => `<option value="${a}" ${(p.partner_age_min === a) ? 'selected' : ''}>${a} yosh</option>`).join('')}</select>
+                    <label class="block text-[11px] font-bold text-white/60 mb-2">Yosh oralig'i (max)</label>
+                    <select name="partner_age_max" class="w-full glass-card rounded-2xl px-4 py-3 text-white border border-white/10 bg-white/5 mb-4">${ageOpts.map(a => `<option value="${a}" ${(p.partner_age_max === a) ? 'selected' : ''}>${a} yosh</option>`).join('')}</select>
+                    <label class="block text-[11px] font-bold text-white/60 mb-2">Hudud</label>
+                    <select name="partner_region" class="w-full glass-card rounded-2xl px-4 py-3 text-white border border-white/10 bg-white/5 mb-4">${regionOpts.map(r => `<option value="${r}" ${(p.partner_region === r) ? 'selected' : ''}>${r}</option>`).join('')}</select>
+                    <label class="block text-[11px] font-bold text-white/60 mb-2">Diniy daraja</label>
+                    <div class="space-y-2 mb-4">
+                        ${['Jiddiy','O\'rtacha','Yengil'].map(v => `<label class="flex items-center justify-between p-4 rounded-2xl border cursor-pointer transition-all ${(p.partner_religious_level === v) ? 'border-primary bg-primary/10' : 'border-white/10 bg-white/5'}"><span>${v}</span><input type="radio" name="partner_religious_level" value="${v}" ${(p.partner_religious_level === v) ? 'checked' : ''} class="hidden"></label>`).join('')}
+                    </div>
+                    <label class="block text-[11px] font-bold text-white/60 mb-2">Oilaviy holati</label>
+                    <div class="space-y-2">
+                        ${['Bo\'ydoq','Oilali','Ajrashgan'].map(v => `<label class="flex items-center justify-between p-4 rounded-2xl border cursor-pointer transition-all ${(p.partner_marital_status === v) ? 'border-primary bg-primary/10' : 'border-white/10 bg-white/5'}"><span>${v}</span><input type="radio" name="partner_marital_status" value="${v}" ${(p.partner_marital_status === v) ? 'checked' : ''} class="hidden"></label>`).join('')}
+                    </div>
+                `;
             } else if (section === 'bio') {
                 body.innerHTML = `
                     <label class="block text-[11px] font-bold text-white/60 mb-2">O'zingiz haqingizda (qisqacha)</label>
@@ -4211,6 +4426,7 @@
             if (overlay) { overlay.classList.remove('opacity-100'); overlay.classList.add('pointer-events-none'); }
             if (content) content.classList.add('translate-y-full');
             currentProfileEditSection = null;
+            _sheetDataSource = null;
         }
 
         async function saveProfileEditSheet() {
@@ -4221,6 +4437,13 @@
             body.querySelectorAll('input, select, textarea').forEach(el => {
                 if (el.name && (el.type !== 'radio' || el.checked)) formData.append(el.name, el.value);
             });
+            if (_sheetDataSource) {
+                formData.forEach((val, key) => { _sheetDataSource[key] = val; });
+                _sheetDataSource = null;
+                updateAddListingSummaries();
+                closeProfileEditSheet();
+                return;
+            }
             const btn = document.getElementById('profile-edit-sheet-save');
             if (btn) { btn.disabled = true; btn.textContent = 'Saqlanmoqda...'; }
             try {
@@ -4241,6 +4464,78 @@
                 if (btn) { btn.disabled = false; btn.textContent = 'Saqlash'; }
             }
         }
+
+        function updateAddListingSummaries() {
+            const d = window.newListingDraft || {};
+            const el = (id, text) => { const e = document.getElementById(id); if (e) e.textContent = text || 'Belgilanmagan'; };
+            el('add-listing-avatar', d.name ? d.name[0] : null);
+            el('add-listing-name', d.name || '—');
+            el('add-listing-region', d.region || '—');
+            el('add-listing-shaxsiy-summary', d.name ? `${d.name}, ${d.gender || ''}, ${d.birth_year ? d.birth_year + ' yosh' : ''}`.replace(/,\s*,/g, ',').replace(/^,\s*|,\s*$/g, '') : null);
+            el('add-listing-diniy-summary', d.prays ? `${d.prays}, ${d.mazhab || ''}`.replace(/,\s*$/g, '') : null);
+            el('add-listing-joylashuv-summary', d.region ? `${d.region}, ${d.nationality || ''}`.replace(/,\s*$/g, '') : null);
+            el('add-listing-oilaviy-summary', d.marital_status || null);
+            el('add-listing-jismoniy-summary', (d.height || d.weight) ? `${d.height || '?'} sm, ${d.weight || '?'} kg` : null);
+            el('add-listing-talim-summary', d.education || null);
+            el('add-listing-ish-summary', d.profession ? (d.is_working === 'true' ? d.profession + ', Ishlaman' : d.profession) : null);
+            el('add-listing-juftga-summary', (d.partner_age_min || d.partner_age_max) ? `${d.partner_age_min || '?'}-${d.partner_age_max || '?'} yosh` : null);
+            const bioEl = document.getElementById('add-listing-bio-summary');
+            if (bioEl) { bioEl.textContent = (d.bio || '').trim() ? (d.bio.slice(0, 40) + (d.bio.length > 40 ? '…' : '')) : 'Belgilanmagan'; bioEl.classList.toggle('italic', !d.bio); }
+        }
+
+        window.saveNewListing = async function() {
+            const d = window.newListingDraft || {};
+            if (!(d.name || '').trim() || !d.gender) {
+                alert('Ism va jinsni to\'ldiring (Shaxsiy bo\'limda)');
+                return;
+            }
+            const btn = document.getElementById('add-listing-save-btn');
+            if (btn) { btn.disabled = true; btn.textContent = 'Saqlanmoqda...'; }
+            try {
+                const r = await fetch('/profile/api/listings', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+                    credentials: 'same-origin',
+                    body: JSON.stringify({
+                        name: (d.name || '').trim(),
+                        gender: d.gender,
+                        birth_year: d.birth_year ? parseInt(d.birth_year, 10) : null,
+                        region: d.region || '',
+                        nationality: d.nationality || '',
+                        marital_status: d.marital_status || '',
+                        height: d.height ? parseInt(d.height, 10) : null,
+                        weight: d.weight ? parseInt(d.weight, 10) : null,
+                        aqida: d.aqida || '',
+                        prays: d.prays || '',
+                        fasts: d.fasts || '',
+                        quran_reading: d.quran_reading || '',
+                        mazhab: d.mazhab || '',
+                        religious_level: d.religious_level || '',
+                        education: d.education || '',
+                        profession: d.profession || '',
+                        is_working: d.is_working === 'true',
+                        partner_age_min: d.partner_age_min ? parseInt(d.partner_age_min, 10) : null,
+                        partner_age_max: d.partner_age_max ? parseInt(d.partner_age_max, 10) : null,
+                        partner_region: d.partner_region || '',
+                        partner_religious_level: d.partner_religious_level || '',
+                        partner_marital_status: d.partner_marital_status || '',
+                        bio: (d.bio || '').trim()
+                    })
+                });
+                const data = await r.json();
+                if (r.ok && data.success) {
+                    if (typeof window.showNotification === 'function') window.showNotification('✅ E\'lon qo\'shildi');
+                    window.showPage('profile');
+                    loadProfileListings();
+                } else {
+                    alert(data.error || 'Xatolik yuz berdi');
+                }
+            } catch (e) {
+                alert('Xatolik yuz berdi');
+            } finally {
+                if (btn) { btn.disabled = false; btn.textContent = 'E\'lonni saqlash'; }
+            }
+        };
 
         document.getElementById('profile-edit-sheet-overlay')?.addEventListener('click', closeProfileEditSheet);
 
@@ -4318,7 +4613,41 @@
                     fullProfileBtn.style.display = 'none';
                 }
             }
+            loadProfileListings();
         }
+
+        async function loadProfileListings() {
+            const listEl = document.getElementById('profile-listings-list');
+            if (!listEl) return;
+            try {
+                const r = await fetch('/profile/api/listings', { method: 'GET', headers: { 'X-Requested-With': 'XMLHttpRequest' }, credentials: 'same-origin' });
+                if (!r.ok) return;
+                const data = await r.json();
+                const profiles = data.profiles || data.listings || [];
+                listEl.innerHTML = '';
+                profiles.forEach(p => {
+                    const name = p.name || 'E\'lon';
+                    const isPrimary = p.is_primary;
+                    const isActive = p.is_active;
+                    const div = document.createElement('div');
+                    div.className = 'glass-card rounded-2xl p-4 flex items-center justify-between';
+                    div.innerHTML = `
+                        <div class="flex items-center gap-3">
+                            <div class="size-10 rounded-xl bg-white/5 flex items-center justify-center text-white/60">
+                                <span class="material-symbols-outlined text-[22px]">person</span>
+                            </div>
+                            <div>
+                                <p class="text-sm font-bold text-white">${name}</p>
+                                <p class="text-[10px] text-white/40">${isPrimary ? 'Asosiy profil' : 'Qo\'shimcha e\'lon'} ${isActive ? '• Aktiv' : '• Passiv'}</p>
+                            </div>
+                        </div>
+                        <span class="material-symbols-outlined text-white/30">chevron_right</span>
+                    `;
+                    listEl.appendChild(div);
+                });
+            } catch (e) { console.warn('Profile listings load error', e); }
+        }
+
         
         // To'liq profil modalini yopish va profil sahifasiga o'tish (to'liq profil to'ldirish uchun)
         window.openFullProfileFromModal = function() {

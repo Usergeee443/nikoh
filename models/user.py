@@ -15,7 +15,13 @@ class User(db.Model):
     last_active = db.Column(db.DateTime, default=datetime.utcnow)
 
     # Relationships
-    profile = db.relationship('Profile', backref='user', uselist=False, cascade='all, delete-orphan')
+    profiles = db.relationship('Profile', backref='user', lazy='dynamic', cascade='all, delete-orphan', order_by='Profile.is_primary.desc(), Profile.id')
+
+    @property
+    def profile(self):
+        """Asosiy profil (eski kod uchun) — birinchi primary yoki birinchi profil"""
+        p = self.profiles.filter_by(is_primary=True).first()
+        return p or self.profiles.first()
     tariffs = db.relationship('UserTariff', backref='user', lazy='dynamic', cascade='all, delete-orphan')
     sent_requests = db.relationship('MatchRequest', foreign_keys='MatchRequest.sender_id',
                                    backref='sender', lazy='dynamic', cascade='all, delete-orphan')

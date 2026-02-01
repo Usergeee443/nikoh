@@ -139,19 +139,24 @@ def get_listings():
 @feed_bp.route('/api/listing/<int:user_id>')
 @basic_profile_required
 def get_listing_detail(user_id):
-    """Bitta e'lonni batafsil ko'rish"""
+    """Bitta e'lonni batafsil ko'rish (profile_id berilsa shu profil)"""
     current_user = User.query.get(session['user_id'])
+    profile_id = request.args.get('profile_id', type=int)
 
     # O'zini ko'ra olmasligi
     if user_id == current_user.id:
         return jsonify({'error': 'O\'zingizni ko\'ra olmaysiz'}), 400
 
     user = User.query.get(user_id)
+    if not user:
+        return jsonify({'error': 'Foydalanuvchi topilmadi'}), 404
 
-    if not user or not user.profile or not user.profile.is_active:
+    if profile_id:
+        profile = Profile.query.filter_by(id=profile_id, user_id=user.id).first()
+    else:
+        profile = user.profile
+    if not profile or not profile.is_active:
         return jsonify({'error': 'Profil topilmadi'}), 404
-
-    profile = user.profile
     profile_data = profile.to_dict()
 
     # TOP statusini qo'shish
@@ -164,15 +169,17 @@ def get_listing_detail(user_id):
     profile_data['is_top'] = is_top
     profile_data['user_id'] = user.id
 
-    # Allaqachon so'rov yuborilganmi?
+    # Allaqachon so'rov yuborilganmi? (xuddi shu profil uchun)
     from models import MatchRequest
-    # Ikki tomonlama so'rovni tekshirish
-    existing_request = MatchRequest.query.filter(
-        db.or_(
-            db.and_(MatchRequest.sender_id == current_user.id, MatchRequest.receiver_id == user.id),
-            db.and_(MatchRequest.sender_id == user.id, MatchRequest.receiver_id == current_user.id)
-        )
-    ).first()
+    q_sent = db.and_(MatchRequest.sender_id == current_user.id, MatchRequest.receiver_id == user.id)
+    q_received = db.and_(MatchRequest.sender_id == user.id, MatchRequest.receiver_id == current_user.id)
+    if profile.id:
+        q_sent = db.and_(q_sent, MatchRequest.receiver_profile_id == profile.id)
+        q_received = db.and_(q_received, MatchRequest.receiver_profile_id == profile.id)
+    else:
+        q_sent = db.and_(q_sent, MatchRequest.receiver_profile_id.is_(None))
+        q_received = db.and_(q_received, MatchRequest.receiver_profile_id.is_(None))
+    existing_request = MatchRequest.query.filter(db.or_(q_sent, q_received)).first()
 
     profile_data['request_sent'] = existing_request is not None
     if existing_request:

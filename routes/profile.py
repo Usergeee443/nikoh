@@ -270,3 +270,70 @@ def get_progress():
         'completion_percentage': user.profile.completion_percentage,
         'is_complete': user.profile.is_complete
     })
+
+
+@profile_bp.route('/api/listings', methods=['GET'])
+@login_required
+def list_my_listings():
+    """Mening barcha e'lonlarim (asosiy + qo'shimcha — aka/opa uchun)"""
+    user = User.query.get(session['user_id'])
+    profiles = user.profiles.order_by(Profile.is_primary.desc(), Profile.id).all()
+    return jsonify({
+        'listings': [p.to_dict() for p in profiles],
+        'profiles': [{'id': p.id, 'name': p.name or 'E\'lon', 'is_primary': p.is_primary, 'is_active': p.is_active} for p in profiles]
+    })
+
+
+@profile_bp.route('/api/listings', methods=['POST'])
+@login_required
+def create_listing():
+    """Yangi e'lon yaratish (boshqa shaxs uchun — aka, opa, ota va h.k.)"""
+    user = User.query.get(session['user_id'])
+    data = request.get_json() or {}
+    # Minimal: name, gender, birth_year (yosh)
+    name = (data.get('name') or '').strip()
+    gender = data.get('gender')
+    birth_year = data.get('birth_year')
+    if not name or not gender:
+        return jsonify({'error': 'Ism va jins kerak'}), 400
+    try:
+        birth_year = int(birth_year) if birth_year else None
+    except (TypeError, ValueError):
+        birth_year = None
+    def _int(v):
+        try:
+            return int(v) if v not in (None, '') else None
+        except (TypeError, ValueError):
+            return None
+
+    # Yangi profil — is_primary=False, barcha maydonlar asosiy e'lon kabi
+    profile = Profile(
+        user_id=user.id,
+        is_primary=False,
+        name=name,
+        gender=gender,
+        birth_year=birth_year,
+        region=data.get('region') or '',
+        nationality=data.get('nationality') or '',
+        marital_status=data.get('marital_status') or '',
+        height=_int(data.get('height')),
+        weight=_int(data.get('weight')),
+        aqida=data.get('aqida') or None,
+        prays=data.get('prays') or '',
+        fasts=data.get('fasts') or '',
+        quran_reading=data.get('quran_reading') or None,
+        mazhab=data.get('mazhab') or None,
+        religious_level=data.get('religious_level') or '',
+        education=data.get('education') or '',
+        profession=data.get('profession') or '',
+        is_working=data.get('is_working') if data.get('is_working') is not None else None,
+        partner_age_min=_int(data.get('partner_age_min')),
+        partner_age_max=_int(data.get('partner_age_max')),
+        partner_region=data.get('partner_region') or '',
+        partner_religious_level=data.get('partner_religious_level') or '',
+        partner_marital_status=data.get('partner_marital_status') or '',
+        bio=data.get('bio') or ''
+    )
+    db.session.add(profile)
+    db.session.commit()
+    return jsonify({'success': True, 'profile': profile.to_dict(), 'id': profile.id})

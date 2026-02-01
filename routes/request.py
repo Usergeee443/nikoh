@@ -85,6 +85,7 @@ def send_request():
     data = request.get_json()
 
     receiver_id = data.get('receiver_id')
+    receiver_profile_id = data.get('receiver_profile_id')
     message = data.get('message', '')
 
     if not receiver_id:
@@ -96,8 +97,13 @@ def send_request():
 
     # Qabul qiluvchi mavjudligini tekshirish
     receiver = User.query.get(receiver_id)
-    if not receiver or not receiver.profile or not receiver.profile.is_active:
+    if not receiver:
         return jsonify({'error': 'Foydalanuvchi topilmadi'}), 404
+    # Qaysi profil (e'lon) uchun: receiver_profile_id berilsa shu profil, aks holda asosiy profil
+    from models import Profile
+    target_profile = Profile.query.get(receiver_profile_id) if receiver_profile_id else receiver.profile
+    if not target_profile or target_profile.user_id != int(receiver_id) or not target_profile.is_active:
+        return jsonify({'error': 'E\'lon topilmadi'}), 404
 
     # Tarif va so'rovlar sonini tekshirish
     if not current_user.has_active_tariff:
@@ -107,23 +113,30 @@ def send_request():
     if active_tariff.requests_count <= 0:
         return jsonify({'error': 'So\'rovlar tugagan. Yangi tarif sotib oling.'}), 400
 
-    # Allaqachon so'rov yuborilganmi? (ikki tomonlama tekshirish)
+    # Allaqachon so'rov yuborilganmi? (xuddi shu e'lon uchun)
+    profile_filter = (MatchRequest.receiver_profile_id == target_profile.id) if target_profile.id else MatchRequest.receiver_profile_id.is_(None)
     existing_request = MatchRequest.query.filter(
-        db.or_(
-            db.and_(MatchRequest.sender_id == current_user.id, MatchRequest.receiver_id == receiver_id),
-            db.and_(MatchRequest.sender_id == receiver_id, MatchRequest.receiver_id == current_user.id)
-        )
+        MatchRequest.sender_id == current_user.id,
+        MatchRequest.receiver_id == receiver_id,
+        profile_filter
     ).first()
+    if not existing_request:
+        existing_request = MatchRequest.query.filter(
+            MatchRequest.sender_id == receiver_id,
+            MatchRequest.receiver_id == current_user.id,
+            profile_filter
+        ).first()
 
     if existing_request:
         if existing_request.status == 'accepted' and existing_request.chat:
             return jsonify({'error': 'Chat allaqachon mavjud', 'chat_id': existing_request.chat.id}), 400
         return jsonify({'error': 'Allaqachon so\'rov yuborgan'}), 400
 
-    # So'rov yaratish
+    # So'rov yaratish (qaysi e'lon uchun ekanini saqlash)
     new_request = MatchRequest(
         sender_id=current_user.id,
         receiver_id=receiver_id,
+        receiver_profile_id=target_profile.id,
         message=message
     )
     db.session.add(new_request)

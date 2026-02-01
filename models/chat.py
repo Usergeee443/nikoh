@@ -11,6 +11,8 @@ class Chat(db.Model):
     match_request_id = db.Column(db.Integer, db.ForeignKey('match_requests.id'), nullable=False)
     user1_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     user2_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    profile1_id = db.Column(db.Integer, db.ForeignKey('profiles.id'), nullable=True)  # user1 qaysi e'lon (profil) uchun
+    profile2_id = db.Column(db.Integer, db.ForeignKey('profiles.id'), nullable=True)  # user2 qaysi e'lon uchun
 
     # Chat muddati
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
@@ -66,6 +68,12 @@ class Chat(db.Model):
         """Chatning xabarlarini olish"""
         return self.messages.order_by(Message.created_at.asc()).limit(limit).all()
 
+    def get_my_profile_id(self, current_user_id):
+        """Joriy foydalanuvchining ushbu chatdagi profil id si"""
+        if current_user_id == self.user1_id:
+            return self.profile1_id
+        return self.profile2_id
+
     def to_dict(self, current_user_id=None):
         """Chatni dictionary ga aylantirish"""
         other_user_id = self.get_other_user_id(current_user_id) if current_user_id else None
@@ -75,9 +83,11 @@ class Chat(db.Model):
             from models.user import User
             other_user = User.query.get(other_user_id)
 
+        my_profile_id = self.get_my_profile_id(current_user_id) if current_user_id else None
         return {
             'id': self.id,
             'other_user': other_user.profile.to_dict() if other_user and other_user.profile else None,
+            'profile_id': my_profile_id,
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'expires_at': self.expires_at.isoformat() if self.expires_at else None,
             'is_active': self.is_active,
