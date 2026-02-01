@@ -53,6 +53,7 @@ def get_listings():
 
     show_top_only = request.args.get('top_only', 'false') == 'true'
     request_gender = request.args.get('gender', type=str)
+    request_sort = request.args.get('sort', 'new', type=str)
 
     # Jins: to'g'ridan-to'g'ri filter (exists() so'rov olib tashlandi)
     if request_gender in ('Erkak', 'Ayol'):
@@ -80,10 +81,22 @@ def get_listings():
     else:
         query = query.outerjoin(UserTariff, top_condition)
 
-    query = query.order_by(
-        db.desc(case((UserTariff.is_top == True, 1), else_=0)),
-        db.desc(Profile.activated_at)
-    )
+    # Saralash: new, name_asc, name_desc, age_asc, age_desc, height_asc, height_desc
+    top_first = db.desc(case((UserTariff.is_top == True, 1), else_=0))
+    if request_sort == 'name_asc':
+        query = query.order_by(top_first, Profile.name.asc())
+    elif request_sort == 'name_desc':
+        query = query.order_by(top_first, Profile.name.desc())
+    elif request_sort == 'age_asc':
+        query = query.order_by(top_first, Profile.birth_year.asc())   # yosh katta birinchi
+    elif request_sort == 'age_desc':
+        query = query.order_by(top_first, Profile.birth_year.desc())  # yosh kichik birinchi
+    elif request_sort == 'height_asc':
+        query = query.order_by(top_first, Profile.height.asc(), db.desc(Profile.activated_at))
+    elif request_sort == 'height_desc':
+        query = query.order_by(top_first, Profile.height.desc(), db.desc(Profile.activated_at))
+    else:
+        query = query.order_by(top_first, db.desc(Profile.activated_at))  # new
 
     pagination = query.paginate(page=page, per_page=per_page, error_out=False)
     profiles = pagination.items

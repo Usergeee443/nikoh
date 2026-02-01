@@ -899,7 +899,6 @@
                 <div id="feed-listings" class="space-y-4">
                     <div id="feed-skeleton" class="space-y-4">
                         <div class="profile-card glass-card rounded-[22px] overflow-hidden skeleton" style="height: calc((100vh - 220px) / 2.8); min-height: 245px;"></div>
-                        <div class="profile-card glass-card rounded-[22px] overflow-hidden skeleton" style="height: calc((100vh - 220px) / 2.8); min-height: 245px;"></div>
                     </div>
                 </div>
                 <div class="text-center py-4 hidden" id="feed-load-more">
@@ -938,7 +937,7 @@
                             </button>
                             <button id="requests-sent-tab" onclick="switchRequestsTab('sent')" class="relative h-10 px-3 pr-4 rounded-full glass-card flex items-center gap-2 text-white/40 requests-tab-icon-only">
                                 <div class="relative flex items-center justify-center">
-                                    <span class="material-symbols-outlined text-[22px]">call_made</span>
+                                <span class="material-symbols-outlined text-[22px]">call_made</span>
                                     <span id="requests-sent-badge" class="absolute -top-1.5 -right-1.5 bg-white/20 text-[9px] font-black text-white px-1.5 rounded-full min-w-[18px] h-[18px] flex items-center justify-center border-2 border-background-dark hidden">0</span>
                                 </div>
                                 <span id="requests-sent-label" class="text-[10px] font-black tracking-widest uppercase hidden">Yuborilgan</span>
@@ -1046,7 +1045,7 @@
                             <button type="button" id="favorites-kuyov-btn" class="feed-gender-btn h-9 px-3 rounded-full text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5 transition-all active:scale-95" title="Kuyovlar">
                                 <span class="material-symbols-outlined text-[18px]">male</span>
                                 <span>Kuyov</span>
-                            </button>
+                        </button>
                             <button type="button" id="favorites-kelin-btn" class="feed-gender-btn h-9 px-3 rounded-full text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5 transition-all active:scale-95" title="Kelinlar">
                                 <span class="material-symbols-outlined text-[18px]">female</span>
                                 <span>Kelin</span>
@@ -1070,11 +1069,11 @@
                 </div>
             </header>
             <main class="max-w-md mx-auto px-4 w-full" style="padding-top: 20px; padding-bottom: 140px;">
-                <div id="favorites-skeleton" class="space-y-4">
+                    <div id="favorites-skeleton" class="space-y-4">
                     <div class="profile-card glass-card rounded-[22px] overflow-hidden skeleton" style="height: calc((100vh - 220px) / 2.8); min-height: 245px;"></div>
                     <div class="profile-card glass-card rounded-[22px] overflow-hidden skeleton" style="height: calc((100vh - 220px) / 2.8); min-height: 245px;"></div>
-                </div>
-                <div id="favorites-list" class="space-y-4"></div>
+                    </div>
+                    <div id="favorites-list" class="space-y-4"></div>
             </main>
             <div class="fixed top-0 left-0 w-full h-full pointer-events-none -z-10 overflow-hidden opacity-30">
                 <div class="absolute top-[-20%] right-[-10%] w-[80%] h-[80%] bg-primary/10 blur-[180px] rounded-full"></div>
@@ -2102,8 +2101,8 @@
                     openOnboarding('welcome');
                 } else {
                     onboardingDone = true;
-                    // Load page data
-                    loadPageData(currentPage);
+                // Load page data
+                loadPageData(currentPage);
                 }
             }).catch(err => {
                 console.error('Initialization error:', err);
@@ -2212,9 +2211,9 @@
                 if (welcomeScreen) { welcomeScreen.classList.add('hidden'); welcomeScreen.style.display = 'none'; }
                 if (simpleRegForm) { simpleRegForm.classList.add('hidden'); simpleRegForm.style.display = 'none'; }
                 if (onboardingForm) { onboardingForm.classList.remove('hidden'); onboardingForm.style.display = 'flex'; }
-                currentOnboardingStep = 1;
-                updateOnboardingUI();
-                initOnboardingListeners();
+            currentOnboardingStep = 1;
+            updateOnboardingUI();
+            initOnboardingListeners();
             }
         }
 
@@ -2477,7 +2476,8 @@
             const skeleton = document.getElementById('feed-skeleton');
             if (!container) return;
             const hasContent = container.children.length > 0 && (!skeleton || skeleton.style.display === 'none');
-            if (!hasContent) await loadFeedListings(1);
+            // Jins/saralash o'zgarganda ham qayta yuklash (pageDataLoaded.feed = false bo'lganda)
+            if (!hasContent || !pageDataLoaded.feed) await loadFeedListings(1);
             pageDataLoaded.feed = true;
         }
 
@@ -2528,9 +2528,9 @@
 
             // Birinchi sahifa: avval 1 ta e'lonni tez yuklab ko'rsatamiz (0.5–1 s), keyin to'liq ro'yxat fonda
             if (page === 1) {
-                try {
-                    const quickRes = await fetch(`/feed/api/listings?page=1&per_page=1&top_only=${topOnly}&gender=${encodeURIComponent(feedGender)}`, {
-                        method: 'GET',
+            try {
+                    const quickRes = await fetch(`/feed/api/listings?page=1&per_page=1&top_only=${topOnly}&gender=${encodeURIComponent(feedGender)}&sort=${encodeURIComponent(feedSort)}`, {
+                    method: 'GET',
                         headers: feedHeaders,
                         credentials: 'same-origin'
                     });
@@ -2565,7 +2565,7 @@
                     console.warn('Quick feed load failed, falling back to full load:', err);
                     feedIsLoading = true;
                     try {
-                        const fallbackRes = await fetch(`/feed/api/listings?page=1&per_page=20&top_only=${topOnly}&gender=${encodeURIComponent(feedGender)}`, {
+                        const fallbackRes = await fetch(`/feed/api/listings?page=1&per_page=20&top_only=${topOnly}&gender=${encodeURIComponent(feedGender)}&sort=${encodeURIComponent(feedSort)}`, {
                             method: 'GET',
                             headers: feedHeaders,
                             credentials: 'same-origin'
@@ -2597,7 +2597,7 @@
                 }
 
                 // To'liq ro'yxatni fonda yuklash va konteynerni yangilash
-                fetch(`/feed/api/listings?page=1&per_page=20&top_only=${topOnly}&gender=${encodeURIComponent(feedGender)}`, {
+                fetch(`/feed/api/listings?page=1&per_page=20&top_only=${topOnly}&gender=${encodeURIComponent(feedGender)}&sort=${encodeURIComponent(feedSort)}`, {
                     method: 'GET',
                     headers: feedHeaders,
                     credentials: 'same-origin'
@@ -2623,7 +2623,7 @@
 
             // page > 1: oddiy sahifa yuklash
             try {
-                const response = await fetch(`/feed/api/listings?page=${page}&per_page=20&top_only=${topOnly}&gender=${encodeURIComponent(feedGender)}`, {
+                const response = await fetch(`/feed/api/listings?page=${page}&per_page=20&top_only=${topOnly}&gender=${encodeURIComponent(feedGender)}&sort=${encodeURIComponent(feedSort)}`, {
                     method: 'GET',
                     headers: feedHeaders,
                     credentials: 'same-origin'
@@ -2863,8 +2863,8 @@
                             <div class="grid grid-cols-2 gap-4">
                                 <div><p class="text-[10px] text-white/40 font-bold uppercase tracking-wider mb-1">Bo'yi</p><p class="text-[14px] text-white font-semibold">${profile.height || '-'} sm</p></div>
                                 <div><p class="text-[10px] text-white/40 font-bold uppercase tracking-wider mb-1">Vazni</p><p class="text-[14px] text-white font-semibold">${profile.weight || '-'} kg</p></div>
-                            </div>
-                        </div>
+                                </div>
+                                </div>
                         <div class="glass-card rounded-2xl p-4">
                             <div class="flex items-center gap-2 mb-4 border-b border-white/5 pb-2">
                                 <span class="material-symbols-outlined text-primary text-[20px]">person_celebrate</span>
@@ -2883,13 +2883,13 @@
                             <div class="grid grid-cols-2 gap-y-4 gap-x-4">
                                 <div><p class="text-[10px] text-white/40 font-bold uppercase tracking-wider mb-1">Ta'lim</p><p class="text-[14px] text-white font-semibold">${profile.education || '-'}</p></div>
                                 <div><p class="text-[10px] text-white/40 font-bold uppercase tracking-wider mb-1">Kasbi</p><p class="text-[14px] text-white font-semibold">${profile.profession || '-'}</p></div>
-                            </div>
-                        </div>
+                                </div>
+                                </div>
                         <div class="glass-card rounded-2xl p-4">
                             <div class="flex items-center gap-2 mb-4 border-b border-white/5 pb-2">
                                 <span class="material-symbols-outlined text-primary text-[20px]">auto_awesome</span>
                                 <h3 class="text-[12px] font-black uppercase tracking-widest text-white/80">Diniy ma'lumotlar</h3>
-                            </div>
+                                </div>
                             <div class="grid grid-cols-2 gap-y-4 gap-x-4">
                                 <div><p class="text-[10px] text-white/40 font-bold uppercase tracking-wider mb-1">Namoz</p><p class="text-[14px] text-white font-semibold">${profile.prays || '-'}</p></div>
                                 <div><p class="text-[10px] text-white/40 font-bold uppercase tracking-wider mb-1">Ro'za</p><p class="text-[14px] text-white font-semibold">${profile.fasts || '-'}</p></div>
@@ -2898,7 +2898,7 @@
                         </div>
                         ${bioEsc ? `<div class="glass-card rounded-2xl p-5"><h3 class="text-[13px] font-black uppercase tracking-widest text-primary mb-3">O'zim haqimda</h3><p class="text-[14px] leading-relaxed text-white/80 font-medium">${bioEsc}</p></div>` : ''}
                         <div id="feed-profile-action">${actionHtml}</div>
-                    </div>
+                        </div>
                 </main>
             `;
         }
@@ -3022,7 +3022,7 @@
             if (!userData) await initUserData();
             updateRequestsTariffInfo();
             if (requestsCurrentTab === 'received') {
-                await loadReceivedRequests();
+            await loadReceivedRequests();
             } else if (requestsCurrentTab === 'sent') {
                 await loadSentRequests();
             } else {
@@ -4228,7 +4228,7 @@
                 const data = await response.json();
                 if (response.ok && data.success) {
                     if (typeof window.showNotification === 'function') window.showNotification('✅ Saqlandi');
-                    await initUserData();
+                await initUserData();
                     updateProfileEditSummaries();
                     if (pageDataLoaded.profile) updateProfileUI();
                     closeProfileEditSheet();
@@ -4328,7 +4328,7 @@
                 openOnboarding('full');
             }
         };
-
+        
         // E'lon yaratish funksiyasi
         window.createAd = async function() {
             const profileComplete = userData && userData.user && userData.user.profile_complete;
@@ -4434,6 +4434,7 @@
                 sheet.classList.add('active');
                 currentFilterSheet = sheetId;
             }
+            if (sheetId === 'filter-sort-sheet') updateSortSheetUI();
             if (sheetId === 'filter-family-sheet') {
                 const cards = document.querySelectorAll('#filter-family-status-cards .filter-family-opt');
                 cards.forEach(btn => {
@@ -4462,6 +4463,25 @@
             const overlay = document.getElementById('filter-overlay');
             if (overlay) overlay.style.display = 'none';
             currentFilterSheet = null;
+        }
+
+        function updateSortSheetUI() {
+            document.querySelectorAll('#filter-sort-sheet .sort-option-btn').forEach(btn => {
+                const val = btn.getAttribute('data-sort');
+                const active = val === feedSort;
+                btn.classList.toggle('sort-option-active', active);
+                btn.classList.toggle('border-primary/30', active);
+                btn.classList.toggle('border-white/5', !active);
+                btn.classList.toggle('border-white/10', !active);
+                btn.classList.toggle('text-primary', active);
+                btn.classList.toggle('text-white/60', !active);
+                const icon = btn.querySelector('.sort-option-icon');
+                const label = btn.querySelector('.sort-option-label');
+                const badge = btn.querySelector('.sort-option-badge');
+                if (icon) { icon.classList.toggle('text-primary', active); icon.classList.toggle('text-white/40', !active); }
+                if (label) { label.classList.toggle('text-white', active); label.classList.toggle('text-white/60', !active); }
+                if (badge) { badge.classList.toggle('border-primary/30', active); badge.classList.toggle('opacity-100', active); badge.classList.toggle('opacity-60', !active); }
+            });
         }
 
         // Filter state
@@ -4626,18 +4646,20 @@
             });
         }
 
-        let feedGender = 'Ayol'; // default: Kelin (ayollar ko'rsatiladi)
+        let feedGender = 'Ayol'; // Kuyov rejimi = Kelin (ayollar) ko'rsatiladi; Kelin rejimi = Kuyov (erkaklar)
+        let feedSort = 'new';   // new | name_asc | name_desc | age_asc | age_desc | height_asc | height_desc
         function updateFeedGenderUI() {
             const kuyov = document.getElementById('feed-kuyov-btn');
             const kelin = document.getElementById('feed-kelin-btn');
-            if (kuyov) kuyov.className = 'feed-gender-btn h-9 px-3 rounded-full text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5 transition-all active:scale-95 ' + (feedGender === 'Erkak' ? 'feed-gender-kuyov' : 'feed-gender-inactive');
-            if (kelin) kelin.className = 'feed-gender-btn h-9 px-3 rounded-full text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5 transition-all active:scale-95 ' + (feedGender === 'Ayol' ? 'feed-gender-kelin' : 'feed-gender-inactive');
+            // Kuyov tugmasi faol = Kelin (Ayol) ko'rsatiladi; Kelin tugmasi faol = Kuyov (Erkak) ko'rsatiladi
+            if (kuyov) kuyov.className = 'feed-gender-btn h-9 px-3 rounded-full text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5 transition-all active:scale-95 ' + (feedGender === 'Ayol' ? 'feed-gender-kuyov' : 'feed-gender-inactive');
+            if (kelin) kelin.className = 'feed-gender-btn h-9 px-3 rounded-full text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5 transition-all active:scale-95 ' + (feedGender === 'Erkak' ? 'feed-gender-kelin' : 'feed-gender-inactive');
         }
         function updateFavoritesGenderUI() {
             const kuyov = document.getElementById('favorites-kuyov-btn');
             const kelin = document.getElementById('favorites-kelin-btn');
-            if (kuyov) kuyov.className = 'feed-gender-btn h-9 px-3 rounded-full text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5 transition-all active:scale-95 ' + (feedGender === 'Erkak' ? 'feed-gender-kuyov' : 'feed-gender-inactive');
-            if (kelin) kelin.className = 'feed-gender-btn h-9 px-3 rounded-full text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5 transition-all active:scale-95 ' + (feedGender === 'Ayol' ? 'feed-gender-kelin' : 'feed-gender-inactive');
+            if (kuyov) kuyov.className = 'feed-gender-btn h-9 px-3 rounded-full text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5 transition-all active:scale-95 ' + (feedGender === 'Ayol' ? 'feed-gender-kuyov' : 'feed-gender-inactive');
+            if (kelin) kelin.className = 'feed-gender-btn h-9 px-3 rounded-full text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5 transition-all active:scale-95 ' + (feedGender === 'Erkak' ? 'feed-gender-kelin' : 'feed-gender-inactive');
         }
         function setFeedGender(gender) {
             if (feedGender === gender) return;
@@ -4665,17 +4687,38 @@
             }
             const kuyovBtn = document.getElementById('feed-kuyov-btn');
             const kelinBtn = document.getElementById('feed-kelin-btn');
-            if (kuyovBtn) kuyovBtn.addEventListener('click', () => setFeedGender('Erkak'));
-            if (kelinBtn) kelinBtn.addEventListener('click', () => setFeedGender('Ayol'));
+            if (kuyovBtn) kuyovBtn.addEventListener('click', (e) => { e.preventDefault(); setFeedGender('Ayol'); });   // Kuyov = Kelin (ayollar)
+            if (kelinBtn) kelinBtn.addEventListener('click', (e) => { e.preventDefault(); setFeedGender('Erkak'); });   // Kelin = Kuyov (erkaklar)
+            // Asosiy sahifada tugmalar ishlashi uchun event delegation (ustki elementlar blok qilsa ham)
+            document.getElementById('page-feed')?.addEventListener('click', function(e) {
+                const t = e.target.closest('#feed-kuyov-btn, #feed-kelin-btn');
+                if (!t) return;
+                e.preventDefault();
+                if (t.id === 'feed-kuyov-btn') setFeedGender('Ayol');
+                else if (t.id === 'feed-kelin-btn') setFeedGender('Erkak');
+            });
             updateFeedGenderUI();
             const favKuyov = document.getElementById('favorites-kuyov-btn');
             const favKelin = document.getElementById('favorites-kelin-btn');
-            if (favKuyov) favKuyov.addEventListener('click', () => setFeedGender('Erkak'));
-            if (favKelin) favKelin.addEventListener('click', () => setFeedGender('Ayol'));
+            if (favKuyov) favKuyov.addEventListener('click', () => setFeedGender('Ayol'));
+            if (favKelin) favKelin.addEventListener('click', () => setFeedGender('Erkak'));
             const favSort = document.getElementById('favorites-sort-btn');
             const favFilter = document.getElementById('favorites-filter-btn');
             if (favSort) favSort.addEventListener('click', () => openFilterSheet('filter-sort-sheet'));
             if (favFilter) favFilter.addEventListener('click', () => openFilterSheet('filter-main-sheet'));
+
+            // Saralash variantlari: tanlanganda feedSort yangilanadi, sheet yopiladi, feed qayta yuklanadi
+            document.querySelectorAll('#filter-sort-sheet .sort-option-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const val = btn.getAttribute('data-sort');
+                    if (!val) return;
+                    feedSort = val;
+                    updateSortSheetUI();
+                    closeFilterSheet();
+                    pageDataLoaded.feed = false;
+                    loadFeedData();
+                });
+            });
             const favSearch = document.getElementById('favorites-search');
             if (favSearch) favSearch.addEventListener('input', () => { if (pageDataLoaded.favorites) renderFavoritesListWithFilter(); });
             updateFavoritesGenderUI();
@@ -5166,45 +5209,45 @@
                             <label class="flex items-center justify-between group cursor-pointer"><span class="text-sm font-medium text-white/80 group-active:text-white">Buxoro</span><input name="location_city" value="Buxoro" class="location-city-cb custom-checkbox" type="checkbox"/></label>
                             <label class="flex items-center justify-between group cursor-pointer"><span class="text-sm font-medium text-white/80 group-active:text-white">Andijon</span><input name="location_city" value="Andijon" class="location-city-cb custom-checkbox" type="checkbox"/></label>
                         </div>
-                    </div>
+                            </div>
                     <div class="location-country-block bg-white/[0.03] border border-white/[0.05] rounded-3xl overflow-hidden" data-country-name="Qirg'iziston">
                         <button type="button" class="location-country-header w-full flex items-center justify-between p-5 active:bg-white/[0.06] transition-colors text-left">
-                            <div class="flex items-center gap-3">
-                                <span class="text-2xl">🇰🇬</span>
-                                <span class="font-bold text-white/80">Qirg'iziston</span>
-                            </div>
+                        <div class="flex items-center gap-3">
+                            <span class="text-2xl">🇰🇬</span>
+                            <span class="font-bold text-white/80">Qirg'iziston</span>
+                        </div>
                             <span class="material-symbols-outlined text-white/20 location-chevron">chevron_right</span>
-                        </button>
+                    </button>
                         <div class="location-cities hidden px-5 py-4 space-y-4 bg-white/[0.01]"></div>
                     </div>
                     <div class="location-country-block bg-white/[0.03] border border-white/[0.05] rounded-3xl overflow-hidden" data-country-name="Rossiya">
                         <button type="button" class="location-country-header w-full flex items-center justify-between p-5 active:bg-white/[0.06] transition-colors text-left">
-                            <div class="flex items-center gap-3">
-                                <span class="text-2xl">🇷🇺</span>
-                                <span class="font-bold text-white/80">Rossiya</span>
-                            </div>
+                        <div class="flex items-center gap-3">
+                            <span class="text-2xl">🇷🇺</span>
+                            <span class="font-bold text-white/80">Rossiya</span>
+                        </div>
                             <span class="material-symbols-outlined text-white/20 location-chevron">chevron_right</span>
-                        </button>
+                    </button>
                         <div class="location-cities hidden px-5 py-4 space-y-4 bg-white/[0.01]"></div>
                     </div>
                     <div class="location-country-block bg-white/[0.03] border border-white/[0.05] rounded-3xl overflow-hidden" data-country-name="Qozog'iston">
                         <button type="button" class="location-country-header w-full flex items-center justify-between p-5 active:bg-white/[0.06] transition-colors text-left">
-                            <div class="flex items-center gap-3">
-                                <span class="text-2xl">🇰🇿</span>
-                                <span class="font-bold text-white/80">Qozog'iston</span>
-                            </div>
+                        <div class="flex items-center gap-3">
+                            <span class="text-2xl">🇰🇿</span>
+                            <span class="font-bold text-white/80">Qozog'iston</span>
+                        </div>
                             <span class="material-symbols-outlined text-white/20 location-chevron">chevron_right</span>
-                        </button>
+                    </button>
                         <div class="location-cities hidden px-5 py-4 space-y-4 bg-white/[0.01]"></div>
                     </div>
                     <div class="location-country-block bg-white/[0.03] border border-white/[0.05] rounded-3xl overflow-hidden" data-country-name="Tojikiston">
                         <button type="button" class="location-country-header w-full flex items-center justify-between p-5 active:bg-white/[0.06] transition-colors text-left">
-                            <div class="flex items-center gap-3">
-                                <span class="text-2xl">🇹🇯</span>
-                                <span class="font-bold text-white/80">Tojikiston</span>
-                            </div>
+                        <div class="flex items-center gap-3">
+                            <span class="text-2xl">🇹🇯</span>
+                            <span class="font-bold text-white/80">Tojikiston</span>
+                        </div>
                             <span class="material-symbols-outlined text-white/20 location-chevron">chevron_right</span>
-                        </button>
+                    </button>
                         <div class="location-cities hidden px-5 py-4 space-y-4 bg-white/[0.01]"></div>
                     </div>
                 </div>
@@ -5518,64 +5561,54 @@
             <div class="ios-handle"></div>
             <div class="flex items-center justify-between mb-8">
                 <h3 class="text-2xl font-extrabold tracking-tight">Saralash</h3>
+                <div class="flex items-center gap-3">
                 <button onclick="closeFilterSheet()" class="text-[11px] font-black text-white/40 uppercase tracking-widest hover:text-primary transition-colors">Tozalash</button>
+                    <button class="filter-close-btn size-10 rounded-full glass-panel flex items-center justify-center active:scale-95 transition-transform" title="Yopish">
+                        <span class="material-symbols-outlined text-[22px]">close</span>
+                    </button>
             </div>
-            <div class="space-y-3">
-                <button class="w-full flex items-center justify-between p-4 rounded-2xl border glass-card sort-option-active transition-all group">
+            </div>
+            <div class="space-y-3" id="filter-sort-options">
+                <button type="button" data-sort="new" class="sort-option-btn w-full flex items-center justify-between p-4 rounded-2xl border glass-card transition-all group">
                     <div class="flex items-center gap-4">
-                        <span class="material-symbols-outlined text-primary text-[24px]">new_releases</span>
-                        <span class="text-[15px] font-bold text-white">Yangi e'lonlar</span>
+                        <span class="material-symbols-outlined text-[24px] sort-option-icon">new_releases</span>
+                        <span class="text-[15px] font-bold sort-option-label">Yangi e'lonlar</span>
                     </div>
-                    <div class="flex items-center gap-1 bg-black/40 rounded-full px-2 py-1 border border-primary/30">
-                        <span class="material-symbols-outlined text-primary text-[20px]">expand_less</span>
-                        <span class="text-[10px] font-black text-primary/80 uppercase">NEW</span>
+                    <div class="flex items-center gap-1 bg-black/40 rounded-full px-2 py-1 border border-primary/30 sort-option-badge">
+                        <span class="material-symbols-outlined text-[20px]">expand_less</span>
+                        <span class="text-[10px] font-black uppercase">NEW</span>
                     </div>
                 </button>
-                <button class="w-full flex items-center justify-between p-4 rounded-2xl border border-white/5 glass-card hover:border-white/20 transition-all group">
-                    <div class="flex items-center gap-4">
-                        <span class="material-symbols-outlined text-white/40 text-[24px] group-hover:text-white transition-colors">sort_by_alpha</span>
-                        <span class="text-[15px] font-bold text-white/60 group-hover:text-white transition-colors">Ism bo'yicha</span>
+                <div class="rounded-2xl border border-white/10 glass-card overflow-hidden">
+                    <div class="px-4 py-3 flex items-center gap-3 border-b border-white/5">
+                        <span class="material-symbols-outlined text-white/50 text-[22px]">sort_by_alpha</span>
+                        <span class="text-[13px] font-bold text-white/70">Ism bo'yicha</span>
                     </div>
-                    <div class="size-8 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-white/10 transition-colors">
-                        <span class="material-symbols-outlined text-white/40 text-[20px]">unfold_more</span>
+                    <div class="p-2 flex gap-2">
+                        <button type="button" data-sort="name_asc" class="sort-option-btn flex-1 py-3 px-3 rounded-xl border border-white/10 text-center text-[12px] font-bold transition-all">A → Z</button>
+                        <button type="button" data-sort="name_desc" class="sort-option-btn flex-1 py-3 px-3 rounded-xl border border-white/10 text-center text-[12px] font-bold transition-all">Z → A</button>
                     </div>
-                </button>
-                <button class="w-full flex items-center justify-between p-4 rounded-2xl border glass-card sort-option-active transition-all group">
-                    <div class="flex items-center gap-4">
-                        <span class="material-symbols-outlined text-primary text-[24px]">calendar_month</span>
-                        <span class="text-[15px] font-bold text-white">Yosh bo'yicha</span>
+                </div>
+                <div class="rounded-2xl border border-white/10 glass-card overflow-hidden">
+                    <div class="px-4 py-3 flex items-center gap-3 border-b border-white/5">
+                        <span class="material-symbols-outlined text-white/50 text-[22px]">calendar_month</span>
+                        <span class="text-[13px] font-bold text-white/70">Yosh bo'yicha</span>
                     </div>
-                    <div class="size-8 rounded-full bg-primary/20 flex items-center justify-center border border-primary/20">
-                        <span class="material-symbols-outlined text-primary text-[24px]">expand_more</span>
+                    <div class="p-2 flex gap-2">
+                        <button type="button" data-sort="age_desc" class="sort-option-btn flex-1 py-3 px-3 rounded-xl border border-white/10 text-center text-[12px] font-bold transition-all">Yosh kichik birinchi</button>
+                        <button type="button" data-sort="age_asc" class="sort-option-btn flex-1 py-3 px-3 rounded-xl border border-white/10 text-center text-[12px] font-bold transition-all">Yosh katta birinchi</button>
                     </div>
-                </button>
-                <button class="w-full flex items-center justify-between p-4 rounded-2xl border border-white/5 glass-card hover:border-white/20 transition-all group">
-                    <div class="flex items-center gap-4">
-                        <span class="material-symbols-outlined text-white/40 text-[24px] group-hover:text-white transition-colors">height</span>
-                        <span class="text-[15px] font-bold text-white/60 group-hover:text-white transition-colors">Bo'y bo'yicha</span>
+                </div>
+                <div class="rounded-2xl border border-white/10 glass-card overflow-hidden">
+                    <div class="px-4 py-3 flex items-center gap-3 border-b border-white/5">
+                        <span class="material-symbols-outlined text-white/50 text-[22px]">height</span>
+                        <span class="text-[13px] font-bold text-white/70">Bo'y bo'yicha</span>
                     </div>
-                    <div class="size-8 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-white/10 transition-colors">
-                        <span class="material-symbols-outlined text-white/40 text-[20px]">unfold_more</span>
+                    <div class="p-2 flex gap-2">
+                        <button type="button" data-sort="height_asc" class="sort-option-btn flex-1 py-3 px-3 rounded-xl border border-white/10 text-center text-[12px] font-bold transition-all">Qisqadan uzuniga</button>
+                        <button type="button" data-sort="height_desc" class="sort-option-btn flex-1 py-3 px-3 rounded-xl border border-white/10 text-center text-[12px] font-bold transition-all">Uzundan qisqaga</button>
                     </div>
-                </button>
-                <button class="w-full flex items-center justify-between p-4 rounded-2xl border border-white/5 glass-card hover:border-white/20 transition-all group">
-                    <div class="flex items-center gap-4">
-                        <span class="material-symbols-outlined text-white/40 text-[24px] group-hover:text-white transition-colors">payments</span>
-                        <span class="text-[15px] font-bold text-white/60 group-hover:text-white transition-colors">Maosh miqdori</span>
-                    </div>
-                    <div class="size-8 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-white/10 transition-colors">
-                        <span class="material-symbols-outlined text-white/40 text-[20px]">unfold_more</span>
-                    </div>
-                </button>
-                <button class="w-full flex items-center justify-between p-4 rounded-2xl border border-white/5 glass-card hover:border-white/20 transition-all group">
-                    <div class="flex items-center gap-4">
-                        <span class="material-symbols-outlined text-white/40 text-[24px] group-hover:text-white transition-colors">trending_up</span>
-                        <span class="text-[15px] font-bold text-white/60 group-hover:text-white transition-colors">Ko'p so'rov olganlar</span>
-                    </div>
-                    <div class="size-8 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-white/10 transition-colors">
-                        <span class="material-symbols-outlined text-white/40 text-[20px]">unfold_more</span>
-                    </div>
-                </button>
+                </div>
             </div>
             <div class="mt-8 flex justify-center">
                 <div class="w-20 h-1 bg-white/5 rounded-full"></div>
