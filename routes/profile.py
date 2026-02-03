@@ -26,6 +26,7 @@ def onboarding_step1():
         profile.name = request.form.get('name')
         profile.gender = request.form.get('gender')
         profile.birth_year = int(request.form.get('birth_year'))
+        profile.country = request.form.get('country')
         profile.region = request.form.get('region')
         profile.nationality = request.form.get('nationality')
         profile.marital_status = request.form.get('marital_status')
@@ -83,6 +84,7 @@ def onboarding_step4():
         profile.education = request.form.get('education')
         profile.profession = request.form.get('profession')
         profile.is_working = request.form.get('is_working') == 'true'
+        profile.salary = request.form.get('salary')
 
         db.session.commit()
         return redirect(url_for('profile.view'))
@@ -167,31 +169,42 @@ def edit():
 
             # Yangilanadigan maydonlar - to'g'ri tekshirib olish
             profile.name = request.form.get('name') or profile.name
-            profile.gender = request.form.get('gender') or profile.gender
+
+            # Jinsni ham o'zgartirish mumkin
+            gender = request.form.get('gender')
+            if gender:
+                profile.gender = gender
+
             birth_year = request.form.get('birth_year')
             if birth_year:
                 profile.birth_year = int(birth_year)
+
+            # Davlat va hudud
+            profile.country = request.form.get('country') or profile.country
             profile.region = request.form.get('region') or profile.region
             profile.nationality = request.form.get('nationality') or profile.nationality
             profile.marital_status = request.form.get('marital_status') or profile.marital_status
-            
+
             height = request.form.get('height')
             if height:
                 profile.height = int(height)
             weight = request.form.get('weight')
             if weight:
                 profile.weight = int(weight)
-            
+
             profile.prays = request.form.get('prays') or profile.prays
             profile.fasts = request.form.get('fasts') or profile.fasts
             profile.religious_level = request.form.get('religious_level') or profile.religious_level
             profile.education = request.form.get('education') or profile.education
             profile.profession = request.form.get('profession') or profile.profession
-            
+
+            # Maosh
+            profile.salary = request.form.get('salary') or profile.salary
+
             is_working = request.form.get('is_working')
             if is_working:
                 profile.is_working = is_working == 'true'
-            
+
             profile.bio = request.form.get('bio') or profile.bio
 
             # Juftga qo'yiladigan talablar

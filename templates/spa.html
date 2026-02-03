@@ -478,23 +478,29 @@
                                 <p class="text-sm text-white/50">Joylashuvingiz haqida ma'lumot</p>
                             </div>
                             <div>
-                                <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-white/60 mb-2">Hudud</label>
-                                <select name="region" required class="w-full glass-card glass-input rounded-2xl px-4 py-4 text-base">
-                                    <option value="">Hududni tanlang</option>
-                                    <option value="Toshkent shahar">Toshkent shahar</option>
-                                    <option value="Toshkent viloyati">Toshkent viloyati</option>
-                                    <option value="Samarqand">Samarqand</option>
-                                    <option value="Buxoro">Buxoro</option>
-                                    <option value="Andijon">Andijon</option>
-                                    <option value="Farg'ona">Farg'ona</option>
-                                    <option value="Namangan">Namangan</option>
-                                    <option value="Qashqadaryo">Qashqadaryo</option>
-                                    <option value="Surxondaryo">Surxondaryo</option>
-                                    <option value="Xorazm">Xorazm</option>
-                                    <option value="Navoiy">Navoiy</option>
-                                    <option value="Jizzax">Jizzax</option>
-                                    <option value="Sirdaryo">Sirdaryo</option>
-                                    <option value="Qoraqalpog'iston">Qoraqalpog'iston</option>
+                                <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-white/60 mb-2">Davlat</label>
+                                <select name="country" id="onboarding-country" required class="w-full glass-card glass-input rounded-2xl px-4 py-4 text-base" onchange="updateRegionOptions(this.value, 'onboarding-region')">
+                                    <option value="">Davlatni tanlang</option>
+                                    <option value="O'zbekiston">🇺🇿 O'zbekiston</option>
+                                    <option value="Rossiya">🇷🇺 Rossiya</option>
+                                    <option value="Qozog'iston">🇰🇿 Qozog'iston</option>
+                                    <option value="Turkiya">🇹🇷 Turkiya</option>
+                                    <option value="Ozarbayjon">🇦🇿 Ozarbayjon</option>
+                                    <option value="Qirg'iziston">🇰🇬 Qirg'iziston</option>
+                                    <option value="Tojikiston">🇹🇯 Tojikiston</option>
+                                    <option value="Turkmaniston">🇹🇲 Turkmaniston</option>
+                                    <option value="AQSH">🇺🇸 AQSH</option>
+                                    <option value="Germaniya">🇩🇪 Germaniya</option>
+                                    <option value="Janubiy Koreya">🇰🇷 Janubiy Koreya</option>
+                                    <option value="BAA">🇦🇪 BAA</option>
+                                    <option value="Saudiya Arabistoni">🇸🇦 Saudiya Arabistoni</option>
+                                    <option value="Boshqa">🌍 Boshqa</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-white/60 mb-2">Viloyat/Shahar</label>
+                                <select name="region" id="onboarding-region" required class="w-full glass-card glass-input rounded-2xl px-4 py-4 text-base">
+                                    <option value="">Avval davlatni tanlang</option>
                                 </select>
                             </div>
                             <div>
@@ -506,6 +512,9 @@
                                     <option value="Tojik">Tojik</option>
                                     <option value="Qozoq">Qozoq</option>
                                     <option value="Qoraqalpoq">Qoraqalpoq</option>
+                                    <option value="Turk">Turk</option>
+                                    <option value="Ozarbayjonlik">Ozarbayjonlik</option>
+                                    <option value="Qirg'iz">Qirg'iz</option>
                                     <option value="Boshqa">Boshqa</option>
                                 </select>
                             </div>
@@ -676,6 +685,21 @@
                                         </div>
                                     </label>
                                 </div>
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-white/60 mb-2">Oylik maoshingiz (ixtiyoriy)</label>
+                                <select name="salary" class="w-full glass-card glass-input rounded-2xl px-4 py-4 text-base">
+                                    <option value="">Ko'rsatmaslik</option>
+                                    <option value="1-3 mln so'm">1-3 mln so'm</option>
+                                    <option value="3-5 mln so'm">3-5 mln so'm</option>
+                                    <option value="5-10 mln so'm">5-10 mln so'm</option>
+                                    <option value="10-20 mln so'm">10-20 mln so'm</option>
+                                    <option value="20+ mln so'm">20+ mln so'm</option>
+                                    <option value="$500-1000">$500-1000</option>
+                                    <option value="$1000-2000">$1000-2000</option>
+                                    <option value="$2000-5000">$2000-5000</option>
+                                    <option value="$5000+">$5000+</option>
+                                </select>
                             </div>
                         </div>
                     </div>
@@ -913,10 +937,16 @@
                 <div class="max-w-md mx-auto space-y-3 pt-4">
                     <div class="flex items-center justify-between px-2 mb-4">
                         <h3 class="text-[10px] font-black uppercase tracking-[0.2em] text-white/30">Faol suhbatlar</h3>
-                        <button class="flex items-center gap-1.5 text-[10px] font-bold text-primary active:opacity-50 transition-opacity">
-                            <span class="material-symbols-outlined text-[16px]">history</span>
-                            ARXIV
-                        </button>
+                        <div class="flex items-center gap-2">
+                            <button id="chat-sort-btn" onclick="openChatSortSheet()" class="flex items-center gap-1.5 text-[10px] font-bold text-white/50 hover:text-primary active:opacity-50 transition-all px-2 py-1 rounded-lg bg-white/5">
+                                <span class="material-symbols-outlined text-[16px]">sort</span>
+                                <span id="chat-sort-label">Yangi</span>
+                            </button>
+                            <button class="flex items-center gap-1.5 text-[10px] font-bold text-primary active:opacity-50 transition-opacity">
+                                <span class="material-symbols-outlined text-[16px]">history</span>
+                                ARXIV
+                            </button>
+                        </div>
                     </div>
                 <div id="chats-list" class="space-y-3">
                     <div id="chats-skeleton" class="space-y-3">
@@ -1113,7 +1143,7 @@
                 
                 <div class="space-y-2">
                     <h3 class="px-2 text-[10px] font-black uppercase tracking-[0.2em] text-white/30 mb-3">Asosiy amallar</h3>
-                    <a href="/tariff/purchase" class="w-full glass-card rounded-2xl p-4 flex items-center justify-between group active:scale-[0.98] transition-transform">
+                    <button onclick="window.showPage('tariff')" class="w-full glass-card rounded-2xl p-4 flex items-center justify-between group active:scale-[0.98] transition-transform">
                         <div class="flex items-center gap-4">
                             <div class="size-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
                                 <span class="material-symbols-outlined text-[24px]">workspace_premium</span>
@@ -1121,7 +1151,7 @@
                             <p class="text-sm font-bold">Obuna (Premium)</p>
                         </div>
                         <span class="material-symbols-outlined text-white/20 group-hover:text-primary transition-colors">chevron_right</span>
-                    </a>
+                    </button>
                     <a href="/profile/edit" class="w-full glass-card rounded-2xl p-4 flex items-center justify-between group active:scale-[0.98] transition-transform">
                         <div class="flex items-center gap-4">
                             <div class="size-10 rounded-xl bg-white/5 flex items-center justify-center text-white/60">
@@ -1540,12 +1570,153 @@
             </main>
         </div>
 
+        <!-- TARIFF PAGE -->
+        <div id="page-tariff" class="page-container">
+            <header class="pt-6 pb-3 px-6 sticky top-0 z-50 bg-background-dark/95 backdrop-blur-xl border-b border-white/5">
+                <div class="max-w-md mx-auto flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <button onclick="window.showPage('profile')" class="size-10 rounded-full glass-card flex items-center justify-center text-white/70 active:scale-95 transition-transform">
+                            <span class="material-symbols-outlined text-[24px]">arrow_back_ios_new</span>
+                        </button>
+                        <div>
+                            <h1 class="text-xl font-extrabold tracking-tight">Premium Obuna</h1>
+                            <p class="text-[11px] text-white/40 mt-0.5">O'zingizga mos tarifni tanlang</p>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            <main class="max-w-md mx-auto px-6 py-5 space-y-5" style="padding-bottom: 140px;">
+                <!-- Active Tariff Info -->
+                <div id="tariff-active-info" class="hidden glass-card rounded-3xl p-5 border-primary/30 bg-primary/5">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <h4 class="text-primary text-lg font-bold mb-1">Aktiv obuna</h4>
+                            <p id="tariff-active-name" class="text-white/60 text-sm"></p>
+                        </div>
+                        <div class="bg-primary/20 text-primary px-4 py-2 rounded-full text-xs font-bold uppercase">Aktiv</div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4 mt-4">
+                        <div>
+                            <p class="text-white/40 text-xs mb-1">Qolgan so'rovlar</p>
+                            <p id="tariff-requests-left" class="text-white text-xl font-bold">0</p>
+                        </div>
+                        <div>
+                            <p class="text-white/40 text-xs mb-1">Qolgan kunlar</p>
+                            <p id="tariff-days-left" class="text-white text-xl font-bold">0 kun</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Kumush Plan -->
+                <div class="glass-card rounded-3xl p-6 space-y-4 emerald-glow">
+                    <div class="flex items-center justify-between">
+                        <h4 class="text-white/60 text-xs font-bold uppercase tracking-[0.2em]">Kumush</h4>
+                    </div>
+                    <div class="flex items-baseline gap-2">
+                        <span class="text-white text-3xl font-bold">50,000</span>
+                        <span class="text-white/60 text-sm">UZS</span>
+                    </div>
+                    <ul class="space-y-3">
+                        <li class="flex items-center gap-3 text-white/80 text-sm">
+                            <span class="material-symbols-outlined text-primary text-[20px]">check_circle</span>
+                            5 ta so'rov yuborish
+                        </li>
+                        <li class="flex items-center gap-3 text-white/80 text-sm">
+                            <span class="material-symbols-outlined text-primary text-[20px]">check_circle</span>
+                            10 kun muddatli
+                        </li>
+                        <li class="flex items-center gap-3 text-white/80 text-sm">
+                            <span class="material-symbols-outlined text-primary text-[20px]">check_circle</span>
+                            Silver badge
+                        </li>
+                    </ul>
+                    <button onclick="selectTariffSPA('KUMUSH', 50000)" class="tariff-select-btn w-full h-14 glass-card rounded-2xl text-white font-bold text-sm tracking-wide active:scale-95 transition-all">
+                        Hozir yoqish
+                    </button>
+                </div>
+
+                <!-- Oltin Plan -->
+                <div class="glass-card rounded-3xl p-6 space-y-4 border-gold/30 bg-gold/5 gold-glow relative overflow-hidden">
+                    <div class="absolute top-0 -inset-full h-full w-1/2 z-0 block transform -skew-x-12 bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-40"></div>
+                    <div class="flex items-center justify-between relative z-10">
+                        <h4 class="text-gold text-xs font-bold uppercase tracking-[0.2em]">Oltin</h4>
+                        <span class="bg-gold/20 text-gold text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider border border-gold/30">Ommabop</span>
+                    </div>
+                    <div class="flex items-baseline gap-2 relative z-10">
+                        <span class="text-gold text-3xl font-bold">100,000</span>
+                        <span class="text-gold/60 text-sm">UZS</span>
+                    </div>
+                    <ul class="space-y-3 relative z-10">
+                        <li class="flex items-center gap-3 text-white/80 text-sm">
+                            <span class="material-symbols-outlined text-gold text-[20px]">star</span>
+                            10 ta so'rov yuborish
+                        </li>
+                        <li class="flex items-center gap-3 text-white/80 text-sm">
+                            <span class="material-symbols-outlined text-gold text-[20px]">star</span>
+                            15 kun muddatli + 7 kun TOP
+                        </li>
+                        <li class="flex items-center gap-3 text-white/80 text-sm">
+                            <span class="material-symbols-outlined text-gold text-[20px]">star</span>
+                            Gold badge
+                        </li>
+                    </ul>
+                    <button onclick="selectTariffSPA('OLTIN', 100000)" class="tariff-select-btn w-full h-14 bg-gold text-black font-extrabold text-sm tracking-widest uppercase rounded-2xl shadow-lg shadow-gold/20 relative z-10 active:scale-95 transition-all">
+                        Hozir yoqish
+                    </button>
+                </div>
+
+                <!-- VIP Plan -->
+                <div class="glass-card rounded-3xl p-6 space-y-4 emerald-glow">
+                    <div class="flex items-center justify-between">
+                        <h4 class="text-primary text-xs font-bold uppercase tracking-[0.2em]">VIP</h4>
+                        <span class="bg-primary/20 text-primary text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">Eksklyuziv</span>
+                    </div>
+                    <div class="flex items-baseline gap-2">
+                        <span class="text-white text-3xl font-bold">250,000</span>
+                        <span class="text-white/60 text-sm">UZS</span>
+                    </div>
+                    <ul class="space-y-3">
+                        <li class="flex items-center gap-3 text-white/80 text-sm">
+                            <span class="material-symbols-outlined text-primary text-[20px]">diamond</span>
+                            20 ta so'rov yuborish
+                        </li>
+                        <li class="flex items-center gap-3 text-white/80 text-sm">
+                            <span class="material-symbols-outlined text-primary text-[20px]">diamond</span>
+                            30 kun muddatli + 15 kun TOP
+                        </li>
+                        <li class="flex items-center gap-3 text-white/80 text-sm">
+                            <span class="material-symbols-outlined text-primary text-[20px]">diamond</span>
+                            VIP badge
+                        </li>
+                        <li class="flex items-center gap-3 text-white/80 text-sm">
+                            <span class="material-symbols-outlined text-primary text-[20px]">diamond</span>
+                            Shaxsiy menejer
+                        </li>
+                    </ul>
+                    <button onclick="selectTariffSPA('VIP', 250000)" class="tariff-select-btn w-full h-14 bg-primary text-white font-extrabold text-sm tracking-widest uppercase rounded-2xl shadow-lg shadow-primary/30 active:scale-95 transition-all">
+                        Hozir yoqish
+                    </button>
+                </div>
+
+                <!-- Footer -->
+                <div class="text-center pt-6">
+                    <div class="flex items-center justify-center gap-2 text-primary mb-3">
+                        <span class="material-symbols-outlined text-sm">verified_user</span>
+                        <span class="text-xs font-semibold uppercase tracking-widest opacity-80">Barcha tariflar xavfsiz</span>
+                    </div>
+                    <p class="text-white/40 text-xs leading-relaxed">
+                        To'lovlar xavfsiz kanallar orqali amalga oshiriladi.
+                    </p>
+                </div>
+            </main>
+        </div>
+
         <!-- Background Gradient -->
         <div class="fixed top-0 left-0 w-full h-full pointer-events-none -z-10 overflow-hidden opacity-25">
             <div class="absolute top-[-20%] right-[-10%] w-[80%] h-[80%] bg-primary/20 blur-[180px] rounded-full"></div>
             <div class="absolute bottom-[-20%] left-[-10%] w-[80%] h-[80%] bg-primary/10 blur-[180px] rounded-full"></div>
         </div>
-        
+
         <!-- Notification Toast -->
         <div id="notification-toast" class="hidden fixed top-20 left-1/2 -translate-x-1/2 z-50 max-w-md w-[90%]">
             <div class="glass-card rounded-2xl p-4 flex items-center gap-3 shadow-2xl border border-primary/30">
@@ -1662,6 +1833,100 @@
                 }
             });
         }
+
+        // Davlat-viloyat ma'lumotlari
+        const countryRegions = {
+            "O'zbekiston": [
+                "Toshkent shahar", "Toshkent viloyati", "Samarqand", "Buxoro", "Andijon",
+                "Farg'ona", "Namangan", "Qashqadaryo", "Surxondaryo", "Xorazm",
+                "Navoiy", "Jizzax", "Sirdaryo", "Qoraqalpog'iston"
+            ],
+            "Rossiya": [
+                "Moskva", "Sankt-Peterburg", "Novosibirsk", "Yekaterinburg", "Kazan",
+                "Nizhniy Novgorod", "Chelyabinsk", "Samara", "Omsk", "Rostov-on-Don",
+                "Ufa", "Krasnoyarsk", "Voronej", "Perm", "Volgograd", "Boshqa"
+            ],
+            "Qozog'iston": [
+                "Almati", "Nur-Sultan (Astana)", "Shymkent", "Qoraqalpog'iston", "Aktobe",
+                "Karaganda", "Taraz", "Pavlodar", "Semey", "Atyrau", "Boshqa"
+            ],
+            "Turkiya": [
+                "Istanbul", "Ankara", "Izmir", "Bursa", "Antalya", "Konya", "Adana",
+                "Gaziantep", "Mersin", "Kayseri", "Eskisehir", "Boshqa"
+            ],
+            "Ozarbayjon": [
+                "Boku", "Ganja", "Sumqayit", "Mingachevir", "Qarabag", "Shirvan",
+                "Naxchivan", "Shaki", "Lenkaran", "Boshqa"
+            ],
+            "Qirg'iziston": [
+                "Bishkek", "Osh", "Jalal-Abad", "Karakol", "Tokmok", "Naryn", "Boshqa"
+            ],
+            "Tojikiston": [
+                "Dushanbe", "Khujand", "Kulob", "Qurghonteppa", "Istaravshan", "Boshqa"
+            ],
+            "Turkmaniston": [
+                "Ashgabat", "Turkmenabat", "Dashoguz", "Mary", "Balkanabat", "Boshqa"
+            ],
+            "AQSH": [
+                "New York", "Los Angeles", "Chicago", "Houston", "Phoenix", "Philadelphia",
+                "San Antonio", "San Diego", "Dallas", "San Jose", "Boshqa"
+            ],
+            "Germaniya": [
+                "Berlin", "Hamburg", "Munich", "Cologne", "Frankfurt", "Stuttgart",
+                "Dusseldorf", "Dortmund", "Essen", "Leipzig", "Boshqa"
+            ],
+            "Janubiy Koreya": [
+                "Seul", "Busan", "Incheon", "Daegu", "Daejeon", "Gwangju", "Boshqa"
+            ],
+            "BAA": [
+                "Dubai", "Abu Dhabi", "Sharjah", "Ajman", "Ras Al Khaimah", "Boshqa"
+            ],
+            "Saudiya Arabistoni": [
+                "Riyadh", "Jeddah", "Mecca", "Medina", "Dammam", "Boshqa"
+            ],
+            "Boshqa": ["Boshqa"]
+        };
+
+        // Viloyatlarni yangilash funksiyasi
+        function updateRegionOptions(country, selectId) {
+            const regionSelect = document.getElementById(selectId);
+            if (!regionSelect) return;
+
+            regionSelect.innerHTML = '<option value="">Viloyatni tanlang</option>';
+
+            if (country && countryRegions[country]) {
+                countryRegions[country].forEach(region => {
+                    const option = document.createElement('option');
+                    option.value = region;
+                    option.textContent = region;
+                    regionSelect.appendChild(option);
+                });
+            }
+        }
+
+        // Chat saralash funksiyasi
+        let chatSortOrder = 'newest'; // newest, oldest, name, days_remaining
+
+        function sortChats(chats, sortBy) {
+            const sorted = [...chats];
+            switch(sortBy) {
+                case 'newest':
+                    return sorted.sort((a, b) => new Date(b.last_message?.sent_at || b.created_at) - new Date(a.last_message?.sent_at || a.created_at));
+                case 'oldest':
+                    return sorted.sort((a, b) => new Date(a.last_message?.sent_at || a.created_at) - new Date(b.last_message?.sent_at || b.created_at));
+                case 'name':
+                    return sorted.sort((a, b) => (a.other_user?.name || '').localeCompare(b.other_user?.name || ''));
+                case 'days_remaining':
+                    return sorted.sort((a, b) => (a.days_remaining || 0) - (b.days_remaining || 0));
+                case 'unread':
+                    return sorted.sort((a, b) => (b.unread_count || 0) - (a.unread_count || 0));
+                default:
+                    return sorted;
+            }
+        }
+
+        window.updateRegionOptions = updateRegionOptions;
+        window.sortChats = sortChats;
 
         // Initialize when DOM is ready
         if (document.readyState === 'loading') {
@@ -1780,6 +2045,11 @@
                     break;
                 case 'profile':
                     await loadProfileData();
+                    break;
+                case 'tariff':
+                    if (typeof updateTariffPageUI === 'function') {
+                        updateTariffPageUI();
+                    }
                     break;
                 // onboarding sahifalari hozircha faqat UI
             }
@@ -2148,15 +2418,30 @@
                                 <p class="text-sm font-bold text-yellow-400">E'lonlarni ko'rishingiz mumkin</p>
                                 <p class="text-[11px] text-yellow-400/80 mt-0.5">So'rov yuborish uchun tarif kerak</p>
                             </div>
-                            <a href="/tariff/purchase" class="bg-primary text-black px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider active:scale-95 transition-all">
+                            <button onclick="window.showPage('tariff')" class="bg-primary text-black px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider active:scale-95 transition-all">
                                 Tarif
-                            </a>
+                            </button>
                         </div>
                     </div>
                 `;
-                badge.innerHTML = `<a href="/tariff/purchase" class="glass-card px-3 py-1.5 rounded-full text-[10px] font-black text-yellow-400 uppercase tracking-wider">Tarif</a>`;
+                badge.innerHTML = `<button onclick="window.showPage('tariff')" class="glass-card px-3 py-1.5 rounded-full text-[10px] font-black text-yellow-400 uppercase tracking-wider">Tarif</button>`;
             }
         }
+
+        // Feed filter state
+        let feedFilters = {
+            age_min: null,
+            age_max: null,
+            region: null,
+            country: null,
+            religious_level: null,
+            marital_status: null,
+            education: null,
+            prays: null,
+            height_min: null,
+            height_max: null,
+            search: null
+        };
 
         async function loadFeedListings(page = 1, topOnly = false) {
             if (feedIsLoading) return;
@@ -2166,7 +2451,21 @@
             const skeleton = document.getElementById('feed-skeleton');
 
             try {
-                const response = await fetch(`/feed/api/listings?page=${page}&top_only=${topOnly}`, {
+                // Build query string with filters
+                let queryParams = `page=${page}&top_only=${topOnly}`;
+                if (feedFilters.age_min) queryParams += `&age_min=${feedFilters.age_min}`;
+                if (feedFilters.age_max) queryParams += `&age_max=${feedFilters.age_max}`;
+                if (feedFilters.region) queryParams += `&region=${encodeURIComponent(feedFilters.region)}`;
+                if (feedFilters.country) queryParams += `&country=${encodeURIComponent(feedFilters.country)}`;
+                if (feedFilters.religious_level) queryParams += `&religious_level=${encodeURIComponent(feedFilters.religious_level)}`;
+                if (feedFilters.marital_status) queryParams += `&marital_status=${encodeURIComponent(feedFilters.marital_status)}`;
+                if (feedFilters.education) queryParams += `&education=${encodeURIComponent(feedFilters.education)}`;
+                if (feedFilters.prays) queryParams += `&prays=${encodeURIComponent(feedFilters.prays)}`;
+                if (feedFilters.height_min) queryParams += `&height_min=${feedFilters.height_min}`;
+                if (feedFilters.height_max) queryParams += `&height_max=${feedFilters.height_max}`;
+                if (feedFilters.search) queryParams += `&search=${encodeURIComponent(feedFilters.search)}`;
+
+                const response = await fetch(`/feed/api/listings?${queryParams}`, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
@@ -2569,9 +2868,9 @@
                                 <p class="text-[11px] text-yellow-400/80">So'rov yuborish uchun tarif sotib oling</p>
                             </div>
                         </div>
-                        <a href="/tariff/purchase" class="block w-full bg-primary text-black py-3 rounded-xl text-center font-bold text-sm uppercase tracking-wider neon-glow active:scale-95 transition-all">
+                        <button onclick="window.showPage('tariff')" class="block w-full bg-primary text-black py-3 rounded-xl text-center font-bold text-sm uppercase tracking-wider neon-glow active:scale-95 transition-all">
                             Tarif sotib olish
-                        </a>
+                        </button>
                     </div>
                 `;
             } else {
@@ -3055,11 +3354,14 @@
                     if (emptyDiv) emptyDiv.classList.remove('hidden');
                     return;
                 }
-                
+
                 const emptyDiv = document.getElementById('chats-empty');
                 if (emptyDiv) emptyDiv.classList.add('hidden');
 
-                data.chats.forEach(chat => {
+                // Chatlarni saralash
+                const sortedChats = sortChats(data.chats, chatSortOrder);
+
+                sortedChats.forEach(chat => {
                     container.appendChild(createChatCard(chat));
                 });
 
@@ -3080,6 +3382,84 @@
         }
         
         window.loadChatsData = loadChatsData;
+
+        // Chat saralash sheet funksiyalari
+        function openChatSortSheet() {
+            const sheet = document.getElementById('chat-sort-sheet');
+            if (sheet) {
+                sheet.classList.add('active');
+                document.body.style.overflow = 'hidden';
+                updateChatSortUI();
+            }
+        }
+
+        function closeChatSortSheet() {
+            const sheet = document.getElementById('chat-sort-sheet');
+            if (sheet) {
+                sheet.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        }
+
+        function setChatSort(sortType) {
+            chatSortOrder = sortType;
+            updateChatSortUI();
+            loadChatsData();
+            closeChatSortSheet();
+
+            // Label ni yangilash
+            const label = document.getElementById('chat-sort-label');
+            if (label) {
+                const labels = {
+                    'newest': 'Yangi',
+                    'oldest': 'Eski',
+                    'name': 'Ism',
+                    'days_remaining': 'Vaqt',
+                    'unread': "O'qilmagan"
+                };
+                label.textContent = labels[sortType] || 'Yangi';
+            }
+        }
+
+        function updateChatSortUI() {
+            document.querySelectorAll('.chat-sort-option').forEach(btn => {
+                const sortType = btn.dataset.sort;
+                const isActive = sortType === chatSortOrder;
+                const checkIcon = btn.querySelector('.check-icon');
+                const icon = btn.querySelector('.material-symbols-outlined:not(.check-icon)');
+                const text = btn.querySelector('.text-\\[15px\\]');
+
+                if (isActive) {
+                    btn.classList.add('border-primary/30');
+                    btn.classList.remove('border-white/5');
+                    if (checkIcon) checkIcon.classList.remove('hidden');
+                    if (icon) {
+                        icon.classList.remove('text-white/40');
+                        icon.classList.add('text-primary');
+                    }
+                    if (text) {
+                        text.classList.remove('text-white/60');
+                        text.classList.add('text-white');
+                    }
+                } else {
+                    btn.classList.remove('border-primary/30');
+                    btn.classList.add('border-white/5');
+                    if (checkIcon) checkIcon.classList.add('hidden');
+                    if (icon) {
+                        icon.classList.add('text-white/40');
+                        icon.classList.remove('text-primary');
+                    }
+                    if (text) {
+                        text.classList.add('text-white/60');
+                        text.classList.remove('text-white');
+                    }
+                }
+            });
+        }
+
+        window.openChatSortSheet = openChatSortSheet;
+        window.closeChatSortSheet = closeChatSortSheet;
+        window.setChatSort = setChatSort;
 
         function createChatCard(chat) {
             const div = document.createElement('div');
@@ -3800,6 +4180,235 @@
             }
         };
 
+        // Filterlarni qo'llash funksiyasi
+        function applyFilters() {
+            // Jismoniy parametrlar
+            feedFilters.age_min = filterState.physical.age?.min || null;
+            feedFilters.age_max = filterState.physical.age?.max || null;
+            feedFilters.height_min = filterState.physical.height?.min || null;
+            feedFilters.height_max = filterState.physical.height?.max || null;
+
+            // Joylashuv
+            feedFilters.country = filterState.location.country || null;
+            feedFilters.region = filterState.location.cities?.[0] || null;
+
+            // Oilaviy holat
+            feedFilters.marital_status = filterState.family.status || null;
+
+            // Ta'lim
+            feedFilters.education = filterState.education.level || null;
+
+            // Diniy
+            feedFilters.prays = filterState.religious.namoz || null;
+            feedFilters.religious_level = filterState.religious.aqida || null;
+
+            // Filter sheet'ni yopish
+            closeFilterSheet();
+
+            // Feed'ni qayta yuklash
+            feedCurrentPage = 1;
+            const container = document.getElementById('feed-listings');
+            if (container) container.innerHTML = '';
+            loadFeedListings(1);
+        }
+
+        // Filterlarni tozalash
+        function clearFilters() {
+            feedFilters = {
+                age_min: null,
+                age_max: null,
+                region: null,
+                country: null,
+                religious_level: null,
+                marital_status: null,
+                education: null,
+                prays: null,
+                height_min: null,
+                height_max: null,
+                search: null
+            };
+
+            // Filter state'ni ham tozalash
+            filterState.physical.age = { min: 18, max: 70 };
+            filterState.physical.height = { min: 140, max: 220 };
+            filterState.location.country = null;
+            filterState.location.cities = [];
+            filterState.family.status = null;
+            filterState.education.level = null;
+            filterState.religious.namoz = null;
+
+            // Filter sheet'ni yopish
+            closeFilterSheet();
+
+            // Feed'ni qayta yuklash
+            feedCurrentPage = 1;
+            const container = document.getElementById('feed-listings');
+            if (container) container.innerHTML = '';
+            loadFeedListings(1);
+        }
+
+        window.applyFilters = applyFilters;
+        window.clearFilters = clearFilters;
+
+        // SPA Tariff page funksiyalari
+        let spaSelectedTariff = null;
+        let spaSelectedPrice = null;
+        let spaSelectedImage = null;
+
+        function selectTariffSPA(tariffName, price) {
+            // Check if already has active tariff
+            if (hasActiveTariff) {
+                if (typeof window.showNotification === 'function') {
+                    window.showNotification('Sizda aktiv obuna mavjud!');
+                } else {
+                    alert('Sizda aktiv obuna mavjud!');
+                }
+                return;
+            }
+
+            spaSelectedTariff = tariffName;
+            spaSelectedPrice = price;
+
+            document.getElementById('spa-selected-tariff-name').textContent = tariffName;
+            document.getElementById('spa-selected-tariff-price').textContent = price.toLocaleString('uz-UZ') + ' UZS';
+
+            document.getElementById('spa-payment-modal').classList.remove('hidden');
+        }
+
+        function closeSPAPaymentModal() {
+            document.getElementById('spa-payment-modal').classList.add('hidden');
+            spaSelectedTariff = null;
+            spaSelectedPrice = null;
+            spaSelectedImage = null;
+            document.getElementById('spa-receipt-image').value = '';
+            document.getElementById('spa-image-preview').classList.add('hidden');
+            document.getElementById('spa-submit-payment-btn').disabled = false;
+        }
+
+        function copySPACardNumber() {
+            const cardNumber = document.getElementById('spa-card-number').textContent;
+            navigator.clipboard.writeText(cardNumber.replace(/\s/g, '')).then(() => {
+                if (typeof window.showNotification === 'function') {
+                    window.showNotification('Karta raqami nusxalandi!');
+                } else {
+                    alert('Karta raqami nusxalandi!');
+                }
+            });
+        }
+
+        function handleSPAImageSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                if (file.size > 5 * 1024 * 1024) {
+                    alert('Rasm hajmi 5MB dan katta bo\'lishi mumkin emas!');
+                    event.target.value = '';
+                    return;
+                }
+
+                if (!file.type.startsWith('image/')) {
+                    alert('Faqat rasm fayllari qabul qilinadi!');
+                    event.target.value = '';
+                    return;
+                }
+
+                spaSelectedImage = file;
+
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('spa-preview-img').src = e.target.result;
+                    document.getElementById('spa-image-preview').classList.remove('hidden');
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function removeSPAImage() {
+            spaSelectedImage = null;
+            document.getElementById('spa-receipt-image').value = '';
+            document.getElementById('spa-image-preview').classList.add('hidden');
+        }
+
+        async function submitSPAPayment() {
+            if (!spaSelectedImage) {
+                alert('Iltimos, to\'lov cheki rasmini yuklang!');
+                return;
+            }
+
+            const message = document.getElementById('spa-payment-message').value;
+            const submitBtn = document.getElementById('spa-submit-payment-btn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Yuborilmoqda...';
+
+            const formData = new FormData();
+            formData.append('tariff_name', spaSelectedTariff);
+            formData.append('amount', spaSelectedPrice);
+            formData.append('message', message);
+            formData.append('receipt_image', spaSelectedImage);
+
+            try {
+                const response = await fetch('/tariff/api/create-payment-request', {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    body: formData
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    if (typeof window.showNotification === 'function') {
+                        window.showNotification('To\'lov so\'rovi yuborildi! Admin tekshirgach sizga xabar beriladi.');
+                    } else {
+                        alert('To\'lov so\'rovi yuborildi! Admin tekshirgach sizga xabar beriladi.');
+                    }
+                    closeSPAPaymentModal();
+                } else {
+                    alert(data.error || 'Xatolik yuz berdi');
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Yuborish';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Xatolik yuz berdi');
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Yuborish';
+            }
+        }
+
+        function updateTariffPageUI() {
+            const activeInfo = document.getElementById('tariff-active-info');
+            const tariffBtns = document.querySelectorAll('.tariff-select-btn');
+
+            if (hasActiveTariff && userData?.tariff?.tariff) {
+                const tariff = userData.tariff.tariff;
+                activeInfo.classList.remove('hidden');
+                document.getElementById('tariff-active-name').textContent = tariff.tariff_name + ' tarif';
+                document.getElementById('tariff-requests-left').textContent = tariff.requests_count + ' / ' + (tariff.total_requests || tariff.requests_count);
+                document.getElementById('tariff-days-left').textContent = tariff.days_remaining + ' kun';
+
+                // Disable all select buttons
+                tariffBtns.forEach(btn => {
+                    btn.disabled = true;
+                    btn.textContent = 'Aktiv obuna mavjud';
+                    btn.classList.add('opacity-50', 'cursor-not-allowed');
+                });
+            } else {
+                activeInfo.classList.add('hidden');
+                // Enable all select buttons
+                tariffBtns.forEach(btn => {
+                    btn.disabled = false;
+                    btn.textContent = 'Hozir yoqish';
+                    btn.classList.remove('opacity-50', 'cursor-not-allowed');
+                });
+            }
+        }
+
+        window.selectTariffSPA = selectTariffSPA;
+        window.closeSPAPaymentModal = closeSPAPaymentModal;
+        window.copySPACardNumber = copySPACardNumber;
+        window.handleSPAImageSelect = handleSPAImageSelect;
+        window.removeSPAImage = removeSPAImage;
+        window.submitSPAPayment = submitSPAPayment;
+        window.updateTariffPageUI = updateTariffPageUI;
+
         // Filter funksiyalari
         function initFilterHandlers() {
             // Chip selection (chip-selected, chip-unselected)
@@ -4158,7 +4767,7 @@
                         <div class="flex flex-col items-center">
                             <h1 class="text-lg font-bold text-white tracking-tight">Izlash</h1>
                         </div>
-                        <button class="text-[11px] font-black uppercase tracking-widest text-primary/80 hover:text-primary transition-colors">Tozalash</button>
+                        <button onclick="clearFilters()" class="text-[11px] font-black uppercase tracking-widest text-primary/80 hover:text-primary transition-colors">Tozalash</button>
                     </div>
                     <div class="relative group">
                         <div class="absolute inset-y-0 left-4 flex items-center pointer-events-none">
@@ -4248,8 +4857,8 @@
             </main>
             <div class="fixed bottom-0 left-0 w-full p-6 bg-gradient-to-t from-background-dark via-background-dark/95 to-transparent pt-12 z-30">
                 <div class="max-w-md mx-auto">
-                    <button class="w-full h-16 bg-primary text-black rounded-2xl flex items-center justify-center gap-3 shadow-[0_12px_45px_rgba(64,255,0,0.3)] group active:scale-[0.97] transition-all duration-200">
-                        <span class="text-sm font-black uppercase tracking-[0.2em]">124 ta natijani ko'rish</span>
+                    <button onclick="applyFilters()" class="w-full h-16 bg-primary text-black rounded-2xl flex items-center justify-center gap-3 shadow-[0_12px_45px_rgba(64,255,0,0.3)] group active:scale-[0.97] transition-all duration-200">
+                        <span class="text-sm font-black uppercase tracking-[0.2em]">Filterni qo'llash</span>
                         <span class="material-symbols-outlined text-[22px] font-bold group-hover:translate-x-1 transition-transform">arrow_forward</span>
                     </button>
                 </div>
@@ -4791,6 +5400,132 @@
             </div>
             <div class="mt-8 flex justify-center">
                 <div class="w-20 h-1 bg-white/5 rounded-full"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chat Saralash Sheet -->
+    <div id="chat-sort-sheet" class="bottom-sheet">
+        <div class="max-w-md mx-auto rounded-t-[40px] px-6 pb-14">
+            <div class="handle"></div>
+            <div class="flex items-center justify-between mb-8 pt-4">
+                <h3 class="text-2xl font-extrabold tracking-tight">Xabarlarni saralash</h3>
+                <button onclick="closeChatSortSheet()" class="size-10 rounded-full glass-card flex items-center justify-center text-white/60">
+                    <span class="material-symbols-outlined text-[22px]">close</span>
+                </button>
+            </div>
+            <div class="space-y-3">
+                <button onclick="setChatSort('newest')" class="chat-sort-option w-full flex items-center justify-between p-4 rounded-2xl border glass-card transition-all group" data-sort="newest">
+                    <div class="flex items-center gap-4">
+                        <span class="material-symbols-outlined text-[24px]">schedule</span>
+                        <span class="text-[15px] font-bold">Yangi xabarlar</span>
+                    </div>
+                    <span class="check-icon material-symbols-outlined text-primary text-[24px] hidden">check_circle</span>
+                </button>
+                <button onclick="setChatSort('oldest')" class="chat-sort-option w-full flex items-center justify-between p-4 rounded-2xl border border-white/5 glass-card transition-all group" data-sort="oldest">
+                    <div class="flex items-center gap-4">
+                        <span class="material-symbols-outlined text-white/40 text-[24px]">history</span>
+                        <span class="text-[15px] font-bold text-white/60">Eski xabarlar</span>
+                    </div>
+                    <span class="check-icon material-symbols-outlined text-primary text-[24px] hidden">check_circle</span>
+                </button>
+                <button onclick="setChatSort('name')" class="chat-sort-option w-full flex items-center justify-between p-4 rounded-2xl border border-white/5 glass-card transition-all group" data-sort="name">
+                    <div class="flex items-center gap-4">
+                        <span class="material-symbols-outlined text-white/40 text-[24px]">sort_by_alpha</span>
+                        <span class="text-[15px] font-bold text-white/60">Ism bo'yicha</span>
+                    </div>
+                    <span class="check-icon material-symbols-outlined text-primary text-[24px] hidden">check_circle</span>
+                </button>
+                <button onclick="setChatSort('days_remaining')" class="chat-sort-option w-full flex items-center justify-between p-4 rounded-2xl border border-white/5 glass-card transition-all group" data-sort="days_remaining">
+                    <div class="flex items-center gap-4">
+                        <span class="material-symbols-outlined text-white/40 text-[24px]">hourglass_top</span>
+                        <span class="text-[15px] font-bold text-white/60">Qolgan vaqt bo'yicha</span>
+                    </div>
+                    <span class="check-icon material-symbols-outlined text-primary text-[24px] hidden">check_circle</span>
+                </button>
+                <button onclick="setChatSort('unread')" class="chat-sort-option w-full flex items-center justify-between p-4 rounded-2xl border border-white/5 glass-card transition-all group" data-sort="unread">
+                    <div class="flex items-center gap-4">
+                        <span class="material-symbols-outlined text-white/40 text-[24px]">mark_unread_chat_alt</span>
+                        <span class="text-[15px] font-bold text-white/60">O'qilmaganlar</span>
+                    </div>
+                    <span class="check-icon material-symbols-outlined text-primary text-[24px] hidden">check_circle</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment Modal (SPA) -->
+    <div id="spa-payment-modal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="glass-card rounded-[28px] p-6 max-w-md w-full max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-xl font-bold text-white">To'lov ma'lumotlari</h3>
+                <button onclick="closeSPAPaymentModal()" class="text-white/60 hover:text-white">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+
+            <div class="space-y-4">
+                <div class="bg-white/5 rounded-xl p-4 border border-white/10">
+                    <p class="text-white/60 text-xs uppercase tracking-wider mb-2">Tanlangan tarif</p>
+                    <p id="spa-selected-tariff-name" class="text-white text-lg font-bold"></p>
+                    <p id="spa-selected-tariff-price" class="text-primary text-2xl font-bold mt-2"></p>
+                </div>
+
+                <div class="bg-white/5 rounded-xl p-4 border border-white/10">
+                    <p class="text-white/60 text-xs uppercase tracking-wider mb-2">To'lov karta raqami</p>
+                    <div class="flex items-center gap-3">
+                        <span class="text-white text-lg font-mono" id="spa-card-number">{{ config.CARD_NUMBER if config else '8600 1234 5678 9012' }}</span>
+                        <button onclick="copySPACardNumber()" class="text-primary hover:text-primary/80">
+                            <span class="material-symbols-outlined text-[20px]">content_copy</span>
+                        </button>
+                    </div>
+                    <p class="text-white/40 text-xs mt-2" id="spa-card-name">{{ config.CARD_NAME if config else 'NIKOH ADMIN' }}</p>
+                </div>
+
+                <div class="bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-4">
+                    <p class="text-yellow-400 text-sm font-semibold mb-2">Muhim</p>
+                    <p class="text-white/80 text-xs leading-relaxed">
+                        To'lov chekini Telegram botga yuboring. Admin tekshirgach sizga obuna beriladi.
+                    </p>
+                </div>
+
+                <div class="space-y-3">
+                    <label class="block">
+                        <p class="text-white/60 text-xs uppercase tracking-wider mb-2">To'lov cheki rasmi *</p>
+                        <div class="relative">
+                            <input type="file" id="spa-receipt-image" accept="image/*" class="hidden" onchange="handleSPAImageSelect(event)">
+                            <label for="spa-receipt-image" class="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-white/20 rounded-xl cursor-pointer bg-white/5 hover:bg-white/10 transition-all">
+                                <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                                    <span class="material-symbols-outlined text-white/40 text-[40px] mb-2">image</span>
+                                    <p class="mb-2 text-sm text-white/60">
+                                        <span class="font-semibold text-primary">Rasm yuklash</span>
+                                    </p>
+                                    <p class="text-xs text-white/40">PNG, JPG (MAX. 5MB)</p>
+                                </div>
+                            </label>
+                            <div id="spa-image-preview" class="hidden mt-3 relative">
+                                <img id="spa-preview-img" src="" alt="Preview" class="w-full h-48 object-cover rounded-xl border border-white/10">
+                                <button onclick="removeSPAImage()" class="absolute top-2 right-2 bg-red-500/80 text-white rounded-full p-2 hover:bg-red-500 transition-all">
+                                    <span class="material-symbols-outlined text-[18px]">close</span>
+                                </button>
+                            </div>
+                        </div>
+                    </label>
+
+                    <label class="block">
+                        <p class="text-white/60 text-xs uppercase tracking-wider mb-2">Qo'shimcha xabar (ixtiyoriy)</p>
+                        <textarea id="spa-payment-message" class="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-white text-sm focus:outline-none focus:border-primary/50" rows="3" placeholder="To'lov haqida qo'shimcha ma'lumot..."></textarea>
+                    </label>
+                </div>
+
+                <div class="flex gap-3">
+                    <button onclick="closeSPAPaymentModal()" class="flex-1 h-12 bg-white/5 border border-white/10 rounded-xl text-white font-semibold text-sm hover:bg-white/10 transition-all">
+                        Bekor qilish
+                    </button>
+                    <button onclick="submitSPAPayment()" id="spa-submit-payment-btn" class="flex-1 h-12 bg-primary text-white font-bold text-sm rounded-xl hover:bg-primary/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                        Yuborish
+                    </button>
+                </div>
             </div>
         </div>
     </div>
