@@ -119,8 +119,11 @@ def get_messages(chat_id):
     if chat.user1_id != current_user.id and chat.user2_id != current_user.id:
         return jsonify({'error': 'Sizda bu chatga kirish huquqi yo\'q'}), 403
 
-    # Xabarlarni olish
-    messages = chat.get_messages(limit=1000)
+    # Saralash: desc = yangi birinchi (default), asc = eski birinchi
+    sort_order = request.args.get('sort', 'desc', type=str)
+    if sort_order not in ('asc', 'desc'):
+        sort_order = 'desc'
+    messages = chat.get_messages(limit=1000, sort=sort_order)
 
     # O'qilmagan xabarlarni o'qilgan deb belgilash
     for message in messages:

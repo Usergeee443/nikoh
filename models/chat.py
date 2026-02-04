@@ -64,9 +64,11 @@ class Chat(db.Model):
             return self.user2_id
         return self.user1_id
 
-    def get_messages(self, limit=100):
-        """Chatning xabarlarini olish"""
-        return self.messages.order_by(Message.created_at.asc()).limit(limit).all()
+    def get_messages(self, limit=100, sort='desc'):
+        """Chatning xabarlarini olish. sort: 'asc' = eski birinchi, 'desc' = yangi birinchi."""
+        if sort == 'asc':
+            return self.messages.order_by(Message.created_at.asc()).limit(limit).all()
+        return self.messages.order_by(Message.created_at.desc()).limit(limit).all()
 
     def get_my_profile_id(self, current_user_id):
         """Joriy foydalanuvchining ushbu chatdagi profil id si"""

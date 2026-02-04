@@ -26,6 +26,7 @@ def _listing_dict(profile, is_top, is_favorite):
         'name': profile.name,
         'age': age,
         'gender': profile.gender,
+        'country': getattr(profile, 'country', None),
         'region': profile.region,
         'nationality': profile.nationality,
         'marital_status': profile.marital_status,
@@ -33,6 +34,8 @@ def _listing_dict(profile, is_top, is_favorite):
         'weight': profile.weight,
         'religious_level': profile.religious_level,
         'education': profile.education,
+        'profession': getattr(profile, 'profession', None),
+        'salary': getattr(profile, 'salary', None),
         'views': 0,
         'likes': 0,
         'is_top': is_top,
@@ -54,6 +57,25 @@ def get_listings():
     show_top_only = request.args.get('top_only', 'false') == 'true'
     request_gender = request.args.get('gender', type=str)
     request_sort = request.args.get('sort', 'new', type=str)
+    # Filterlar
+    request_regions = request.args.get('regions', type=str)
+    request_marital = request.args.get('marital_status', type=str)
+    request_aqida = request.args.get('aqida', type=str)
+    request_prays = request.args.get('prays', type=str)
+    request_religious_level = request.args.get('religious_level', type=str)
+    request_quran = request.args.get('quran_reading', type=str)
+    request_mazhab = request.args.get('mazhab', type=str)
+    request_education = request.args.get('education', type=str)
+    request_profession = request.args.get('profession', type=str)
+    request_age_min = request.args.get('age_min', type=int)
+    request_age_max = request.args.get('age_max', type=int)
+    request_height_min = request.args.get('height_min', type=int)
+    request_height_max = request.args.get('height_max', type=int)
+    request_weight_min = request.args.get('weight_min', type=int)
+    request_weight_max = request.args.get('weight_max', type=int)
+    request_has_salary = request.args.get('has_salary', type=str)  # 'true' = faqat maosh kiritganlar
+    request_salary_min = request.args.get('salary_min', type=int)
+    request_salary_max = request.args.get('salary_max', type=int)
 
     # Jins: to'g'ridan-to'g'ri filter (exists() so'rov olib tashlandi)
     if request_gender in ('Erkak', 'Ayol'):
@@ -66,6 +88,48 @@ def get_listings():
         Profile.user_id != current_user.id,
         Profile.gender == filter_gender
     ).join(User)
+
+    if request_regions and request_regions.strip():
+        regions_list = [r.strip() for r in request_regions.split(',') if r.strip()]
+        if regions_list:
+            query = query.filter(Profile.region.in_(regions_list))
+    if request_marital and request_marital.strip():
+        query = query.filter(Profile.marital_status == request_marital.strip())
+    if request_aqida and request_aqida.strip():
+        query = query.filter(Profile.aqida == request_aqida.strip())
+    if request_prays and request_prays.strip():
+        query = query.filter(Profile.prays == request_prays.strip())
+    if request_religious_level and request_religious_level.strip():
+        query = query.filter(Profile.religious_level == request_religious_level.strip())
+    if request_quran and request_quran.strip():
+        query = query.filter(Profile.quran_reading == request_quran.strip())
+    if request_mazhab and request_mazhab.strip():
+        query = query.filter(Profile.mazhab == request_mazhab.strip())
+    if request_education and request_education.strip():
+        query = query.filter(Profile.education == request_education.strip())
+    if request_profession and request_profession.strip():
+        query = query.filter(Profile.profession.ilike('%' + request_profession.strip() + '%'))
+    if request_age_min is not None and request_age_min > 0:
+        year_max = datetime.utcnow().year - request_age_min
+        query = query.filter(Profile.birth_year <= year_max)
+    if request_age_max is not None and request_age_max > 0:
+        year_min = datetime.utcnow().year - request_age_max
+        query = query.filter(Profile.birth_year >= year_min)
+    if request_height_min is not None and request_height_min > 0:
+        query = query.filter(Profile.height >= request_height_min)
+    if request_height_max is not None and request_height_max > 0:
+        query = query.filter(Profile.height <= request_height_max)
+    if request_weight_min is not None and request_weight_min > 0:
+        query = query.filter(Profile.weight >= request_weight_min)
+    if request_weight_max is not None and request_weight_max > 0:
+        query = query.filter(Profile.weight <= request_weight_max)
+    if request_has_salary == 'true':
+        query = query.filter(Profile.salary.isnot(None), Profile.salary != '')
+    # Salary min/max: DB darajasida aniq solishtirish qiyin (string).
+    # Kamida salary bo'sh bo'lmaganlarini cheklaymiz, keyin paginationdan keyin post-filter qilamiz.
+    salary_range_requested = (request_salary_min is not None and request_salary_min > 0) or (request_salary_max is not None and request_salary_max > 0)
+    if salary_range_requested:
+        query = query.filter(Profile.salary.isnot(None), Profile.salary != '')
 
     from models.tariff import UserTariff
     now = datetime.utcnow()
@@ -100,6 +164,34 @@ def get_listings():
 
     pagination = query.paginate(page=page, per_page=per_page, error_out=False)
     profiles = pagination.items
+
+    # Salary min/max post-filter (string -> number)
+    # Eslatma: bu taxminiy. Masalan "3-5 mln" kabi formatlarda birinchi raqam olinadi.
+    if 'salary_range_requested' in locals() and salary_range_requested and profiles:
+        import re
+
+        def _salary_to_int(s):
+            if not s:
+                return None
+            m = re.search(r'(\d+)', str(s).replace(',', ''))
+            if not m:
+                return None
+            try:
+                return int(m.group(1))
+            except ValueError:
+                return None
+
+        filtered = []
+        for p in profiles:
+            val = _salary_to_int(getattr(p, 'salary', None))
+            if val is None:
+                continue
+            if request_salary_min is not None and request_salary_min > 0 and val < request_salary_min:
+                continue
+            if request_salary_max is not None and request_salary_max > 0 and val > request_salary_max:
+                continue
+            filtered.append(p)
+        profiles = filtered
 
     # Tez javob: per_page=1 da qo'shimcha so'rovlarni o'tkazib yuboramiz (birinchi kartochka tez chiqadi)
     quick_first_paint = (page == 1 and per_page == 1)

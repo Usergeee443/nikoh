@@ -174,6 +174,7 @@ def edit():
             birth_year = request.form.get('birth_year')
             if birth_year:
                 profile.birth_year = int(birth_year)
+            profile.country = request.form.get('country') or profile.country
             profile.region = request.form.get('region') or profile.region
             profile.nationality = request.form.get('nationality') or profile.nationality
             profile.marital_status = request.form.get('marital_status') or profile.marital_status
@@ -193,6 +194,7 @@ def edit():
             profile.religious_level = request.form.get('religious_level') or profile.religious_level
             profile.education = request.form.get('education') or profile.education
             profile.profession = request.form.get('profession') or profile.profession
+            profile.salary = (request.form.get('salary') or '').strip() or profile.salary
             
             is_working = request.form.get('is_working')
             if is_working:
@@ -332,6 +334,7 @@ def create_listing():
             name=name,
             gender=str(gender),
             birth_year=birth_year,
+            country=(data.get('country') or '')[:100] or None,
             region=(data.get('region') or '')[:100] or None,
             nationality=(data.get('nationality') or '')[:50] or None,
             marital_status=(data.get('marital_status') or '')[:20] or None,
@@ -346,6 +349,7 @@ def create_listing():
             education=(data.get('education') or '')[:100] or None,
             profession=(data.get('profession') or '')[:100] or None,
             is_working=_parse_bool(data.get('is_working')),
+            salary=(data.get('salary') or '').strip()[:100] or None,
             partner_age_min=_parse_int(data.get('partner_age_min')),
             partner_age_max=_parse_int(data.get('partner_age_max')),
             partner_region=(data.get('partner_region') or '')[:100] or None,

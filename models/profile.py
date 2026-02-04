@@ -15,7 +15,8 @@ class Profile(db.Model):
     name = db.Column(db.String(100))
     gender = db.Column(db.String(10), index=True)  # Erkak / Ayol
     birth_year = db.Column(db.Integer)
-    region = db.Column(db.String(100))  # Viloyat/Shahar
+    country = db.Column(db.String(100))  # Davlat (O'zbekiston, Rossiya, Turkiya, ...)
+    region = db.Column(db.String(100))  # Viloyat/Shahar (davlat bo'yicha)
     nationality = db.Column(db.String(50))
     marital_status = db.Column(db.String(20))  # Bo'ydoq / Ajrashgan
 
@@ -35,6 +36,7 @@ class Profile(db.Model):
     education = db.Column(db.String(100))
     profession = db.Column(db.String(100))
     is_working = db.Column(db.Boolean)
+    salary = db.Column(db.String(100))  # Maosh (masalan: "500$", "3-5 mln")
 
     # 5.5 Juftga qo'yiladigan talablar
     partner_age_min = db.Column(db.Integer)
@@ -157,6 +159,7 @@ class Profile(db.Model):
             'education': self.education,
             'profession': self.profession,
             'is_working': self.is_working,
+            'salary': self.salary,
             'bio': self.bio,
             'is_active': self.is_active,
             'completion_percentage': self.completion_percentage,
@@ -166,7 +169,7 @@ class Profile(db.Model):
             'partner_religious_level': self.partner_religious_level,
             'partner_marital_status': self.partner_marital_status,
             'photo_url': None,  # Will be generated on frontend using gradient
-            'salary': None,  # Not stored in profile, will be calculated if needed
+            'country': self.country,
             'views_count': 0,  # Placeholder
             'favorites_count': 0  # Placeholder
         }

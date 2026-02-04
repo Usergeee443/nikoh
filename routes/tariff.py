@@ -29,6 +29,16 @@ def purchase():
                          active_tariff=active_tariff)
 
 
+@tariff_bp.route('/api/payment-info')
+@login_required
+def payment_info():
+    """To'lov karta ma'lumotlari (SPA uchun)"""
+    return jsonify({
+        'card_number': Config.PAYMENT_CARD_NUMBER,
+        'card_name': Config.PAYMENT_CARD_NAME
+    })
+
+
 @tariff_bp.route('/api/status')
 @login_required
 def get_status():

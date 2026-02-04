@@ -246,6 +246,109 @@
             .dial-tick-active {
                 @apply w-8 h-[2px] bg-primary/50 my-1.5 neon-glow;
             }
+            /* iOS-style Picker Dial - Rasmga 1:1 mos */
+            .ios-dial-wrapper {
+                @apply flex flex-col items-center;
+            }
+            .ios-dial-title {
+                @apply text-xs font-bold text-white/50 uppercase tracking-[0.15em] mb-2;
+            }
+            .ios-dial {
+                @apply relative overflow-hidden;
+                width: 5rem;
+                height: 18rem;
+                border-radius: 2rem;
+                background: rgba(255,255,255,0.02);
+                border: 1px solid rgba(255,255,255,0.06);
+            }
+            .ios-dial-track {
+                @apply absolute inset-0;
+                overflow: hidden;
+                touch-action: pan-y;
+            }
+            .ios-dial-items {
+                @apply absolute w-full;
+                left: 0;
+                will-change: transform;
+                transition: transform 0.08s ease-out;
+            }
+            .ios-dial-item {
+                height: 2.5rem;
+                @apply flex items-center justify-center text-lg font-bold select-none;
+                color: rgba(255,255,255,0.12);
+                transition: color 0.1s, transform 0.1s, opacity 0.1s;
+            }
+            .ios-dial-item[data-offset="0"] {
+                color: #40ff00;
+                font-size: 2rem;
+                font-weight: 900;
+                text-shadow: 0 0 20px rgba(64,255,0,0.4);
+            }
+            .ios-dial-item[data-offset="1"], .ios-dial-item[data-offset="-1"] {
+                color: rgba(255,255,255,0.25);
+                font-size: 1.1rem;
+            }
+            .ios-dial-item[data-offset="2"], .ios-dial-item[data-offset="-2"] {
+                color: rgba(255,255,255,0.15);
+                font-size: 1rem;
+            }
+            /* Tick marks - rasmdagidek */
+            .ios-dial-ticks {
+                @apply absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-10;
+                gap: 0.75rem;
+            }
+            .ios-dial-tick {
+                width: 1.5rem;
+                height: 2px;
+                background: rgba(255,255,255,0.08);
+                border-radius: 1px;
+            }
+            .ios-dial-tick.glow {
+                width: 2rem;
+                height: 3px;
+                background: rgba(64,255,0,0.5);
+                box-shadow: 0 0 10px rgba(64,255,0,0.3);
+            }
+            /* Top/bottom fade */
+            .ios-dial-fade-top, .ios-dial-fade-bottom {
+                @apply absolute left-0 right-0 pointer-events-none z-20;
+                height: 5rem;
+            }
+            .ios-dial-fade-top {
+                top: 0;
+                background: linear-gradient(to bottom, #0f0f11 0%, transparent 100%);
+            }
+            .ios-dial-fade-bottom {
+                bottom: 0;
+                background: linear-gradient(to top, #0f0f11 0%, transparent 100%);
+            }
+            .ios-dial-label {
+                @apply text-xs font-bold text-white/40 mt-3;
+            }
+            /* Dual Range Slider */
+            .salary-slider-thumb {
+                position: absolute;
+                top: 50%;
+                transform: translate(-50%, -50%);
+                width: 1.5rem;
+                height: 1.5rem;
+                background: white;
+                border: 4px solid #0f0f11;
+                border-radius: 50%;
+                cursor: grab;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+                z-index: 10;
+                transition: transform 0.1s;
+            }
+            .salary-slider-thumb:active {
+                cursor: grabbing;
+                transform: translate(-50%, -50%) scale(1.15);
+            }
+            .salary-slider-thumb::after {
+                content: '';
+                position: absolute;
+                inset: -8px;
+            }
             .chip-active {
                 @apply bg-primary text-black font-bold;
             }
@@ -557,9 +660,23 @@
                                 <p class="text-sm text-white/50">Joylashuvingiz haqida ma'lumot</p>
                             </div>
                             <div>
-                                <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-white/60 mb-2">Hudud</label>
-                                <select name="region" required class="w-full glass-card glass-input rounded-2xl px-4 py-4 text-base">
-                                    <option value="">Hududni tanlang</option>
+                                <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-white/60 mb-2">Davlat</label>
+                                <select name="country" id="onboarding-country" required class="w-full glass-card glass-input rounded-2xl px-4 py-4 text-base">
+                                    <option value="">Davlatni tanlang</option>
+                                    <option value="O'zbekiston">O'zbekiston</option>
+                                    <option value="Qozog'iston">Qozog'iston</option>
+                                    <option value="Qirg'iziston">Qirg'iziston</option>
+                                    <option value="Tojikiston">Tojikiston</option>
+                                    <option value="Rossiya">Rossiya</option>
+                                    <option value="Turkiya">Turkiya</option>
+                                    <option value="Ozarbayjon">Ozarbayjon</option>
+                                    <option value="Boshqa">Boshqa</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-white/60 mb-2">Viloyat / Shahar</label>
+                                <select name="region" id="onboarding-region" required class="w-full glass-card glass-input rounded-2xl px-4 py-4 text-base">
+                                    <option value="">Viloyatni tanlang</option>
                                     <option value="Toshkent shahar">Toshkent shahar</option>
                                     <option value="Toshkent viloyati">Toshkent viloyati</option>
                                     <option value="Samarqand">Samarqand</option>
@@ -737,6 +854,10 @@
                             <div>
                                 <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-white/60 mb-2">Kasbingiz</label>
                                 <input name="profession" required class="w-full glass-card glass-input rounded-2xl px-4 py-4 text-base" placeholder="Masalan: Dasturchi, O'qituvchi...">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-white/60 mb-2">Maosh (ixtiyoriy)</label>
+                                <input name="salary" class="w-full glass-card glass-input rounded-2xl px-4 py-4 text-base" placeholder="Masalan: 500$, 3-5 mln">
                             </div>
                             <div>
                                 <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-white/60 mb-3">Hozir ishlaysizmi?</label>
@@ -1101,7 +1222,10 @@
                             </div>
                         </button>
                     </div>
-                    <div class="flex flex-col items-end">
+                    <div class="flex items-center gap-2">
+                        <button id="chat-messages-sort-btn" type="button" class="size-9 search-glass rounded-xl flex items-center justify-center text-white/50 hover:text-primary hover:border-primary/40 transition-all active:scale-95" title="Xabarlarni saralash">
+                            <span class="material-symbols-outlined text-[18px]">sort</span>
+                        </button>
                         <div id="chat-timer-badge" class="bg-primary/10 px-2.5 py-1 rounded-full border border-primary/20">
                             <p class="text-primary text-[11px] font-bold tracking-wider glow-text uppercase">7 kun 00:00</p>
                         </div>
@@ -1244,7 +1368,7 @@
                             <span class="material-symbols-outlined text-primary">chevron_right</span>
                         </button>
                     </div>
-                    <a href="/tariff/purchase" class="w-full glass-card rounded-2xl p-4 flex items-center justify-between group active:scale-[0.98] transition-transform">
+                    <button type="button" onclick="window.showPage('tariff')" class="w-full glass-card rounded-2xl p-4 flex items-center justify-between group active:scale-[0.98] transition-transform text-left">
                         <div class="flex items-center gap-4">
                             <div class="size-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
                                 <span class="material-symbols-outlined text-[24px]">workspace_premium</span>
@@ -1252,7 +1376,7 @@
                             <p class="text-sm font-bold">Tariflar (Obuna)</p>
                         </div>
                         <span class="material-symbols-outlined text-white/20 group-hover:text-primary transition-colors">chevron_right</span>
-                    </a>
+                    </button>
                     <button type="button" onclick="window.showPage('profile-edit')" class="w-full glass-card rounded-2xl p-4 flex items-center justify-between group active:scale-[0.98] transition-transform text-left">
                         <div class="flex items-center gap-4">
                             <div class="size-10 rounded-xl bg-white/5 flex items-center justify-center text-white/60">
@@ -1957,6 +2081,25 @@
             </main>
         </div>
 
+        <!-- TARIFF PAGE (tez ochilishi uchun asosiy faylda) -->
+        <div id="page-tariff" class="page-container">
+            <header class="pt-6 pb-3 px-6 sticky top-0 z-50 bg-background-dark/95 backdrop-blur-xl border-b border-white/5">
+                <div class="max-w-md mx-auto flex items-center justify-between">
+                    <button onclick="window.showPage('profile')" class="size-10 rounded-full glass-card flex items-center justify-center text-white/70 active:scale-95 transition-transform">
+                        <span class="material-symbols-outlined text-[24px]">arrow_back_ios_new</span>
+                    </button>
+                    <h1 class="text-xl font-extrabold tracking-tight">Tariflar</h1>
+                    <div class="w-10"></div>
+                </div>
+            </header>
+            <main class="max-w-md mx-auto px-6 py-5 space-y-5" style="padding-bottom: 140px;">
+                <p class="text-sm text-white/50 text-center">O'zingizga mos tarifni tanlang</p>
+                <div id="tariff-cards-container" class="space-y-4">
+                    <div class="space-y-4 skeleton" style="min-height: 200px;"></div>
+                </div>
+            </main>
+        </div>
+
         <!-- Background Gradient -->
         <div class="fixed top-0 left-0 w-full h-full pointer-events-none -z-10 overflow-hidden opacity-25">
             <div class="absolute top-[-20%] right-[-10%] w-[80%] h-[80%] bg-primary/20 blur-[180px] rounded-full"></div>
@@ -1990,9 +2133,9 @@
                     <button type="button" onclick="window.openFullProfileFromModal()" class="w-full bg-primary text-black font-bold py-3.5 rounded-xl text-sm uppercase tracking-wider active:scale-[0.98] transition-all">
                         To'liq profil to'ldirish
                     </button>
-                    <a href="/tariff/purchase" class="block w-full bg-white/10 text-white font-bold py-3.5 rounded-xl text-sm uppercase tracking-wider text-center border border-white/20 active:scale-[0.98] transition-all">
+                    <button type="button" onclick="document.getElementById('require-full-profile-modal').classList.add('hidden'); window.showPage('tariff')" class="block w-full bg-white/10 text-white font-bold py-3.5 rounded-xl text-sm uppercase tracking-wider text-center border border-white/20 active:scale-[0.98] transition-all">
                         Tarif sotib olish
-                    </a>
+                    </button>
                     <button type="button" onclick="document.getElementById('require-full-profile-modal').classList.add('hidden')" class="w-full text-white/50 text-sm py-2">
                         Yopish
                     </button>
@@ -2310,6 +2453,55 @@
                     window.newListingDraft = window.newListingDraft || {};
                     updateAddListingSummaries();
                     break;
+                case 'tariff':
+                    await loadTariffPageData();
+                    break;
+            }
+        }
+
+        async function loadTariffPageData() {
+            const container = document.getElementById('tariff-cards-container');
+            if (!container) return;
+            try {
+                const [tariffsRes, paymentRes] = await Promise.all([
+                    fetch('/tariff/api/tariffs', { credentials: 'same-origin' }),
+                    fetch('/tariff/api/payment-info', { credentials: 'same-origin' })
+                ]);
+                const tariffsData = tariffsRes.ok ? await tariffsRes.json() : { tariffs: [] };
+                const paymentInfo = paymentRes.ok ? await paymentRes.json() : {};
+                const tariffs = tariffsData.tariffs || [];
+                const cardNumber = paymentInfo.card_number || '';
+                const cardName = paymentInfo.card_name || '';
+                container.innerHTML = '';
+                if (tariffs.length === 0) {
+                    container.innerHTML = '<p class="text-white/50 text-center py-8">Tariflar yuklanmoqda...</p>';
+                    return;
+                }
+                tariffs.forEach(t => {
+                    const card = document.createElement('div');
+                    card.className = 'glass-card rounded-2xl p-5 border border-white/10';
+                    const isGold = t.name === 'OLTIN';
+                    if (isGold) card.classList.add('border-yellow-500/30', 'bg-yellow-500/5');
+                    card.innerHTML = `
+                        <div class="flex justify-between items-start mb-3">
+                            <h3 class="text-lg font-bold ${isGold ? 'text-yellow-400' : 'text-white'}">${t.name}</h3>
+                            <div class="text-right">
+                                <span class="text-xl font-extrabold text-primary">${(t.price || 0).toLocaleString('uz-UZ')}</span>
+                                <span class="text-white/50 text-sm"> UZS</span>
+                            </div>
+                        </div>
+                        <ul class="space-y-2 mb-4 text-sm text-white/70">
+                            ${(t.features || []).map(f => `<li class="flex items-center gap-2"><span class="material-symbols-outlined text-primary text-[16px]">check_circle</span>${f}</li>`).join('')}
+                        </ul>
+                        <button type="button" onclick="window.location.href='/tariff/purchase'" class="w-full h-12 rounded-xl font-bold text-sm uppercase tracking-wider transition-all active:scale-[0.98] ${isGold ? 'bg-yellow-500 text-black' : 'bg-primary text-black'}">
+                            Hozir yoqish
+                        </button>
+                    `;
+                    container.appendChild(card);
+                });
+            } catch (e) {
+                console.error(e);
+                container.innerHTML = '<p class="text-red-400 text-center py-8">Xatolik yuz berdi</p>';
             }
         }
 
@@ -2350,9 +2542,9 @@
         };
         const stepFields = {
             1: ['name', 'gender', 'birth_year'],
-            2: ['region', 'nationality', 'marital_status'],
+            2: ['country', 'region', 'nationality', 'marital_status'],
             3: ['height', 'weight', 'prays', 'fasts', 'religious_level'],
-            4: ['education', 'profession', 'is_working'],
+            4: ['education', 'profession', 'is_working', 'salary'],
             5: ['partner_age_min', 'partner_age_max', 'partner_region', 'partner_religious_level', 'partner_marital_status', 'bio']
         };
 
@@ -2404,6 +2596,26 @@
                     hapticTap('light');
                 });
             });
+            // Onboarding: davlat o'zgarganda viloyat ro'yxatini yangilash
+            const ONBOARDING_REGIONS = {
+                "O'zbekiston": ["Toshkent shahar","Toshkent viloyati","Samarqand","Buxoro","Andijon","Farg'ona","Namangan","Qashqadaryo","Surxondaryo","Xorazm","Navoiy","Jizzax","Sirdaryo","Qoraqalpog'iston"],
+                "Qozog'iston": ["Olmaota","Ostona","Shymkent","Qarag'anda","Aqtobe","Pavlodar","Semey","Oral","Atirau"],
+                "Qirg'iziston": ["Bishkek","O'sh","Jalal-Abad","Qorako'l","Naryn","Batlken","Talas"],
+                "Tojikiston": ["Dushanbe","Xujand","Qurghonteppa","Kulob","Istaravshan","Panjakent"],
+                "Rossiya": ["Moskva","Sankt-Peterburg","Qozon","Novosibirsk","Yekaterinburg","Samara","Rostov","Nijniy Novgorod","Chelyabinsk"],
+                "Turkiya": ["Istanbul","Ankara","Izmir","Bursa","Antalya","Adana","Konya","Gaziantep"],
+                "Ozarbayjon": ["Boku","Ganja","Sumqayit","Lankaran","Mingachevir","Naxchivan"],
+                "Boshqa": []
+            };
+            const obCountry = document.getElementById('onboarding-country');
+            const obRegion = document.getElementById('onboarding-region');
+            if (obCountry && obRegion) {
+                obCountry.addEventListener('change', function() {
+                    const regs = ONBOARDING_REGIONS[this.value] || [];
+                    obRegion.innerHTML = '<option value="">Viloyatni tanlang</option>' + regs.map(r => `<option value="${r}">${r}</option>`).join('');
+                    obRegion.required = regs.length > 0;
+                });
+            }
         }
 
         function updateOnboardingUI() {
@@ -2673,13 +2885,13 @@
                                 <p class="text-sm font-bold text-yellow-400">E'lonlarni ko'rishingiz mumkin</p>
                                 <p class="text-[11px] text-yellow-400/80 mt-0.5">So'rov yuborish uchun tarif kerak</p>
                             </div>
-                            <a href="/tariff/purchase" class="bg-primary text-black px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider active:scale-95 transition-all">
+                                <button type="button" onclick="window.showPage('tariff')" class="bg-primary text-black px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider active:scale-95 transition-all">
                                 Tarif
-                            </a>
+                            </button>
                         </div>
                     </div>
                 `;
-                badge.innerHTML = `<a href="/tariff/purchase" class="glass-card px-3 py-1.5 rounded-full text-[10px] font-black text-yellow-400 uppercase tracking-wider">Tarif</a>`;
+                badge.innerHTML = `<button type="button" onclick="window.showPage('tariff')" class="glass-card px-3 py-1.5 rounded-full text-[10px] font-black text-yellow-400 uppercase tracking-wider">Tarif</button>`;
             }
         }
 
@@ -2697,7 +2909,8 @@
 
             // Birinchi sahifa: 1 ta va 20 ta parallel yuklash — qaysi birinchi kelsa tez ko'rsatamiz
             if (page === 1) {
-                const urlBase = `/feed/api/listings?page=1&top_only=${topOnly}&gender=${encodeURIComponent(feedGender)}&sort=${encodeURIComponent(feedSort)}`;
+                const filterParams = buildFeedFilterParams();
+                const urlBase = `/feed/api/listings?page=1&top_only=${topOnly}&gender=${encodeURIComponent(feedGender)}&sort=${encodeURIComponent(feedSort)}${filterParams}`;
                 let fullReceived = false;
                 function applyFull(data) {
                     if (!data || !data.listings || fullReceived) return;
@@ -2757,9 +2970,9 @@
                 return;
             }
 
-            // page > 1: oddiy sahifa yuklash
+            const filterParams = buildFeedFilterParams();
             try {
-                const response = await fetch(`/feed/api/listings?page=${page}&per_page=20&top_only=${topOnly}&gender=${encodeURIComponent(feedGender)}&sort=${encodeURIComponent(feedSort)}`, {
+                const response = await fetch(`/feed/api/listings?page=${page}&per_page=20&top_only=${topOnly}&gender=${encodeURIComponent(feedGender)}&sort=${encodeURIComponent(feedSort)}${filterParams}`, {
                     method: 'GET',
                     headers: feedHeaders,
                     credentials: 'same-origin'
@@ -3019,6 +3232,7 @@
                             <div class="grid grid-cols-2 gap-y-4 gap-x-4">
                                 <div><p class="text-[10px] text-white/40 font-bold uppercase tracking-wider mb-1">Ta'lim</p><p class="text-[14px] text-white font-semibold">${profile.education || '-'}</p></div>
                                 <div><p class="text-[10px] text-white/40 font-bold uppercase tracking-wider mb-1">Kasbi</p><p class="text-[14px] text-white font-semibold">${profile.profession || '-'}</p></div>
+                                ${profile.salary ? `<div><p class="text-[10px] text-white/40 font-bold uppercase tracking-wider mb-1">Maosh</p><p class="text-[14px] text-white font-semibold">${profile.salary}</p></div>` : ''}
                                 </div>
                                 </div>
                         <div class="glass-card rounded-2xl p-4">
@@ -3809,7 +4023,8 @@
             try {
                 if (skeleton) setTimeout(() => skeleton.style.display = 'none', 100);
                 
-                const response = await fetch(`/chat/api/${chatId}/messages`, {
+                const sortOrder = (typeof chatMessageSort !== 'undefined' && chatMessageSort === 'asc') ? 'asc' : 'desc';
+                const response = await fetch(`/chat/api/${chatId}/messages?sort=${sortOrder}`, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
@@ -3831,7 +4046,9 @@
                 if (skeleton) skeleton.remove();
                 
                 currentChatData = data.chat;
-                displayChatMessages(data.messages);
+                const order = (typeof chatMessageSort !== 'undefined' && chatMessageSort === 'asc') ? 'asc' : 'desc';
+                const msgs = order === 'desc' ? data.messages.slice().reverse() : data.messages;
+                displayChatMessages(msgs);
                 updateChatHeader(data.chat);
                 updateChatTimer();
                 
@@ -4243,11 +4460,11 @@
             el('profile-edit-name', p.name ? `${p.name}${p.age ? ', ' + p.age : ''}` : '—');
             el('profile-edit-region', p.region ? `${p.region}${p.nationality ? ', ' + p.nationality : ''}` : '—');
             el('profile-edit-diniy-summary', [p.aqida, p.prays, p.quran_reading, p.mazhab, p.religious_level].filter(Boolean).join(', ') || 'Belgilanmagan');
-            el('profile-edit-joylashuv-summary', [p.region, p.nationality].filter(Boolean).join(', ') || 'Belgilanmagan');
+            el('profile-edit-joylashuv-summary', [p.country, p.region, p.nationality].filter(Boolean).join(', ') || 'Belgilanmagan');
             el('profile-edit-oilaviy-summary', p.marital_status || 'Belgilanmagan');
             el('profile-edit-jismoniy-summary', [p.height && p.height + ' sm', p.weight && p.weight + ' kg'].filter(Boolean).join(', ') || 'Belgilanmagan');
             el('profile-edit-talim-summary', p.education || 'Belgilanmagan');
-            el('profile-edit-ish-summary', p.profession ? (p.is_working ? p.profession + ', Ishlaman' : p.profession) : 'Belgilanmagan');
+            el('profile-edit-ish-summary', (p.profession ? (p.profession + (p.is_working ? ', Ishlaman' : '') + (p.salary ? ' · ' + p.salary : '')) : null) || 'Belgilanmagan');
             const bioEl = document.getElementById('profile-edit-bio-summary');
             if (bioEl) { bioEl.textContent = (p.bio || '').trim() ? (p.bio.slice(0, 40) + (p.bio.length > 40 ? '…' : '')) : 'Belgilanmagan'; bioEl.classList.toggle('italic', !p.bio); }
         }
@@ -4270,7 +4487,18 @@
             content.classList.remove('translate-y-full');
             const titles = { shaxsiy: 'Ism, jins, yosh', diniy: 'Diniy ma\'lumotlar', joylashuv: 'Joylashuv', oilaviy: 'Oilaviy holati', jismoniy: 'Jismoniy', talim: 'Ta\'lim', ish: 'Ish & Kasb', juftga: 'Juftga talablari', bio: 'O\'zim haqimda' };
             title.textContent = titles[section] || 'Tahrirlash';
-            const regionOpts = ['Toshkent shahar','Toshkent viloyati','Samarqand','Buxoro','Andijon','Farg\'ona','Namangan','Qashqadaryo','Surxondaryo','Xorazm','Navoiy','Jizzax','Sirdaryo','Qoraqalpog\'iston'];
+            const LOCATION_COUNTRIES_REGIONS = {
+                "O'zbekiston": ["Toshkent shahar","Toshkent viloyati","Samarqand","Buxoro","Andijon","Farg'ona","Namangan","Qashqadaryo","Surxondaryo","Xorazm","Navoiy","Jizzax","Sirdaryo","Qoraqalpog'iston"],
+                "Qozog'iston": ["Olmaota","Ostona","Shymkent","Qarag'anda","Aqtobe","Pavlodar","Semey","Oral","Atirau"],
+                "Qirg'iziston": ["Bishkek","O'sh","Jalal-Abad","Qorako'l","Naryn","Batlken","Talas"],
+                "Tojikiston": ["Dushanbe","Xujand","Qurghonteppa","Kulob","Istaravshan","Panjakent"],
+                "Rossiya": ["Moskva","Sankt-Peterburg","Qozon","Novosibirsk","Yekaterinburg","Samara","Rostov","Nijniy Novgorod","Chelyabinsk"],
+                "Turkiya": ["Istanbul","Ankara","Izmir","Bursa","Antalya","Adana","Konya","Gaziantep"],
+                "Ozarbayjon": ["Boku","Ganja","Sumqayit","Lankaran","Mingachevir","Naxchivan"],
+                "Boshqa": []
+            };
+            const countryList = Object.keys(LOCATION_COUNTRIES_REGIONS);
+            const regionOpts = LOCATION_COUNTRIES_REGIONS["O'zbekiston"] || [];
             const yearOpts = Array.from({length: 48}, (_, i) => 2006 - i);
             if (section === 'shaxsiy') {
                 const defaultGender = (p.gender && (p.gender === 'Erkak' || p.gender === 'Ayol')) ? p.gender : 'Ayol';
@@ -4286,8 +4514,10 @@
                     </div>
                     <label class="block text-[11px] font-bold text-white/60 mb-2">Tug'ilgan yil</label>
                     <select name="birth_year" class="w-full glass-card rounded-2xl px-4 py-3 text-white border border-white/10 bg-white/5 mb-4">${yearOpts.map(y => `<option value="${y}" ${(p.birth_year === y) ? 'selected' : ''}>${y}</option>`).join('')}</select>
-                    <label class="block text-[11px] font-bold text-white/60 mb-2">Hudud</label>
-                    <select name="region" class="w-full glass-card rounded-2xl px-4 py-3 text-white border border-white/10 bg-white/5 mb-4">${regionOpts.map(r => `<option value="${r}" ${(p.region === r) ? 'selected' : ''}>${r}</option>`).join('')}</select>
+                    <label class="block text-[11px] font-bold text-white/60 mb-2">Davlat</label>
+                    <select name="country" id="profile-edit-country" class="w-full glass-card rounded-2xl px-4 py-3 text-white border border-white/10 bg-white/5 mb-4">${countryList.map(c => `<option value="${c}" ${(p.country === c) ? 'selected' : ''}>${c}</option>`).join('')}</select>
+                    <label class="block text-[11px] font-bold text-white/60 mb-2">Viloyat / Shahar</label>
+                    <select name="region" id="profile-edit-region-select" class="w-full glass-card rounded-2xl px-4 py-3 text-white border border-white/10 bg-white/5 mb-4">${(LOCATION_COUNTRIES_REGIONS[p.country || "O'zbekiston"] || []).map(r => `<option value="${r}" ${(p.region === r) ? 'selected' : ''}>${r}</option>`).join('')}</select>
                     <label class="block text-[11px] font-bold text-white/60 mb-2">Millat</label>
                     <select name="nationality" class="w-full glass-card rounded-2xl px-4 py-3 text-white border border-white/10 bg-white/5 mb-4">${['O\'zbek','Rus','Tojik','Qozoq','Qoraqalpoq','Boshqa'].map(n => `<option value="${n}" ${(p.nationality === n) ? 'selected' : ''}>${n}</option>`).join('')}</select>
                     <label class="block text-[11px] font-bold text-white/60 mb-2">Oilaviy holati</label>
@@ -4295,6 +4525,14 @@
                         ${maritalOpts.map(v => `<label class="flex items-center justify-between p-4 rounded-2xl border cursor-pointer transition-all ${(p.marital_status === v) ? 'border-primary bg-primary/10' : 'border-white/10 bg-white/5'}"><span>${v}</span><input type="radio" name="marital_status" value="${v}" ${(p.marital_status === v) ? 'checked' : ''} class="hidden"></label>`).join('')}
                     </div>
                 `;
+                const countryEl = document.getElementById('profile-edit-country');
+                const regionEl = document.getElementById('profile-edit-region-select');
+                if (countryEl && regionEl) countryEl.addEventListener('change', function() {
+                    const regs = LOCATION_COUNTRIES_REGIONS[this.value] || [];
+                    const curVal = regionEl.value;
+                    regionEl.innerHTML = regs.map(r => `<option value="${r}">${r}</option>`).join('');
+                    if (regs.indexOf(curVal) !== -1) regionEl.value = curVal;
+                });
             } else if (section === 'diniy') {
                 body.innerHTML = `
                     <p class="text-[11px] font-bold text-white/60 mb-2">Aqidasi</p>
@@ -4323,12 +4561,22 @@
                     </div>
                 `;
             } else if (section === 'joylashuv') {
+                const joyCountry = p.country || "O'zbekiston";
+                const joyRegions = LOCATION_COUNTRIES_REGIONS[joyCountry] || [];
                 body.innerHTML = `
-                    <label class="block text-[11px] font-bold text-white/60 mb-2">Hudud</label>
-                    <select name="region" class="w-full glass-card rounded-2xl px-4 py-3 text-white border border-white/10 bg-white/5 mb-4">${regionOpts.map(r => `<option value="${r}" ${(p.region === r) ? 'selected' : ''}>${r}</option>`).join('')}</select>
+                    <label class="block text-[11px] font-bold text-white/60 mb-2">Davlat</label>
+                    <select name="country" id="profile-edit-joy-country" class="w-full glass-card rounded-2xl px-4 py-3 text-white border border-white/10 bg-white/5 mb-4">${countryList.map(c => `<option value="${c}" ${(joyCountry === c) ? 'selected' : ''}>${c}</option>`).join('')}</select>
+                    <label class="block text-[11px] font-bold text-white/60 mb-2">Viloyat / Shahar</label>
+                    <select name="region" id="profile-edit-joy-region" class="w-full glass-card rounded-2xl px-4 py-3 text-white border border-white/10 bg-white/5 mb-4">${joyRegions.map(r => `<option value="${r}" ${(p.region === r) ? 'selected' : ''}>${r}</option>`).join('')}</select>
                     <label class="block text-[11px] font-bold text-white/60 mb-2">Millat</label>
                     <select name="nationality" class="w-full glass-card rounded-2xl px-4 py-3 text-white border border-white/10 bg-white/5">${['O\'zbek','Rus','Tojik','Qozoq','Qoraqalpoq','Boshqa'].map(n => `<option value="${n}" ${(p.nationality === n) ? 'selected' : ''}>${n}</option>`).join('')}</select>
                 `;
+                const joyCountryEl = document.getElementById('profile-edit-joy-country');
+                const joyRegionEl = document.getElementById('profile-edit-joy-region');
+                if (joyCountryEl && joyRegionEl) joyCountryEl.addEventListener('change', function() {
+                    const regs = LOCATION_COUNTRIES_REGIONS[this.value] || [];
+                    joyRegionEl.innerHTML = regs.map(r => `<option value="${r}">${r}</option>`).join('');
+                });
             } else if (section === 'oilaviy') {
                 const isWoman = (p.gender === 'Ayol');
                 const options = isWoman ? ['Qiz bola', 'Beva', 'Ajrashgan'] : ['Bo\'ydoq', 'Oilali', 'Ajrashgan'];
@@ -4354,6 +4602,8 @@
                 body.innerHTML = `
                     <label class="block text-[11px] font-bold text-white/60 mb-2">Kasb</label>
                     <input type="text" name="profession" value="${(p.profession || '').replace(/"/g, '&quot;')}" placeholder="Masalan: Dasturchi" class="w-full glass-card rounded-2xl px-4 py-3 text-white border border-white/10 bg-white/5 mb-4">
+                    <label class="block text-[11px] font-bold text-white/60 mb-2">Maosh (ixtiyoriy)</label>
+                    <input type="text" name="salary" value="${(p.salary || '').replace(/"/g, '&quot;')}" placeholder="Masalan: 500$, 3-5 mln" class="w-full glass-card rounded-2xl px-4 py-3 text-white border border-white/10 bg-white/5 mb-4">
                     <p class="text-[11px] font-bold text-white/60 mb-2">Ishlaysizmi?</p>
                     <div class="flex gap-3">
                         <label class="flex-1 flex items-center justify-between p-4 rounded-2xl border cursor-pointer transition-all ${p.is_working === true ? 'border-primary bg-primary/10' : 'border-white/10 bg-white/5'}"><span>Ha</span><input type="radio" name="is_working" value="true" ${p.is_working === true ? 'checked' : ''} class="hidden"></label>
@@ -4447,11 +4697,11 @@
             el('add-listing-region', d.region || '—');
             el('add-listing-shaxsiy-summary', d.name ? `${d.name}, ${d.gender || ''}, ${d.birth_year ? d.birth_year + ' yosh' : ''}`.replace(/,\s*,/g, ',').replace(/^,\s*|,\s*$/g, '') : null);
             el('add-listing-diniy-summary', d.prays ? `${d.prays}, ${d.mazhab || ''}`.replace(/,\s*$/g, '') : null);
-            el('add-listing-joylashuv-summary', d.region ? `${d.region}, ${d.nationality || ''}`.replace(/,\s*$/g, '') : null);
+            el('add-listing-joylashuv-summary', [d.country, d.region, d.nationality].filter(Boolean).join(', ') || 'Belgilanmagan');
             el('add-listing-oilaviy-summary', d.marital_status || null);
             el('add-listing-jismoniy-summary', (d.height || d.weight) ? `${d.height || '?'} sm, ${d.weight || '?'} kg` : null);
             el('add-listing-talim-summary', d.education || null);
-            el('add-listing-ish-summary', d.profession ? (d.is_working === 'true' ? d.profession + ', Ishlaman' : d.profession) : null);
+            el('add-listing-ish-summary', (d.profession ? (d.profession + (d.is_working === 'true' ? ', Ishlaman' : '') + (d.salary ? ' · ' + d.salary : '')) : null) || 'Belgilanmagan');
             el('add-listing-juftga-summary', (d.partner_age_min || d.partner_age_max) ? `${d.partner_age_min || '?'}-${d.partner_age_max || '?'} yosh` : null);
             const bioEl = document.getElementById('add-listing-bio-summary');
             if (bioEl) { bioEl.textContent = (d.bio || '').trim() ? (d.bio.slice(0, 40) + (d.bio.length > 40 ? '…' : '')) : 'Belgilanmagan'; bioEl.classList.toggle('italic', !d.bio); }
@@ -4474,6 +4724,7 @@
                         name: (d.name || '').trim(),
                         gender: (d.gender && String(d.gender).trim()) ? String(d.gender).trim() : '',
                         birth_year: d.birth_year ? parseInt(d.birth_year, 10) : null,
+                        country: d.country || '',
                         region: d.region || '',
                         nationality: d.nationality || '',
                         marital_status: d.marital_status || '',
@@ -4488,6 +4739,7 @@
                         education: d.education || '',
                         profession: d.profession || '',
                         is_working: d.is_working === 'true',
+                        salary: (d.salary || '').trim() || null,
                         partner_age_min: d.partner_age_min ? parseInt(d.partner_age_min, 10) : null,
                         partner_age_max: d.partner_age_max ? parseInt(d.partner_age_max, 10) : null,
                         partner_region: d.partner_region || '',
@@ -4740,6 +4992,12 @@
                 currentFilterSheet = sheetId;
             }
             if (sheetId === 'filter-sort-sheet') updateSortSheetUI();
+            if (sheetId === 'filter-physical-sheet') {
+                initScrollDials();
+            }
+            if (sheetId === 'filter-work-sheet') {
+                initSalarySlider();
+            }
             if (sheetId === 'filter-family-sheet') {
                 const cards = document.querySelectorAll('#filter-family-status-cards .filter-family-opt');
                 cards.forEach(btn => {
@@ -4762,12 +5020,434 @@
         }
 
         function closeFilterSheet() {
-            document.querySelectorAll('.bottom-sheet').forEach(sheet => {
-                sheet.classList.remove('active');
+            const sheet = currentFilterSheet;
+            if (sheet === 'filter-location-sheet') {
+                const checked = document.querySelectorAll('#filter-location-sheet .location-city-cb:checked');
+                feedFilterRegions = Array.from(checked).map(cb => cb.value).filter(Boolean);
+            } else if (sheet === 'filter-family-sheet') {
+                const sel = document.querySelector('#filter-family-sheet .filter-family-opt.selected, #filter-family-sheet .status-card.selected');
+                feedFilterMarital = sel ? (sel.getAttribute('data-value') || null) : feedFilterMarital;
+            } else if (sheet === 'filter-religious-sheet') {
+                const selAqida = document.querySelector('#filter-religious-sheet [data-filter="aqida"].chip-selected');
+                const selPrays = document.querySelector('#filter-religious-sheet [data-filter="prays"].chip-selected, #filter-religious-sheet [data-filter="prays"].radio-item-selected');
+                const selQuran = document.querySelector('#filter-religious-sheet [data-filter="quran_reading"].chip-selected');
+                const mEl = document.querySelector('#filter-religious-sheet [data-filter="mazhab"].radio-item-selected');
+                feedFilterAqida = selAqida ? (selAqida.getAttribute('data-value') || null) : feedFilterAqida;
+                feedFilterPrays = selPrays ? (selPrays.getAttribute('data-value') || null) : feedFilterPrays;
+                feedFilterQuran = selQuran ? (selQuran.getAttribute('data-value') || null) : feedFilterQuran;
+                feedFilterMazhab = mEl ? (mEl.getAttribute('data-value') || null) : feedFilterMazhab;
+            } else if (sheet === 'filter-physical-sheet') {
+                const ageVal = getIosDialValue('ios-dial-age');
+                const heightVal = getIosDialValue('ios-dial-height');
+                const weightVal = getIosDialValue('ios-dial-weight');
+                if (ageVal != null) { feedFilterAgeMin = Math.max(18, ageVal - 3); feedFilterAgeMax = Math.min(70, ageVal + 3); }
+                if (heightVal != null) { feedFilterHeightMin = Math.max(140, heightVal - 5); feedFilterHeightMax = Math.min(210, heightVal + 5); }
+                if (weightVal != null) { feedFilterWeightMin = Math.max(40, weightVal - 8); feedFilterWeightMax = Math.min(130, weightVal + 8); }
+                const parts = [];
+                if (ageVal) parts.push(ageVal + ' yosh');
+                if (heightVal) parts.push(heightVal + ' sm');
+                if (weightVal) parts.push(weightVal + ' kg');
+                const sumEl = document.getElementById('filter-physical-summary');
+                if (sumEl) sumEl.textContent = parts.length ? parts.join(', ') : 'Yosh, bo\'y, vazn';
+            } else if (sheet === 'filter-education-sheet') {
+                const sel = document.querySelector('#filter-education-sheet .filter-education-opt.filter-education-selected, #filter-education-sheet .filter-education-opt.border-primary\\/40');
+                feedFilterEducation = sel ? (sel.getAttribute('data-value') || null) : feedFilterEducation;
+            } else if (sheet === 'filter-work-sheet') {
+                const sel = document.querySelector('#filter-work-sheet .filter-work-profession.bg-primary');
+                const salaryMinEl = document.getElementById('filter-work-salary-min');
+                const salaryMaxEl = document.getElementById('filter-work-salary-max');
+                feedFilterProfession = sel ? (sel.getAttribute('data-value') || null) : feedFilterProfession;
+                feedFilterSalaryMin = salaryMinEl && salaryMinEl.value ? parseInt(salaryMinEl.value, 10) : feedFilterSalaryMin;
+                feedFilterSalaryMax = salaryMaxEl && salaryMaxEl.value ? parseInt(salaryMaxEl.value, 10) : feedFilterSalaryMax;
+                feedFilterHasSalary = (feedFilterSalaryMin > 0 || feedFilterSalaryMax > 0) ? 'true' : null;
+            }
+            if (sheet && sheet.startsWith('filter-') && sheet.endsWith('-sheet')) {
+                pageDataLoaded.feed = false;
+                loadFeedData();
+            }
+            document.querySelectorAll('.bottom-sheet').forEach(s => {
+                s.classList.remove('active');
             });
             const overlay = document.getElementById('filter-overlay');
             if (overlay) overlay.style.display = 'none';
             currentFilterSheet = null;
+        }
+
+        /* iOS-style Dial - Mukammal fizika */
+        const IOS_DIAL_ITEM_H = 40;
+        const IOS_DIAL_CENTER_OFFSET = 144; // dial height / 2
+        const iosDialStates = {};
+
+        function hapticFeedback(style = 'light') {
+            if (navigator.vibrate) {
+                navigator.vibrate(style === 'light' ? 8 : style === 'medium' ? 15 : 25);
+            }
+            // iOS Taptic Engine
+            if (window.webkit?.messageHandlers?.haptic) {
+                window.webkit.messageHandlers.haptic.postMessage(style);
+            }
+        }
+
+        function getIosDialValue(dialId) {
+            const state = iosDialStates[dialId];
+            if (!state) return null;
+            const index = Math.round(-state.position / IOS_DIAL_ITEM_H);
+            return Math.max(state.min, Math.min(state.max, state.min + index));
+        }
+
+        function setIosDialValue(dialId, value) {
+            const state = iosDialStates[dialId];
+            if (!state) return;
+            const v = Math.max(state.min, Math.min(state.max, value));
+            const index = v - state.min;
+            state.position = -index * IOS_DIAL_ITEM_H;
+            state.lastValue = v;
+            renderIosDial(dialId);
+        }
+
+        function renderIosDial(dialId) {
+            const state = iosDialStates[dialId];
+            if (!state) return;
+            const itemsEl = state.itemsEl;
+            itemsEl.style.transform = `translateY(${IOS_DIAL_CENTER_OFFSET + state.position}px)`;
+            const currentVal = getIosDialValue(dialId);
+            // Haptic when value changes
+            if (state.lastValue !== currentVal) {
+                hapticFeedback('light');
+                state.lastValue = currentVal;
+            }
+            // Update item styles based on distance from center
+            itemsEl.querySelectorAll('.ios-dial-item').forEach((item, i) => {
+                const itemVal = state.min + i;
+                const offset = itemVal - currentVal;
+                item.setAttribute('data-offset', Math.max(-3, Math.min(3, offset)));
+            });
+        }
+
+        function initIosDial(dialId, min, max, defaultValue) {
+            const dial = document.getElementById(dialId);
+            if (!dial) return;
+            const track = dial.querySelector('.ios-dial-track');
+            const itemsEl = dial.querySelector('.ios-dial-items');
+            if (!track || !itemsEl) return;
+
+            // Build items
+            itemsEl.innerHTML = '';
+            for (let v = min; v <= max; v++) {
+                const div = document.createElement('div');
+                div.className = 'ios-dial-item';
+                div.textContent = v;
+                itemsEl.appendChild(div);
+            }
+
+            // State
+            const state = {
+                min, max,
+                position: 0,
+                velocity: 0,
+                lastY: 0,
+                lastTime: 0,
+                isDragging: false,
+                lastValue: defaultValue,
+                itemsEl,
+                animFrame: null
+            };
+            iosDialStates[dialId] = state;
+
+            // Set initial value
+            setIosDialValue(dialId, defaultValue);
+
+            // Touch handlers
+            const onStart = (e) => {
+                state.isDragging = true;
+                state.velocity = 0;
+                const touch = e.touches ? e.touches[0] : e;
+                state.lastY = touch.clientY;
+                state.lastTime = Date.now();
+                if (state.animFrame) cancelAnimationFrame(state.animFrame);
+                itemsEl.style.transition = 'none';
+            };
+
+            const onMove = (e) => {
+                if (!state.isDragging) return;
+                e.preventDefault();
+                const touch = e.touches ? e.touches[0] : e;
+                const now = Date.now();
+                const deltaY = touch.clientY - state.lastY;
+                const deltaTime = now - state.lastTime || 1;
+                
+                state.velocity = deltaY / deltaTime * 16;
+                state.position += deltaY;
+                
+                // Clamp with rubber band effect
+                const maxPos = 0;
+                const minPos = -(max - min) * IOS_DIAL_ITEM_H;
+                if (state.position > maxPos) {
+                    state.position = maxPos + (state.position - maxPos) * 0.3;
+                } else if (state.position < minPos) {
+                    state.position = minPos + (state.position - minPos) * 0.3;
+                }
+                
+                state.lastY = touch.clientY;
+                state.lastTime = now;
+                renderIosDial(dialId);
+            };
+
+            const onEnd = () => {
+                if (!state.isDragging) return;
+                state.isDragging = false;
+                
+                // Deceleration animation
+                const decelerate = () => {
+                    if (state.isDragging) return;
+                    
+                    state.velocity *= 0.92; // friction
+                    state.position += state.velocity;
+                    
+                    // Clamp
+                    const maxPos = 0;
+                    const minPos = -(max - min) * IOS_DIAL_ITEM_H;
+                    if (state.position > maxPos) {
+                        state.position = maxPos;
+                        state.velocity = 0;
+                    } else if (state.position < minPos) {
+                        state.position = minPos;
+                        state.velocity = 0;
+                    }
+                    
+                    renderIosDial(dialId);
+                    
+                    if (Math.abs(state.velocity) > 0.5) {
+                        state.animFrame = requestAnimationFrame(decelerate);
+                    } else {
+                        // Snap to nearest
+                        const targetIndex = Math.round(-state.position / IOS_DIAL_ITEM_H);
+                        const targetPos = -targetIndex * IOS_DIAL_ITEM_H;
+                        itemsEl.style.transition = 'transform 0.15s ease-out';
+                        state.position = targetPos;
+                        renderIosDial(dialId);
+                    }
+                };
+                
+                if (Math.abs(state.velocity) > 1) {
+                    state.animFrame = requestAnimationFrame(decelerate);
+                } else {
+                    // Just snap
+                    const targetIndex = Math.round(-state.position / IOS_DIAL_ITEM_H);
+                    const targetPos = -targetIndex * IOS_DIAL_ITEM_H;
+                    itemsEl.style.transition = 'transform 0.15s ease-out';
+                    state.position = targetPos;
+                    renderIosDial(dialId);
+                }
+            };
+
+            // Mouse wheel
+            const onWheel = (e) => {
+                e.preventDefault();
+                state.position -= e.deltaY * 0.5;
+                const maxPos = 0;
+                const minPos = -(max - min) * IOS_DIAL_ITEM_H;
+                state.position = Math.max(minPos, Math.min(maxPos, state.position));
+                itemsEl.style.transition = 'transform 0.08s ease-out';
+                // Snap
+                const targetIndex = Math.round(-state.position / IOS_DIAL_ITEM_H);
+                state.position = -targetIndex * IOS_DIAL_ITEM_H;
+                renderIosDial(dialId);
+            };
+
+            track.addEventListener('touchstart', onStart, { passive: false });
+            track.addEventListener('touchmove', onMove, { passive: false });
+            track.addEventListener('touchend', onEnd);
+            track.addEventListener('touchcancel', onEnd);
+            track.addEventListener('mousedown', onStart);
+            document.addEventListener('mousemove', (e) => { if (state.isDragging) onMove(e); });
+            document.addEventListener('mouseup', onEnd);
+            track.addEventListener('wheel', onWheel, { passive: false });
+        }
+
+        function initScrollDials() {
+            const filterDefaults = {
+                age: feedFilterAgeMin || feedFilterAgeMax || 26,
+                height: feedFilterHeightMin || feedFilterHeightMax || 178,
+                weight: feedFilterWeightMin || feedFilterWeightMax || 72
+            };
+            initIosDial('ios-dial-age', 18, 70, filterDefaults.age);
+            initIosDial('ios-dial-height', 140, 210, filterDefaults.height);
+            initIosDial('ios-dial-weight', 40, 130, filterDefaults.weight);
+            
+            // Smoking filter click handler
+            document.querySelectorAll('.filter-smoking-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.filter-smoking-btn').forEach(b => {
+                        b.classList.remove('bg-primary', 'text-black');
+                        b.classList.add('bg-white/[0.05]', 'border', 'border-white/[0.08]', 'text-white/60');
+                    });
+                    btn.classList.remove('bg-white/[0.05]', 'border', 'border-white/[0.08]', 'text-white/60');
+                    btn.classList.add('bg-primary', 'text-black');
+                    hapticFeedback('light');
+                });
+            });
+            
+            // Sport bars click handler
+            document.querySelectorAll('.filter-sport-bar').forEach(bar => {
+                bar.addEventListener('click', () => {
+                    const day = parseInt(bar.dataset.day);
+                    document.querySelectorAll('.filter-sport-bar').forEach(b => {
+                        const d = parseInt(b.dataset.day);
+                        if (d <= day) {
+                            b.classList.remove('bg-white/10');
+                            b.classList.add('bg-primary');
+                        } else {
+                            b.classList.remove('bg-primary');
+                            b.classList.add('bg-white/10');
+                        }
+                    });
+                    const labels = ['', 'Haftada 1 kun', 'Haftada 2 kun', 'Haftada 3 kun', 'Haftada 4 kun', 'Haftada 5 kun', 'Haftada 6 kun', 'Har kuni'];
+                    document.getElementById('filter-sport-label').textContent = labels[day] || '';
+                    hapticFeedback('light');
+                });
+            });
+            
+            // Init salary slider
+            initSalarySlider();
+        }
+
+        // Dual Range Salary Slider
+        function initSalarySlider() {
+            const container = document.getElementById('salary-slider-container');
+            if (!container) return;
+            
+            const track = container.querySelector('.bg-white\\/10');
+            const range = document.getElementById('salary-slider-range');
+            const minThumb = document.getElementById('salary-slider-min');
+            const maxThumb = document.getElementById('salary-slider-max');
+            const minInput = document.getElementById('filter-work-salary-min');
+            const maxInput = document.getElementById('filter-work-salary-max');
+            const label = document.getElementById('filter-work-salary-label');
+            
+            if (!track || !range || !minThumb || !maxThumb) return;
+            
+            const SALARY_MIN = 0;
+            const SALARY_MAX = 5000;
+            let minVal = 500;
+            let maxVal = 5000;
+            
+            function valToPercent(val) {
+                return Math.max(0, Math.min(100, (val / SALARY_MAX) * 100));
+            }
+            
+            function percentToVal(pct) {
+                return Math.round((pct / 100) * SALARY_MAX / 100) * 100;
+            }
+            
+            function updateSlider() {
+                const minPct = valToPercent(minVal);
+                const maxPct = valToPercent(maxVal);
+                minThumb.style.left = minPct + '%';
+                maxThumb.style.left = maxPct + '%';
+                range.style.left = minPct + '%';
+                range.style.right = (100 - maxPct) + '%';
+                minInput.value = minVal;
+                maxInput.value = maxVal;
+                const maxLabel = maxVal >= 5000 ? '$5000+' : '$' + maxVal;
+                label.textContent = '$' + minVal + ' — ' + maxLabel;
+            }
+            
+            function handleDrag(thumb, isMin) {
+                let isDragging = false;
+                
+                const onStart = (e) => {
+                    isDragging = true;
+                    e.preventDefault();
+                };
+                
+                const onMove = (e) => {
+                    if (!isDragging) return;
+                    const rect = track.getBoundingClientRect();
+                    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                    let pct = ((clientX - rect.left) / rect.width) * 100;
+                    pct = Math.max(0, Math.min(100, pct));
+                    let val = percentToVal(pct);
+                    
+                    if (isMin) {
+                        val = Math.min(val, maxVal - 100);
+                        if (val !== minVal) {
+                            minVal = val;
+                            hapticFeedback('light');
+                        }
+                    } else {
+                        val = Math.max(val, minVal + 100);
+                        if (val !== maxVal) {
+                            maxVal = val;
+                            hapticFeedback('light');
+                        }
+                    }
+                    updateSlider();
+                };
+                
+                const onEnd = () => {
+                    isDragging = false;
+                };
+                
+                thumb.addEventListener('mousedown', onStart);
+                thumb.addEventListener('touchstart', onStart, { passive: false });
+                document.addEventListener('mousemove', onMove);
+                document.addEventListener('touchmove', onMove, { passive: false });
+                document.addEventListener('mouseup', onEnd);
+                document.addEventListener('touchend', onEnd);
+            }
+            
+            handleDrag(minThumb, true);
+            handleDrag(maxThumb, false);
+            updateSlider();
+            
+            // Kasb tugmalari
+            document.querySelectorAll('.filter-work-profession').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.filter-work-profession').forEach(b => {
+                        b.classList.remove('bg-primary', 'text-black', 'shadow-[0_4px_15px_rgba(64,255,0,0.2)]');
+                        b.classList.add('bg-white/[0.05]', 'border', 'border-white/[0.1]', 'text-white/70');
+                    });
+                    btn.classList.remove('bg-white/[0.05]', 'border', 'border-white/[0.1]', 'text-white/70');
+                    btn.classList.add('bg-primary', 'text-black', 'shadow-[0_4px_15px_rgba(64,255,0,0.2)]');
+                    hapticFeedback('light');
+                });
+            });
+            
+            // Toifa tugmalari
+            document.querySelectorAll('.filter-work-category').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const isActive = btn.classList.contains('border-primary/50');
+                    document.querySelectorAll('.filter-work-category').forEach(b => {
+                        b.classList.remove('border-primary/50', 'bg-primary/5');
+                        b.classList.add('border-white/[0.06]', 'bg-white/[0.03]');
+                    });
+                    if (!isActive) {
+                        btn.classList.remove('border-white/[0.06]', 'bg-white/[0.03]');
+                        btn.classList.add('border-primary/50', 'bg-primary/5');
+                    }
+                    hapticFeedback('light');
+                });
+            });
+        }
+
+        // Legacy alias for getAppleDialValue
+        function getAppleDialValue(dialEl) {
+            if (!dialEl) return null;
+            return getIosDialValue(dialEl.id);
+        }
+
+        function updateWorkSalaryLabel() {
+            const minEl = document.getElementById('filter-work-salary-min');
+            const maxEl = document.getElementById('filter-work-salary-max');
+            const labelEl = document.getElementById('filter-work-salary-label');
+            if (!labelEl) return;
+            const min = minEl && minEl.value ? parseInt(minEl.value, 10) : null;
+            const max = maxEl && maxEl.value ? parseInt(maxEl.value, 10) : null;
+            if (min != null && max != null) labelEl.textContent = '$' + min + ' — $' + max;
+            else if (min != null) labelEl.textContent = '$' + min + '+';
+            else if (max != null) labelEl.textContent = '— $' + max;
+            else labelEl.textContent = '—';
         }
 
         function updateSortSheetUI() {
@@ -4929,6 +5609,52 @@
                 }
             });
 
+            // Ta'lim filter: bitta tanlash
+            document.addEventListener('click', (e) => {
+                if (e.target.closest('#filter-education-sheet .filter-education-opt')) {
+                    const btn = e.target.closest('.filter-education-opt');
+                    const sheet = document.getElementById('filter-education-sheet');
+                    if (!sheet || !sheet.classList.contains('active')) return;
+                    sheet.querySelectorAll('.filter-education-opt').forEach(b => {
+                        b.classList.remove('filter-education-selected', 'border-primary/40');
+                        b.classList.add('border-white/[0.05]');
+                        b.querySelector('span')?.classList.remove('text-white');
+                        b.querySelector('span')?.classList.add('text-white/60');
+                        const icon = b.querySelector('.size-5');
+                        if (icon) { icon.className = 'size-5 rounded-full border-2 border-white/10'; icon.innerHTML = ''; }
+                    });
+                    btn.classList.add('filter-education-selected', 'border-primary/40');
+                    btn.classList.remove('border-white/[0.05]');
+                    btn.querySelector('span')?.classList.remove('text-white/60');
+                    btn.querySelector('span')?.classList.add('text-white');
+                    const icon = btn.querySelector('.size-5');
+                    if (icon) { icon.className = 'size-5 rounded-full bg-primary flex items-center justify-center'; icon.innerHTML = '<span class="material-symbols-outlined text-black text-[14px] font-bold">check</span>'; }
+                }
+            });
+
+            // Ish & Daromad: kasb chip tanlash
+            document.addEventListener('click', (e) => {
+                if (e.target.closest('#filter-work-sheet .filter-work-profession')) {
+                    const btn = e.target.closest('.filter-work-profession');
+                    const sheet = document.getElementById('filter-work-sheet');
+                    if (!sheet || !sheet.classList.contains('active')) return;
+                    const wasSelected = btn.classList.contains('bg-primary');
+                    sheet.querySelectorAll('.filter-work-profession').forEach(b => {
+                        b.classList.remove('bg-primary', 'text-black');
+                        b.classList.add('bg-white/[0.05]', 'text-white/60', 'border', 'border-white/[0.08]');
+                    });
+                    if (!wasSelected) {
+                        btn.classList.add('bg-primary', 'text-black');
+                        btn.classList.remove('bg-white/[0.05]', 'text-white/60', 'border', 'border-white/[0.08]');
+                    }
+                }
+            });
+
+            document.addEventListener('input', (e) => {
+                const el = e.target;
+                if (el.id === 'filter-work-salary-min' || el.id === 'filter-work-salary-max') updateWorkSalaryLabel();
+            });
+
             // Custom checkbox toggle
             document.addEventListener('change', (e) => {
                 if (e.target.classList.contains('custom-checkbox')) {
@@ -4953,6 +5679,73 @@
 
         let feedGender = 'Ayol'; // Kuyov rejimi = Kelin (ayollar) ko'rsatiladi; Kelin rejimi = Kuyov (erkaklar)
         let feedSort = 'new';   // new | name_asc | name_desc | age_asc | age_desc | height_asc | height_desc
+        let chatMessageSort = 'desc';   // desc = yangi birinchi, asc = eski birinchi
+        let feedFilterRegions = [];
+        let feedFilterMarital = null;
+        let feedFilterAqida = null;
+        let feedFilterPrays = null;
+        let feedFilterReligiousLevel = null;
+        let feedFilterQuran = null;
+        let feedFilterMazhab = null;
+        let feedFilterEducation = null;
+        let feedFilterProfession = null;
+        let feedFilterAgeMin = null;
+        let feedFilterAgeMax = null;
+        let feedFilterHeightMin = null;
+        let feedFilterHeightMax = null;
+        let feedFilterHasSalary = null;
+        let feedFilterWeightMin = null;
+        let feedFilterWeightMax = null;
+        let feedFilterSalaryMin = null;
+        let feedFilterSalaryMax = null;
+
+        function clearAllFilters() {
+            feedFilterRegions = [];
+            feedFilterMarital = null;
+            feedFilterAqida = null;
+            feedFilterPrays = null;
+            feedFilterReligiousLevel = null;
+            feedFilterQuran = null;
+            feedFilterMazhab = null;
+            feedFilterEducation = null;
+            feedFilterProfession = null;
+            feedFilterAgeMin = null;
+            feedFilterAgeMax = null;
+            feedFilterHeightMin = null;
+            feedFilterHeightMax = null;
+            feedFilterHasSalary = null;
+            feedFilterWeightMin = null;
+            feedFilterWeightMax = null;
+            feedFilterSalaryMin = null;
+            feedFilterSalaryMax = null;
+            pageDataLoaded.feed = false;
+            const sumEl = document.getElementById('filter-physical-summary');
+            if (sumEl) sumEl.textContent = 'Yosh, bo\'y, vazn';
+        }
+
+        function buildFeedFilterParams() {
+            let s = '';
+            if (feedFilterRegions.length) s += '&regions=' + encodeURIComponent(feedFilterRegions.join(','));
+            if (feedFilterMarital) s += '&marital_status=' + encodeURIComponent(feedFilterMarital);
+            if (feedFilterAqida) s += '&aqida=' + encodeURIComponent(feedFilterAqida);
+            if (feedFilterPrays) s += '&prays=' + encodeURIComponent(feedFilterPrays);
+            if (feedFilterReligiousLevel) s += '&religious_level=' + encodeURIComponent(feedFilterReligiousLevel);
+            if (feedFilterQuran) s += '&quran_reading=' + encodeURIComponent(feedFilterQuran);
+            if (feedFilterMazhab) s += '&mazhab=' + encodeURIComponent(feedFilterMazhab);
+            if (feedFilterEducation) s += '&education=' + encodeURIComponent(feedFilterEducation);
+            if (feedFilterProfession) s += '&profession=' + encodeURIComponent(feedFilterProfession);
+            if (feedFilterAgeMin != null && feedFilterAgeMin > 0) s += '&age_min=' + feedFilterAgeMin;
+            if (feedFilterAgeMax != null && feedFilterAgeMax > 0) s += '&age_max=' + feedFilterAgeMax;
+            if (feedFilterHeightMin != null && feedFilterHeightMin > 0) s += '&height_min=' + feedFilterHeightMin;
+            if (feedFilterHeightMax != null && feedFilterHeightMax > 0) s += '&height_max=' + feedFilterHeightMax;
+            if (feedFilterWeightMin != null && feedFilterWeightMin > 0) s += '&weight_min=' + feedFilterWeightMin;
+            if (feedFilterWeightMax != null && feedFilterWeightMax > 0) s += '&weight_max=' + feedFilterWeightMax;
+            if (feedFilterHasSalary === 'true') s += '&has_salary=true';
+            if (feedFilterSalaryMin != null && feedFilterSalaryMin > 0) s += '&salary_min=' + feedFilterSalaryMin;
+            if (feedFilterSalaryMax != null && feedFilterSalaryMax > 0) s += '&salary_max=' + feedFilterSalaryMax;
+            return s;
+        }
+
         function updateFeedGenderUI() {
             const kuyov = document.getElementById('feed-kuyov-btn');
             const kelin = document.getElementById('feed-kelin-btn');
@@ -5012,6 +5805,16 @@
             if (favSort) favSort.addEventListener('click', () => openFilterSheet('filter-sort-sheet'));
             if (favFilter) favFilter.addEventListener('click', () => openFilterSheet('filter-main-sheet'));
 
+            // Chat xabarlari saralash tugmasi
+            const chatSortBtn = document.getElementById('chat-messages-sort-btn');
+            if (chatSortBtn) {
+                chatSortBtn.addEventListener('click', () => {
+                    chatMessageSort = chatMessageSort === 'desc' ? 'asc' : 'desc';
+                    chatSortBtn.title = chatMessageSort === 'desc' ? 'Yangi birinchi (hozirgi)' : 'Eski birinchi (hozirgi)';
+                    if (currentChatId) loadChatView(currentChatId);
+                });
+            }
+
             // Saralash variantlari: tanlanganda feedSort yangilanadi, sheet yopiladi, feed qayta yuklanadi
             document.querySelectorAll('#filter-sort-sheet .sort-option-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
@@ -5041,7 +5844,7 @@
 
             // Joylashuv: mamlakat qidiruv va bosganda shaharlar
             const LOCATION_CITIES = {
-                "O'zbekiston": ["Toshkent", "Samarqand", "Namangan", "Farg'ona", "Buxoro", "Andijon", "Qashqadaryo", "Surxondaryo", "Xorazm", "Navoiy", "Jizzax", "Sirdaryo", "Qoraqalpog'iston"],
+                "O'zbekiston": ["Toshkent shahar", "Toshkent viloyati", "Samarqand", "Buxoro", "Andijon", "Farg'ona", "Namangan", "Qashqadaryo", "Surxondaryo", "Xorazm", "Navoiy", "Jizzax", "Sirdaryo", "Qoraqalpog'iston"],
                 "Qirg'iziston": ["Bishkek", "O'sh", "Jalal-Abad", "Qorako'l", "Naryn", "Batlken", "Talas"],
                 "Rossiya": ["Moskva", "Sankt-Peterburg", "Qozon", "Novosibirsk", "Yekaterinburg", "Samara", "Rostov"],
                 "Qozog'iston": ["Olmaota", "Ostona", "Shymkent", "Qarag'anda", "Aqtobe", "Pavlodar", "Semey"],
@@ -5300,7 +6103,7 @@
                         <div class="flex flex-col items-center">
                             <h1 class="text-lg font-bold text-white tracking-tight">Izlash</h1>
                         </div>
-                        <button class="text-[11px] font-black uppercase tracking-widest text-primary/80 hover:text-primary transition-colors">Tozalash</button>
+                        <button type="button" onclick="clearAllFilters(); closeFilterSheet();" class="text-[11px] font-black uppercase tracking-widest text-primary/80 hover:text-primary transition-colors">Tozalash</button>
                     </div>
                     <div class="relative group">
                         <div class="absolute inset-y-0 left-4 flex items-center pointer-events-none">
@@ -5356,7 +6159,7 @@
                                 </div>
                                 <div class="text-left">
                                     <p class="text-[10px] font-bold text-white/40 uppercase tracking-widest">Jismoniy parametrlar</p>
-                                    <p class="text-sm font-semibold text-white/60">22 — 28 yosh, 165 — 190 sm</p>
+                                    <p id="filter-physical-summary" class="text-sm font-semibold text-white/60">Yosh, bo'y, vazn</p>
                                 </div>
                             </div>
                             <span class="material-symbols-outlined text-white/20 group-active:translate-x-1 transition-transform">chevron_right</span>
@@ -5390,8 +6193,8 @@
             </main>
             <div class="fixed bottom-0 left-0 w-full p-6 bg-gradient-to-t from-background-dark via-background-dark/95 to-transparent pt-12 z-30">
                 <div class="max-w-md mx-auto">
-                    <button class="w-full h-16 bg-primary text-black rounded-2xl flex items-center justify-center gap-3 shadow-[0_12px_45px_rgba(64,255,0,0.3)] group active:scale-[0.97] transition-all duration-200">
-                        <span class="text-sm font-black uppercase tracking-[0.2em]">124 ta natijani ko'rish</span>
+                    <button type="button" onclick="closeFilterSheet()" class="w-full h-16 bg-primary text-black rounded-2xl flex items-center justify-center gap-3 shadow-[0_12px_45px_rgba(64,255,0,0.3)] group active:scale-[0.97] transition-all duration-200">
+                        <span class="text-sm font-black uppercase tracking-[0.2em]">Natijani ko'rish</span>
                         <span class="material-symbols-outlined text-[22px] font-bold group-hover:translate-x-1 transition-transform">arrow_forward</span>
                     </button>
                 </div>
@@ -5413,30 +6216,30 @@
                 <section>
                     <h3 class="text-[11px] font-black text-white/40 uppercase tracking-[0.2em] mb-4 ml-1">Aqidasi</h3>
                     <div class="flex flex-wrap gap-2">
-                        <button class="chip chip-selected">Ahli Sunna</button>
-                        <button class="chip chip-unselected">Ash'ariya</button>
-                        <button class="chip chip-unselected">Moturidiya</button>
-                        <button class="chip chip-unselected">Boshqa</button>
+                        <button type="button" class="chip chip-selected" data-filter="aqida" data-value="Ahli Sunna">Ahli Sunna</button>
+                        <button type="button" class="chip chip-unselected" data-filter="aqida" data-value="Ash'ariya">Ash'ariya</button>
+                        <button type="button" class="chip chip-unselected" data-filter="aqida" data-value="Moturidiya">Moturidiya</button>
+                        <button type="button" class="chip chip-unselected" data-filter="aqida" data-value="Boshqa">Boshqa</button>
                     </div>
                 </section>
                 <section>
                     <h3 class="text-[11px] font-black text-white/40 uppercase tracking-[0.2em] mb-4 ml-1">Namoz</h3>
                     <div class="space-y-2">
-                        <button class="radio-item radio-item-selected w-full">
+                        <button type="button" class="radio-item radio-item-selected w-full" data-filter="prays" data-value="5 vaqt to'liq">
                             <span class="text-sm font-semibold">5 vaqt to'liq</span>
                             <div class="size-5 rounded-full border-2 border-primary flex items-center justify-center">
                                 <div class="size-2.5 bg-primary rounded-full"></div>
                             </div>
                         </button>
-                        <button class="radio-item w-full">
+                        <button type="button" class="radio-item w-full" data-filter="prays" data-value="Faqat juma">
                             <span class="text-sm font-semibold text-white/60">Faqat juma</span>
                             <div class="size-5 rounded-full border-2 border-white/20"></div>
                         </button>
-                        <button class="radio-item w-full">
+                        <button type="button" class="radio-item w-full" data-filter="prays" data-value="O'qimaydi">
                             <span class="text-sm font-semibold text-white/60">O'qimaydi</span>
                             <div class="size-5 rounded-full border-2 border-white/20"></div>
                         </button>
-                        <button class="radio-item w-full">
+                        <button type="button" class="radio-item w-full" data-filter="prays" data-value="Boshlash niyatida">
                             <span class="text-sm font-semibold text-white/60">Boshlash niyatida</span>
                             <div class="size-5 rounded-full border-2 border-white/20"></div>
                         </button>
@@ -5445,25 +6248,25 @@
                 <section>
                     <h3 class="text-[11px] font-black text-white/40 uppercase tracking-[0.2em] mb-4 ml-1">Qur'on o'qish</h3>
                     <div class="flex flex-wrap gap-2">
-                        <button class="chip chip-unselected">Bilmaydi</button>
-                        <button class="chip chip-selected">O'qishni biladi</button>
-                        <button class="chip chip-unselected">Ravon o'qiydi</button>
-                        <button class="chip chip-unselected">Hofizi Qur'on</button>
+                        <button type="button" class="chip chip-unselected" data-filter="quran_reading" data-value="Bilmaydi">Bilmaydi</button>
+                        <button type="button" class="chip chip-selected" data-filter="quran_reading" data-value="O'qishni biladi">O'qishni biladi</button>
+                        <button type="button" class="chip chip-unselected" data-filter="quran_reading" data-value="Ravon o'qiydi">Ravon o'qiydi</button>
+                        <button type="button" class="chip chip-unselected" data-filter="quran_reading" data-value="Hofizi Qur'on">Hofizi Qur'on</button>
                     </div>
                 </section>
                 <section class="pb-32">
                     <h3 class="text-[11px] font-black text-white/40 uppercase tracking-[0.2em] mb-4 ml-1">Mazhabi</h3>
                     <div class="grid grid-cols-2 gap-3">
-                        <button class="radio-item radio-item-selected justify-center">
+                        <button type="button" class="radio-item radio-item-selected justify-center" data-filter="mazhab" data-value="Hanafi">
                             <span class="text-sm font-bold">Hanafi</span>
                         </button>
-                        <button class="radio-item justify-center">
+                        <button type="button" class="radio-item justify-center" data-filter="mazhab" data-value="Shafi'i">
                             <span class="text-sm font-bold text-white/60">Shafi'i</span>
                         </button>
-                        <button class="radio-item justify-center">
+                        <button type="button" class="radio-item justify-center" data-filter="mazhab" data-value="Maliki">
                             <span class="text-sm font-bold text-white/60">Maliki</span>
                         </button>
-                        <button class="radio-item justify-center">
+                        <button type="button" class="radio-item justify-center" data-filter="mazhab" data-value="Hanbali">
                             <span class="text-sm font-bold text-white/60">Hanbali</span>
                         </button>
                     </div>
@@ -5507,12 +6310,20 @@
                             <span class="material-symbols-outlined text-primary transform rotate-90 location-chevron">chevron_right</span>
                         </button>
                         <div class="location-cities px-5 py-4 space-y-4 bg-white/[0.01]">
-                            <label class="flex items-center justify-between group cursor-pointer"><span class="text-sm font-medium text-white/80 group-active:text-white">Toshkent</span><input name="location_city" value="Toshkent" class="location-city-cb custom-checkbox" type="checkbox"/></label>
+                            <label class="flex items-center justify-between group cursor-pointer"><span class="text-sm font-medium text-white/80 group-active:text-white">Toshkent shahar</span><input name="location_city" value="Toshkent shahar" class="location-city-cb custom-checkbox" type="checkbox"/></label>
+                            <label class="flex items-center justify-between group cursor-pointer"><span class="text-sm font-medium text-white/80 group-active:text-white">Toshkent viloyati</span><input name="location_city" value="Toshkent viloyati" class="location-city-cb custom-checkbox" type="checkbox"/></label>
                             <label class="flex items-center justify-between group cursor-pointer"><span class="text-sm font-medium text-white/80 group-active:text-white">Samarqand</span><input name="location_city" value="Samarqand" class="location-city-cb custom-checkbox" type="checkbox"/></label>
-                            <label class="flex items-center justify-between group cursor-pointer"><span class="text-sm font-medium text-white/80 group-active:text-white">Namangan</span><input name="location_city" value="Namangan" class="location-city-cb custom-checkbox" type="checkbox"/></label>
-                            <label class="flex items-center justify-between group cursor-pointer"><span class="text-sm font-medium text-white/80 group-active:text-white">Farg'ona</span><input name="location_city" value="Farg'ona" class="location-city-cb custom-checkbox" type="checkbox"/></label>
                             <label class="flex items-center justify-between group cursor-pointer"><span class="text-sm font-medium text-white/80 group-active:text-white">Buxoro</span><input name="location_city" value="Buxoro" class="location-city-cb custom-checkbox" type="checkbox"/></label>
                             <label class="flex items-center justify-between group cursor-pointer"><span class="text-sm font-medium text-white/80 group-active:text-white">Andijon</span><input name="location_city" value="Andijon" class="location-city-cb custom-checkbox" type="checkbox"/></label>
+                            <label class="flex items-center justify-between group cursor-pointer"><span class="text-sm font-medium text-white/80 group-active:text-white">Farg'ona</span><input name="location_city" value="Farg'ona" class="location-city-cb custom-checkbox" type="checkbox"/></label>
+                            <label class="flex items-center justify-between group cursor-pointer"><span class="text-sm font-medium text-white/80 group-active:text-white">Namangan</span><input name="location_city" value="Namangan" class="location-city-cb custom-checkbox" type="checkbox"/></label>
+                            <label class="flex items-center justify-between group cursor-pointer"><span class="text-sm font-medium text-white/80 group-active:text-white">Qashqadaryo</span><input name="location_city" value="Qashqadaryo" class="location-city-cb custom-checkbox" type="checkbox"/></label>
+                            <label class="flex items-center justify-between group cursor-pointer"><span class="text-sm font-medium text-white/80 group-active:text-white">Surxondaryo</span><input name="location_city" value="Surxondaryo" class="location-city-cb custom-checkbox" type="checkbox"/></label>
+                            <label class="flex items-center justify-between group cursor-pointer"><span class="text-sm font-medium text-white/80 group-active:text-white">Xorazm</span><input name="location_city" value="Xorazm" class="location-city-cb custom-checkbox" type="checkbox"/></label>
+                            <label class="flex items-center justify-between group cursor-pointer"><span class="text-sm font-medium text-white/80 group-active:text-white">Navoiy</span><input name="location_city" value="Navoiy" class="location-city-cb custom-checkbox" type="checkbox"/></label>
+                            <label class="flex items-center justify-between group cursor-pointer"><span class="text-sm font-medium text-white/80 group-active:text-white">Jizzax</span><input name="location_city" value="Jizzax" class="location-city-cb custom-checkbox" type="checkbox"/></label>
+                            <label class="flex items-center justify-between group cursor-pointer"><span class="text-sm font-medium text-white/80 group-active:text-white">Sirdaryo</span><input name="location_city" value="Sirdaryo" class="location-city-cb custom-checkbox" type="checkbox"/></label>
+                            <label class="flex items-center justify-between group cursor-pointer"><span class="text-sm font-medium text-white/80 group-active:text-white">Qoraqalpog'iston</span><input name="location_city" value="Qoraqalpog'iston" class="location-city-cb custom-checkbox" type="checkbox"/></label>
                         </div>
                             </div>
                     <div class="location-country-block bg-white/[0.03] border border-white/[0.05] rounded-3xl overflow-hidden" data-country-name="Qirg'iziston">
@@ -5631,84 +6442,110 @@
     </div>
 
     <!-- Jismoniy parametrlar Filter Sheet -->
-    <div id="filter-physical-sheet" class="bottom-sheet h-[85vh]">
+    <div id="filter-physical-sheet" class="bottom-sheet h-[90vh]">
         <div class="max-w-md mx-auto flex flex-col h-full">
             <div class="handle"></div>
-            <div class="px-6 pb-6 flex items-center justify-between">
+            <div class="px-6 pb-4 flex items-center justify-between">
                 <div>
                     <h2 class="text-xl font-bold">Jismoniy parametrlar</h2>
                     <p class="text-[10px] text-white/40 uppercase tracking-widest mt-0.5">O'zingizga mos o'lchamlarni belgilang</p>
                 </div>
                 <button onclick="closeFilterSheet()" class="text-black bg-primary text-[11px] font-black uppercase tracking-widest px-6 py-3 rounded-xl active:scale-95 transition-transform shadow-[0_8px_20px_rgba(64,255,0,0.2)]">Tayyor</button>
             </div>
-            <div class="flex-1 overflow-y-auto px-6 space-y-8 pb-10 ios-scroll-hide">
-                <div class="grid grid-cols-3 gap-4">
-                    <div class="flex flex-col items-center gap-3">
-                        <span class="text-[10px] font-bold text-white/40 uppercase tracking-widest">Yosh</span>
-                        <div class="vertical-dial">
-                            <div class="dial-tick"></div>
-                            <div class="dial-tick"></div>
-                            <div class="dial-tick-active"></div>
-                            <div class="text-2xl font-black text-primary my-2">26</div>
-                            <div class="dial-tick-active"></div>
-                            <div class="dial-tick"></div>
-                            <div class="dial-tick"></div>
+            <div class="flex-1 overflow-y-auto px-4 pb-10 ios-scroll-hide">
+                <!-- 3 ta iOS-style dial -->
+                <div class="flex items-start justify-center gap-3 w-full pt-2">
+                    <!-- YOSH -->
+                    <div class="ios-dial-wrapper">
+                        <span class="ios-dial-title">YOSH</span>
+                        <div class="ios-dial" id="ios-dial-age" data-min="18" data-max="70">
+                            <div class="ios-dial-fade-top"></div>
+                            <div class="ios-dial-ticks">
+                                <div class="ios-dial-tick"></div>
+                                <div class="ios-dial-tick"></div>
+                                <div class="ios-dial-tick glow"></div>
+                                <div class="ios-dial-tick glow"></div>
+                                <div class="ios-dial-tick"></div>
+                                <div class="ios-dial-tick"></div>
+                            </div>
+                            <div class="ios-dial-track">
+                                <div class="ios-dial-items"></div>
+                            </div>
+                            <div class="ios-dial-fade-bottom"></div>
                         </div>
-                        <span class="text-[10px] font-bold text-white/30">yosh</span>
+                        <span class="ios-dial-label">yosh</span>
                     </div>
-                    <div class="flex flex-col items-center gap-3">
-                        <span class="text-[10px] font-bold text-white/40 uppercase tracking-widest">Bo'y</span>
-                        <div class="vertical-dial">
-                            <div class="dial-tick"></div>
-                            <div class="dial-tick"></div>
-                            <div class="dial-tick-active"></div>
-                            <div class="text-2xl font-black text-primary my-2">178</div>
-                            <div class="dial-tick-active"></div>
-                            <div class="dial-tick"></div>
-                            <div class="dial-tick"></div>
+                    <!-- BO'Y -->
+                    <div class="ios-dial-wrapper">
+                        <span class="ios-dial-title">BO'Y</span>
+                        <div class="ios-dial" id="ios-dial-height" data-min="140" data-max="210">
+                            <div class="ios-dial-fade-top"></div>
+                            <div class="ios-dial-ticks">
+                                <div class="ios-dial-tick"></div>
+                                <div class="ios-dial-tick"></div>
+                                <div class="ios-dial-tick glow"></div>
+                                <div class="ios-dial-tick glow"></div>
+                                <div class="ios-dial-tick"></div>
+                                <div class="ios-dial-tick"></div>
+                            </div>
+                            <div class="ios-dial-track">
+                                <div class="ios-dial-items"></div>
+                            </div>
+                            <div class="ios-dial-fade-bottom"></div>
                         </div>
-                        <span class="text-[10px] font-bold text-white/30">sm</span>
+                        <span class="ios-dial-label">sm</span>
                     </div>
-                    <div class="flex flex-col items-center gap-3">
-                        <span class="text-[10px] font-bold text-white/40 uppercase tracking-widest">Vazn</span>
-                        <div class="vertical-dial">
-                            <div class="dial-tick"></div>
-                            <div class="dial-tick"></div>
-                            <div class="dial-tick-active"></div>
-                            <div class="text-2xl font-black text-primary my-2">72</div>
-                            <div class="dial-tick-active"></div>
-                            <div class="dial-tick"></div>
-                            <div class="dial-tick"></div>
+                    <!-- VAZN -->
+                    <div class="ios-dial-wrapper">
+                        <span class="ios-dial-title">VAZN</span>
+                        <div class="ios-dial" id="ios-dial-weight" data-min="40" data-max="130">
+                            <div class="ios-dial-fade-top"></div>
+                            <div class="ios-dial-ticks">
+                                <div class="ios-dial-tick"></div>
+                                <div class="ios-dial-tick"></div>
+                                <div class="ios-dial-tick glow"></div>
+                                <div class="ios-dial-tick glow"></div>
+                                <div class="ios-dial-tick"></div>
+                                <div class="ios-dial-tick"></div>
+                            </div>
+                            <div class="ios-dial-track">
+                                <div class="ios-dial-items"></div>
+                            </div>
+                            <div class="ios-dial-fade-bottom"></div>
                         </div>
-                        <span class="text-[10px] font-bold text-white/30">kg</span>
+                        <span class="ios-dial-label">kg</span>
                     </div>
                 </div>
-                <div class="space-y-4">
+
+                <!-- Sigaret chekadimi -->
+                <div class="mt-8 space-y-4">
                     <div class="flex items-center gap-3">
-                        <div class="size-8 rounded-lg bg-white/[0.05] flex items-center justify-center">
-                            <span class="material-symbols-outlined text-white/40 text-[18px]">smoking_rooms</span>
+                        <div class="size-10 rounded-xl bg-white/[0.05] flex items-center justify-center">
+                            <span class="material-symbols-outlined text-white/40 text-xl">smoking_rooms</span>
                         </div>
-                        <h3 class="text-sm font-bold text-white/80">Sigaret chekadimi?</h3>
+                        <h3 class="text-base font-bold text-white/80">Sigaret chekadimi?</h3>
                     </div>
-                    <div class="grid grid-cols-3 gap-2">
-                        <button class="py-4 rounded-2xl text-[12px] font-bold uppercase tracking-widest chip-inactive">Ha</button>
-                        <button class="py-4 rounded-2xl text-[12px] chip-active neon-glow">Yo'q</button>
-                        <button class="py-4 rounded-2xl text-[12px] font-bold uppercase tracking-widest chip-inactive">Tashlagan</button>
+                    <div class="grid grid-cols-3 gap-3" id="filter-smoking-options">
+                        <button type="button" class="filter-smoking-btn py-4 rounded-2xl text-sm font-bold uppercase tracking-wide bg-white/[0.05] border border-white/[0.08] text-white/60 transition-all" data-value="Ha">Ha</button>
+                        <button type="button" class="filter-smoking-btn py-4 rounded-2xl text-sm font-bold uppercase tracking-wide bg-primary text-black transition-all" data-value="Yo'q">Yo'q</button>
+                        <button type="button" class="filter-smoking-btn py-4 rounded-2xl text-sm font-bold uppercase tracking-wide bg-white/[0.05] border border-white/[0.08] text-white/60 transition-all" data-value="Tashlagan">Tashlagan</button>
                     </div>
                 </div>
-                <div class="p-6 rounded-3xl bg-white/[0.03] border border-white/[0.05] space-y-4">
+
+                <!-- Sport bilan shug'ullanish -->
+                <div class="mt-6 p-5 rounded-3xl bg-white/[0.03] border border-white/[0.06] space-y-4">
                     <div class="flex justify-between items-center">
                         <span class="text-[10px] font-bold text-white/40 uppercase tracking-widest">Sport bilan shug'ullanish</span>
-                        <span class="text-xs font-bold text-primary">Haftada 3 kun</span>
+                        <span id="filter-sport-label" class="text-xs font-bold text-primary">Haftada 3 kun</span>
                     </div>
-                    <div class="flex gap-1.5 h-1.5">
-                        <div class="flex-1 bg-primary rounded-full neon-glow"></div>
-                        <div class="flex-1 bg-primary rounded-full neon-glow"></div>
-                        <div class="flex-1 bg-primary rounded-full neon-glow"></div>
-                        <div class="flex-1 bg-white/10 rounded-full"></div>
-                        <div class="flex-1 bg-white/10 rounded-full"></div>
-                        <div class="flex-1 bg-white/10 rounded-full"></div>
-                        <div class="flex-1 bg-white/10 rounded-full"></div>
+                    <div class="flex gap-1.5 h-2" id="filter-sport-bars">
+                        <button type="button" class="filter-sport-bar flex-1 bg-primary rounded-full transition-all" data-day="1"></button>
+                        <button type="button" class="filter-sport-bar flex-1 bg-primary rounded-full transition-all" data-day="2"></button>
+                        <button type="button" class="filter-sport-bar flex-1 bg-primary rounded-full transition-all" data-day="3"></button>
+                        <button type="button" class="filter-sport-bar flex-1 bg-white/10 rounded-full transition-all" data-day="4"></button>
+                        <button type="button" class="filter-sport-bar flex-1 bg-white/10 rounded-full transition-all" data-day="5"></button>
+                        <button type="button" class="filter-sport-bar flex-1 bg-white/10 rounded-full transition-all" data-day="6"></button>
+                        <button type="button" class="filter-sport-bar flex-1 bg-white/10 rounded-full transition-all" data-day="7"></button>
                     </div>
                 </div>
             </div>
@@ -5733,17 +6570,17 @@
                 <section>
                     <p class="text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] mb-4">Ta'lim darajasi</p>
                     <div class="space-y-2">
-                        <button class="w-full flex items-center justify-between p-4 rounded-2xl bg-white/[0.03] border border-primary/40 group active:scale-[0.98] transition-all">
+                        <button type="button" class="filter-education-opt filter-education-selected w-full flex items-center justify-between p-4 rounded-2xl bg-white/[0.03] border border-primary/40 group active:scale-[0.98] transition-all" data-value="Oliy">
                             <span class="text-sm font-semibold text-white">Oliy ma'lumotli</span>
                             <div class="size-5 rounded-full bg-primary flex items-center justify-center">
                                 <span class="material-symbols-outlined text-black text-[14px] font-bold">check</span>
                             </div>
                         </button>
-                        <button class="w-full flex items-center justify-between p-4 rounded-2xl bg-white/[0.03] border border-white/[0.05] group active:scale-[0.98] transition-all">
+                        <button type="button" class="filter-education-opt w-full flex items-center justify-between p-4 rounded-2xl bg-white/[0.03] border border-white/[0.05] group active:scale-[0.98] transition-all" data-value="O'rta maxsus">
                             <span class="text-sm font-semibold text-white/60">O'rta-maxsus</span>
                             <div class="size-5 rounded-full border-2 border-white/10"></div>
                         </button>
-                        <button class="w-full flex items-center justify-between p-4 rounded-2xl bg-white/[0.03] border border-white/[0.05] group active:scale-[0.98] transition-all">
+                        <button type="button" class="filter-education-opt w-full flex items-center justify-between p-4 rounded-2xl bg-white/[0.03] border border-white/[0.05] group active:scale-[0.98] transition-all" data-value="O'rta">
                             <span class="text-sm font-semibold text-white/60">O'rta</span>
                             <div class="size-5 rounded-full border-2 border-white/10"></div>
                         </button>
@@ -5790,70 +6627,65 @@
     <div id="filter-work-sheet" class="bottom-sheet">
         <div class="max-w-md mx-auto h-[85vh] flex flex-col">
             <div class="handle"></div>
-            <div class="px-6 pb-6 flex items-center justify-between">
-                <h2 class="text-xl font-bold">Ish &amp; Daromad</h2>
-                <button onclick="closeFilterSheet()" class="text-primary text-sm font-bold bg-primary/10 px-4 py-2 rounded-full active:scale-95 transition-transform">Tayyor</button>
+            <div class="px-6 pb-4 flex items-center justify-between">
+                <h2 class="text-xl font-bold">Ish & Daromad</h2>
+                <button onclick="closeFilterSheet()" class="text-black bg-primary text-[11px] font-black uppercase tracking-widest px-5 py-2.5 rounded-xl active:scale-95 transition-transform shadow-[0_8px_20px_rgba(64,255,0,0.2)]">Tayyor</button>
             </div>
-            <div class="flex-1 overflow-y-auto px-6 space-y-8 ios-scroll-hide pb-32">
-                <div class="space-y-4">
-                    <div class="flex items-center justify-between">
-                        <span class="text-xs font-bold text-white/40 uppercase tracking-widest">Kasbi (Profession)</span>
-                        <span class="text-xs font-bold text-primary">Ixtiyoriy</span>
-                    </div>
-                    <div class="relative">
-                        <div class="absolute inset-y-0 left-4 flex items-center pointer-events-none">
-                            <span class="material-symbols-outlined text-white/20 text-lg">search</span>
-                        </div>
-                        <input class="w-full h-12 glass-input rounded-xl pl-11 pr-4 text-sm font-medium text-white placeholder-white/20" placeholder="Kasbni qidiring..." type="text"/>
-                    </div>
-                    <div class="flex flex-wrap gap-2">
-                        <button class="px-4 py-2 rounded-xl bg-primary text-black text-xs font-bold shadow-[0_4px_15px_rgba(64,255,0,0.2)]">Tadbirkor</button>
-                        <button class="px-4 py-2 rounded-xl bg-white/[0.05] border border-white/[0.08] text-white/60 text-xs font-bold hover:bg-white/[0.1] transition-colors">Shifokor</button>
-                        <button class="px-4 py-2 rounded-xl bg-white/[0.05] border border-white/[0.08] text-white/60 text-xs font-bold hover:bg-white/[0.1] transition-colors">IT muhandis</button>
-                        <button class="px-4 py-2 rounded-xl bg-white/[0.05] border border-white/[0.08] text-white/60 text-xs font-bold hover:bg-white/[0.1] transition-colors">O'qituvchi</button>
-                        <button class="px-4 py-2 rounded-xl bg-white/[0.05] border border-white/[0.08] text-white/60 text-xs font-bold hover:bg-white/[0.1] transition-colors">Dizayner</button>
-                        <button class="px-4 py-2 rounded-xl bg-white/[0.05] border border-white/[0.08] text-white/60 text-xs font-bold hover:bg-white/[0.1] transition-colors">Huquqshunos</button>
-                    </div>
+            <div class="flex-1 overflow-y-auto px-6 space-y-6 ios-scroll-hide pb-32">
+                <!-- Kasb tugmalari -->
+                <div class="flex flex-wrap gap-2" id="filter-work-professions">
+                    <button type="button" class="filter-work-profession px-5 py-3 rounded-full bg-primary text-black text-sm font-bold shadow-[0_4px_15px_rgba(64,255,0,0.2)] transition-all" data-value="Tadbirkor">Tadbirkor</button>
+                    <button type="button" class="filter-work-profession px-5 py-3 rounded-full bg-white/[0.05] border border-white/[0.1] text-white/70 text-sm font-bold transition-all" data-value="Shifokor">Shifokor</button>
+                    <button type="button" class="filter-work-profession px-5 py-3 rounded-full bg-white/[0.05] border border-white/[0.1] text-white/70 text-sm font-bold transition-all" data-value="IT muhandis">IT muhandis</button>
+                    <button type="button" class="filter-work-profession px-5 py-3 rounded-full bg-white/[0.05] border border-white/[0.1] text-white/70 text-sm font-bold transition-all" data-value="O'qituvchi">O'qituvchi</button>
+                    <button type="button" class="filter-work-profession px-5 py-3 rounded-full bg-white/[0.05] border border-white/[0.1] text-white/70 text-sm font-bold transition-all" data-value="Dizayner">Dizayner</button>
+                    <button type="button" class="filter-work-profession px-5 py-3 rounded-full bg-white/[0.05] border border-white/[0.1] text-white/70 text-sm font-bold transition-all" data-value="Huquqshunos">Huquqshunos</button>
                 </div>
-                <div class="p-6 rounded-[2rem] glass-panel space-y-8">
+
+                <!-- Oylik daromad - Dual Range Slider -->
+                <div class="mt-6 space-y-4">
                     <div class="flex justify-between items-center">
-                        <div class="space-y-1">
+                        <div>
                             <span class="text-xs font-bold text-white/40 uppercase tracking-widest block">Oylik daromad</span>
-                            <p class="text-[10px] text-white/20 font-medium">O'rtacha oylik miqdori ($)</p>
+                            <p class="text-[10px] text-white/30 mt-0.5">O'rtacha oylik miqdori ($)</p>
                         </div>
-                        <div class="text-right">
-                            <span class="text-sm font-black text-primary bg-primary/10 px-3 py-1 rounded-lg">$500 — $5000+</span>
+                        <span id="filter-work-salary-label" class="text-sm font-black text-primary bg-primary/10 border border-primary/30 px-4 py-2 rounded-xl">$500 — $5000+</span>
+                    </div>
+                    
+                    <!-- Dual Range Slider -->
+                    <div class="relative pt-2 pb-4" id="salary-slider-container">
+                        <div class="relative h-2 bg-white/10 rounded-full">
+                            <div id="salary-slider-range" class="absolute h-2 bg-primary rounded-full" style="left: 10%; right: 20%;"></div>
+                            <div id="salary-slider-min" class="salary-slider-thumb" style="left: 10%;" data-type="min"></div>
+                            <div id="salary-slider-max" class="salary-slider-thumb" style="left: 80%;" data-type="max"></div>
+                        </div>
+                        <div class="flex justify-between mt-4 px-1">
+                            <span class="text-[10px] font-bold text-white/30">0</span>
+                            <span class="text-[10px] font-bold text-white/30">1000</span>
+                            <span class="text-[10px] font-bold text-white/30">2500</span>
+                            <span class="text-[10px] font-bold text-white/30">5000+</span>
                         </div>
                     </div>
-                    <div class="relative px-2">
-                        <div class="h-1.5 w-full bg-white/5 rounded-full relative">
-                            <div class="absolute inset-y-0 left-[15%] right-[10%] bg-primary rounded-full neon-glow"></div>
-                            <div class="absolute left-[15%] top-1/2 -translate-y-1/2 size-6 bg-white rounded-full border-[5px] border-[#1a1a1c] shadow-xl cursor-pointer"></div>
-                            <div class="absolute right-[10%] top-1/2 -translate-y-1/2 size-6 bg-white rounded-full border-[5px] border-[#1a1a1c] shadow-xl cursor-pointer"></div>
-                        </div>
-                        <div class="flex justify-between mt-6 px-1">
-                            <span class="text-[10px] font-bold text-white/20">0</span>
-                            <span class="text-[10px] font-bold text-white/20">1000</span>
-                            <span class="text-[10px] font-bold text-white/20">2500</span>
-                            <span class="text-[10px] font-bold text-white/20">5000+</span>
-                        </div>
-                    </div>
+                    <input type="hidden" id="filter-work-salary-min" value="500">
+                    <input type="hidden" id="filter-work-salary-max" value="5000">
                 </div>
-                <div class="space-y-4">
+
+                <!-- Mashhur toifalar -->
+                <div class="mt-4 space-y-3">
                     <span class="text-xs font-bold text-white/40 uppercase tracking-widest">Mashhur toifalar</span>
-                    <div class="grid grid-cols-2 gap-3">
-                        <div class="p-4 rounded-2xl bg-white/[0.03] border border-white/[0.05] flex items-center gap-3 active:bg-white/[0.06] transition-colors">
-                            <div class="size-8 rounded-lg bg-blue-500/10 flex items-center justify-center">
-                                <span class="material-symbols-outlined text-blue-400 text-lg">laptop_mac</span>
+                    <div class="grid grid-cols-2 gap-3" id="filter-work-categories">
+                        <button type="button" class="filter-work-category p-4 rounded-2xl bg-white/[0.03] border border-white/[0.06] flex items-center gap-3 transition-all" data-value="Masofaviy">
+                            <div class="size-10 rounded-xl bg-blue-500/15 flex items-center justify-center">
+                                <span class="material-symbols-outlined text-blue-400 text-xl">laptop_mac</span>
                             </div>
-                            <span class="text-xs font-bold text-white/80">Masofaviy ish</span>
-                        </div>
-                        <div class="p-4 rounded-2xl bg-white/[0.03] border border-white/[0.05] flex items-center gap-3 active:bg-white/[0.06] transition-colors">
-                            <div class="size-8 rounded-lg bg-orange-500/10 flex items-center justify-center">
-                                <span class="material-symbols-outlined text-orange-400 text-lg">storefront</span>
+                            <span class="text-sm font-bold text-white/80">Masofaviy ish</span>
+                        </button>
+                        <button type="button" class="filter-work-category p-4 rounded-2xl bg-white/[0.03] border border-white/[0.06] flex items-center gap-3 transition-all" data-value="Biznes">
+                            <div class="size-10 rounded-xl bg-orange-500/15 flex items-center justify-center">
+                                <span class="material-symbols-outlined text-orange-400 text-xl">storefront</span>
                             </div>
-                            <span class="text-xs font-bold text-white/80">Xususiy biznes</span>
-                        </div>
+                            <span class="text-sm font-bold text-white/80">Xususiy biznes</span>
+                        </button>
                     </div>
                 </div>
             </div>
