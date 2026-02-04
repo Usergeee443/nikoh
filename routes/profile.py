@@ -193,11 +193,13 @@ def edit():
             profile.religious_level = request.form.get('religious_level') or profile.religious_level
             profile.education = request.form.get('education') or profile.education
             profile.profession = request.form.get('profession') or profile.profession
-            
+            profile.salary = request.form.get('salary') or profile.salary
+            profile.country = request.form.get('country') or profile.country
+
             is_working = request.form.get('is_working')
             if is_working:
                 profile.is_working = is_working == 'true'
-            
+
             profile.bio = request.form.get('bio') or profile.bio
 
             # Juftga qo'yiladigan talablar
@@ -345,6 +347,8 @@ def create_listing():
             religious_level=(data.get('religious_level') or '')[:20] or None,
             education=(data.get('education') or '')[:100] or None,
             profession=(data.get('profession') or '')[:100] or None,
+            salary=(data.get('salary') or '')[:50] or None,
+            country=(data.get('country') or '')[:100] or None,
             is_working=_parse_bool(data.get('is_working')),
             partner_age_min=_parse_int(data.get('partner_age_min')),
             partner_age_max=_parse_int(data.get('partner_age_max')),

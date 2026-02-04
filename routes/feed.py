@@ -27,12 +27,15 @@ def _listing_dict(profile, is_top, is_favorite):
         'age': age,
         'gender': profile.gender,
         'region': profile.region,
+        'country': profile.country,
         'nationality': profile.nationality,
         'marital_status': profile.marital_status,
         'height': profile.height,
         'weight': profile.weight,
         'religious_level': profile.religious_level,
         'education': profile.education,
+        'profession': profile.profession,
+        'salary': profile.salary,
         'views': 0,
         'likes': 0,
         'is_top': is_top,
@@ -55,6 +58,17 @@ def get_listings():
     request_gender = request.args.get('gender', type=str)
     request_sort = request.args.get('sort', 'new', type=str)
 
+    # Qo'shimcha filterlar
+    filter_age_min = request.args.get('age_min', type=int)
+    filter_age_max = request.args.get('age_max', type=int)
+    filter_region = request.args.get('region', type=str)
+    filter_nationality = request.args.get('nationality', type=str)
+    filter_marital_status = request.args.get('marital_status', type=str)
+    filter_height_min = request.args.get('height_min', type=int)
+    filter_height_max = request.args.get('height_max', type=int)
+    filter_religious_level = request.args.get('religious_level', type=str)
+    filter_education = request.args.get('education', type=str)
+
     # Jins: to'g'ridan-to'g'ri filter (exists() so'rov olib tashlandi)
     if request_gender in ('Erkak', 'Ayol'):
         filter_gender = request_gender
@@ -65,7 +79,30 @@ def get_listings():
         Profile.is_active == True,
         Profile.user_id != current_user.id,
         Profile.gender == filter_gender
-    ).join(User)
+    )
+
+    # Qo'shimcha filterlar qo'llash
+    current_year = datetime.utcnow().year
+    if filter_age_min:
+        query = query.filter(Profile.birth_year <= current_year - filter_age_min)
+    if filter_age_max:
+        query = query.filter(Profile.birth_year >= current_year - filter_age_max)
+    if filter_region:
+        query = query.filter(Profile.region == filter_region)
+    if filter_nationality:
+        query = query.filter(Profile.nationality == filter_nationality)
+    if filter_marital_status:
+        query = query.filter(Profile.marital_status == filter_marital_status)
+    if filter_height_min:
+        query = query.filter(Profile.height >= filter_height_min)
+    if filter_height_max:
+        query = query.filter(Profile.height <= filter_height_max)
+    if filter_religious_level:
+        query = query.filter(Profile.religious_level == filter_religious_level)
+    if filter_education:
+        query = query.filter(Profile.education == filter_education)
+
+    query = query.join(User)
 
     from models.tariff import UserTariff
     now = datetime.utcnow()

@@ -1008,10 +1008,16 @@
                     <div id="chats-profile-tabs" class="flex gap-2 overflow-x-auto pb-2 mb-2 scrollbar-hide hidden"></div>
                     <div class="flex items-center justify-between px-2 mb-4">
                         <h3 class="text-[10px] font-black uppercase tracking-[0.2em] text-white/30">Faol suhbatlar</h3>
-                        <button class="flex items-center gap-1.5 text-[10px] font-bold text-primary active:opacity-50 transition-opacity">
-                            <span class="material-symbols-outlined text-[16px]">history</span>
-                            ARXIV
-                        </button>
+                        <div class="flex items-center gap-3">
+                            <button id="chats-sort-btn" onclick="openChatsSort()" class="flex items-center gap-1.5 text-[10px] font-bold text-white/50 active:opacity-50 transition-opacity">
+                                <span class="material-symbols-outlined text-[16px]">sort</span>
+                                <span id="chats-sort-label">Yangi</span>
+                            </button>
+                            <button class="flex items-center gap-1.5 text-[10px] font-bold text-primary active:opacity-50 transition-opacity">
+                                <span class="material-symbols-outlined text-[16px]">history</span>
+                                ARXIV
+                            </button>
+                        </div>
                     </div>
                 <div id="chats-list" class="space-y-3">
                     <div id="chats-skeleton" class="space-y-3">
@@ -1356,6 +1362,18 @@
                 </div>
                 <div class="space-y-4">
                     <h3 class="px-1 text-[10px] font-black uppercase tracking-[0.2em] text-white/40 mb-2">Shaxsiy ma'lumotlar</h3>
+                    <button type="button" onclick="openProfileEditSheet('shaxsiy')" class="w-full glass-card rounded-2xl p-5 flex items-center justify-between group active:scale-[0.98] transition-all text-left">
+                        <div class="flex items-center gap-4">
+                            <div class="size-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary border border-primary/20">
+                                <span class="material-symbols-outlined text-[26px]">person</span>
+                            </div>
+                            <div>
+                                <p class="font-bold text-base text-white">Ism, jins, yosh</p>
+                                <p id="profile-edit-shaxsiy-summary" class="text-sm text-white/50">Belgilanmagan</p>
+                            </div>
+                        </div>
+                        <span class="material-symbols-outlined text-white/30 group-hover:text-primary transition-colors">chevron_right</span>
+                    </button>
                     <button type="button" onclick="openProfileEditSheet('diniy')" class="w-full glass-card rounded-2xl p-5 flex items-center justify-between group active:scale-[0.98] transition-all text-left">
                         <div class="flex items-center gap-4">
                             <div class="size-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary border border-primary/20">
@@ -1425,6 +1443,18 @@
                             <div>
                                 <p class="font-bold text-base text-white">Ish &amp; Kasb</p>
                                 <p id="profile-edit-ish-summary" class="text-sm text-white/50">Belgilanmagan</p>
+                            </div>
+                        </div>
+                        <span class="material-symbols-outlined text-white/30 group-hover:text-primary transition-colors">chevron_right</span>
+                    </button>
+                    <button type="button" onclick="openProfileEditSheet('juftga')" class="w-full glass-card rounded-2xl p-5 flex items-center justify-between group active:scale-[0.98] transition-all text-left">
+                        <div class="flex items-center gap-4">
+                            <div class="size-12 rounded-2xl bg-white/5 flex items-center justify-center text-white/60 border border-white/10">
+                                <span class="material-symbols-outlined text-[26px]">handshake</span>
+                            </div>
+                            <div>
+                                <p class="font-bold text-base text-white">Juftga talablari</p>
+                                <p id="profile-edit-juftga-summary" class="text-sm text-white/50">Belgilanmagan</p>
                             </div>
                         </div>
                         <span class="material-symbols-outlined text-white/30 group-hover:text-primary transition-colors">chevron_right</span>
@@ -1578,6 +1608,192 @@
                     E'lonni saqlash
                 </button>
             </main>
+        </div>
+
+        <!-- TARIFFS PAGE -->
+        <div id="page-tariffs" class="page-container">
+            <div class="relative min-h-screen w-full flex-col overflow-x-hidden pb-12">
+                <div class="fixed inset-0 pointer-events-none overflow-hidden">
+                    <div class="absolute -top-[10%] -left-[20%] w-[70%] h-[50%] rounded-full bg-primary/10 blur-[120px]"></div>
+                    <div class="absolute top-[40%] -right-[20%] w-[60%] h-[60%] rounded-full bg-[#B8860B]/5 blur-[120px]"></div>
+                </div>
+                <header class="relative flex items-center bg-transparent p-6 justify-between z-10">
+                    <div class="w-12"></div>
+                    <h2 class="text-white text-lg font-semibold leading-tight tracking-wider uppercase flex-1 text-center">Premium Obuna</h2>
+                    <div class="flex w-12 items-center justify-end">
+                        <button onclick="window.showPage('profile')" class="flex items-center justify-center rounded-full h-10 w-10 bg-white/5 border border-white/10 text-white backdrop-blur-md hover:bg-white/10 transition-colors active:scale-95">
+                            <span class="material-symbols-outlined text-[20px]">close</span>
+                        </button>
+                    </div>
+                </header>
+                <div class="relative z-10 px-6 pt-8 pb-10">
+                    <h3 class="text-white text-3xl font-bold leading-tight text-center tracking-tight">O'zingizga mos tarifni tanlang</h3>
+                    <p class="text-white/50 text-center mt-3 font-light text-sm tracking-wide">Premium imkoniyatlar bilan baxtingizni toping</p>
+                </div>
+
+                <!-- Active Tariff Info -->
+                <div id="tariff-active-info" class="relative z-10 px-6 mb-6 hidden">
+                    <div class="glass-card rounded-xl p-6 border-primary/30 bg-primary/5">
+                        <div class="flex items-center justify-between mb-4">
+                            <div>
+                                <h4 class="text-primary text-lg font-bold mb-1">Aktiv obuna</h4>
+                                <p id="tariff-active-name" class="text-white/60 text-sm">— tarif</p>
+                            </div>
+                            <div class="bg-primary/20 text-primary px-4 py-2 rounded-full text-xs font-bold uppercase">Aktiv</div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4 mt-4">
+                            <div>
+                                <p class="text-white/40 text-xs mb-1">Qolgan so'rovlar</p>
+                                <p id="tariff-active-requests" class="text-white text-xl font-bold">0 / 0</p>
+                            </div>
+                            <div>
+                                <p class="text-white/40 text-xs mb-1">Qolgan kunlar</p>
+                                <p id="tariff-active-days" class="text-white text-xl font-bold">0 kun</p>
+                            </div>
+                        </div>
+                        <div id="tariff-top-info" class="mt-4 pt-4 border-t border-white/10 hidden">
+                            <p class="text-[#B8860B] text-sm font-semibold flex items-center gap-2">
+                                <span class="material-symbols-outlined text-[18px]">star</span>
+                                <span id="tariff-top-days">TOP rejimida</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pricing Cards -->
+                <div class="relative z-10 flex flex-col gap-6 px-6" style="padding-bottom: 100px;">
+                    <!-- Kumush -->
+                    <div class="glass-card rounded-xl p-8 flex flex-col gap-6" style="box-shadow: 0 0 40px -10px rgba(23, 130, 77, 0.3);">
+                        <div class="flex flex-col gap-2">
+                            <div class="flex items-center justify-between">
+                                <h4 class="text-white/60 text-xs font-bold uppercase tracking-[0.2em]">Kumush</h4>
+                            </div>
+                            <div class="flex items-baseline gap-2 mt-2">
+                                <span class="text-white text-4xl font-bold tracking-tighter">50,000</span>
+                                <span class="text-white/60 text-sm font-medium">UZS</span>
+                            </div>
+                        </div>
+                        <div class="h-px w-full bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
+                        <ul class="flex flex-col gap-4">
+                            <li class="flex items-center gap-3 text-white/80 text-sm"><span class="material-symbols-outlined text-primary text-[20px]">check_circle</span>5 ta so'rov yuborish</li>
+                            <li class="flex items-center gap-3 text-white/80 text-sm"><span class="material-symbols-outlined text-primary text-[20px]">check_circle</span>10 kun davomida</li>
+                            <li class="flex items-center gap-3 text-white/80 text-sm"><span class="material-symbols-outlined text-primary text-[20px]">check_circle</span>Asosiy filterlar</li>
+                        </ul>
+                        <button id="tariff-kumush-btn" onclick="selectTariffSPA('KUMUSH', 50000)" class="w-full h-14 bg-white/5 border border-white/10 rounded-xl text-white font-bold text-sm tracking-wide hover:bg-white/10 transition-all">Hozir yoqish</button>
+                    </div>
+
+                    <!-- Oltin -->
+                    <div class="glass-card rounded-xl p-8 flex flex-col gap-6 border-[#B8860B]/30 bg-[#B8860B]/5 relative overflow-hidden" style="box-shadow: 0 0 40px -10px rgba(184, 134, 11, 0.3);">
+                        <div class="absolute top-0 -inset-full h-full w-1/2 z-0 block transform -skew-x-12 bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-40"></div>
+                        <div class="flex flex-col gap-2 relative z-10">
+                            <div class="flex items-center justify-between">
+                                <h4 class="text-[#B8860B] text-xs font-bold uppercase tracking-[0.2em]">Oltin</h4>
+                                <span class="bg-[#B8860B]/20 text-[#B8860B] text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider border border-[#B8860B]/30">Ommabop</span>
+                            </div>
+                            <div class="flex items-baseline gap-2 mt-2">
+                                <span class="text-[#B8860B] text-4xl font-bold tracking-tighter">100,000</span>
+                                <span class="text-[#B8860B]/60 text-sm font-medium">UZS</span>
+                            </div>
+                        </div>
+                        <div class="h-px w-full bg-gradient-to-r from-transparent via-[#B8860B]/20 to-transparent relative z-10"></div>
+                        <ul class="flex flex-col gap-4 relative z-10">
+                            <li class="flex items-center gap-3 text-white/80 text-sm"><span class="material-symbols-outlined text-[#B8860B] text-[20px]">star</span>10 ta so'rov yuborish</li>
+                            <li class="flex items-center gap-3 text-white/80 text-sm"><span class="material-symbols-outlined text-[#B8860B] text-[20px]">star</span>15 kun davomida</li>
+                            <li class="flex items-center gap-3 text-white/80 text-sm"><span class="material-symbols-outlined text-[#B8860B] text-[20px]">star</span>7 kun TOP rejimida</li>
+                            <li class="flex items-center gap-3 text-white/80 text-sm"><span class="material-symbols-outlined text-[#B8860B] text-[20px]">star</span>Gold badge</li>
+                        </ul>
+                        <button id="tariff-oltin-btn" onclick="selectTariffSPA('OLTIN', 100000)" class="w-full h-14 bg-[#B8860B] text-black font-extrabold text-sm tracking-widest uppercase rounded-xl shadow-lg shadow-[#B8860B]/20 relative z-10">Hozir yoqish</button>
+                    </div>
+
+                    <!-- VIP -->
+                    <div class="glass-card rounded-xl p-8 flex flex-col gap-6 border-white/10" style="box-shadow: 0 0 40px -10px rgba(23, 130, 77, 0.3);">
+                        <div class="flex flex-col gap-2">
+                            <div class="flex items-center justify-between">
+                                <h4 class="text-primary text-xs font-bold uppercase tracking-[0.2em]">VIP</h4>
+                                <span class="bg-primary/20 text-primary text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">Eksklyuziv</span>
+                            </div>
+                            <div class="flex items-baseline gap-2 mt-2">
+                                <span class="text-white text-4xl font-bold tracking-tighter">250,000</span>
+                                <span class="text-white/60 text-sm font-medium">UZS</span>
+                            </div>
+                        </div>
+                        <div class="h-px w-full bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
+                        <ul class="flex flex-col gap-4">
+                            <li class="flex items-center gap-3 text-white/80 text-sm"><span class="material-symbols-outlined text-primary text-[20px]">diamond</span>20 ta so'rov yuborish</li>
+                            <li class="flex items-center gap-3 text-white/80 text-sm"><span class="material-symbols-outlined text-primary text-[20px]">diamond</span>30 kun davomida</li>
+                            <li class="flex items-center gap-3 text-white/80 text-sm"><span class="material-symbols-outlined text-primary text-[20px]">diamond</span>15 kun TOP rejimida</li>
+                            <li class="flex items-center gap-3 text-white/80 text-sm"><span class="material-symbols-outlined text-primary text-[20px]">diamond</span>VIP badge + Shaxsiy menejer</li>
+                        </ul>
+                        <button id="tariff-vip-btn" onclick="selectTariffSPA('VIP', 250000)" class="w-full h-14 bg-primary text-white font-extrabold text-sm tracking-widest uppercase rounded-xl shadow-lg shadow-primary/30">Hozir yoqish</button>
+                    </div>
+                </div>
+
+                <footer class="relative z-10 mt-12 px-8 pb-10 flex flex-col items-center gap-4">
+                    <div class="flex items-center gap-2 text-primary">
+                        <span class="material-symbols-outlined text-sm">verified_user</span>
+                        <h4 class="text-xs font-semibold uppercase tracking-widest opacity-80">Barcha tariflar xavfsiz</h4>
+                    </div>
+                    <p class="text-white/40 text-xs text-center leading-relaxed max-w-[280px]">To'lov chekini Telegram botga yuboring. Admin tekshirgach sizga obuna beriladi.</p>
+                </footer>
+            </div>
+        </div>
+
+        <!-- Tariff Payment Modal -->
+        <div id="tariff-payment-modal" class="hidden fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+            <div class="glass-card rounded-2xl p-6 max-w-md w-full max-h-[90vh] overflow-y-auto">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-xl font-bold text-white">To'lov ma'lumotlari</h3>
+                    <button onclick="closeTariffPaymentModal()" class="text-white/60 hover:text-white">
+                        <span class="material-symbols-outlined">close</span>
+                    </button>
+                </div>
+                <div class="space-y-4">
+                    <div class="bg-white/5 rounded-xl p-4 border border-white/10">
+                        <p class="text-white/60 text-xs uppercase tracking-wider mb-2">Tanlangan tarif</p>
+                        <p id="spa-selected-tariff-name" class="text-white text-lg font-bold"></p>
+                        <p id="spa-selected-tariff-price" class="text-primary text-2xl font-bold mt-2"></p>
+                    </div>
+                    <div class="bg-white/5 rounded-xl p-4 border border-white/10">
+                        <p class="text-white/60 text-xs uppercase tracking-wider mb-2">To'lov karta raqami</p>
+                        <div class="flex items-center gap-3">
+                            <span class="text-white text-lg font-mono" id="spa-card-number">{{ config.PAYMENT_CARD_NUMBER or '8600 1234 5678 9012' }}</span>
+                            <button onclick="copySPACardNumber()" class="text-primary hover:text-primary/80">
+                                <span class="material-symbols-outlined text-[20px]">content_copy</span>
+                            </button>
+                        </div>
+                        <p class="text-white/40 text-xs mt-2">{{ config.PAYMENT_CARD_NAME or 'NIKOH ADMIN' }}</p>
+                    </div>
+                    <div class="bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-4">
+                        <p class="text-yellow-400 text-sm font-semibold mb-2">Muhim</p>
+                        <p class="text-white/80 text-xs leading-relaxed">To'lov chekini Telegram botga yuboring. Admin tekshirgach sizga obuna beriladi.</p>
+                    </div>
+                    <div class="space-y-3">
+                        <label class="block">
+                            <p class="text-white/60 text-xs uppercase tracking-wider mb-2">To'lov cheki rasmi *</p>
+                            <div class="relative">
+                                <input type="file" id="spa-receipt-image" accept="image/*" class="hidden" onchange="handleSPAImageSelect(event)">
+                                <label for="spa-receipt-image" class="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-white/20 rounded-xl cursor-pointer bg-white/5 hover:bg-white/10 transition-all">
+                                    <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                                        <span class="material-symbols-outlined text-white/40 text-[40px] mb-2">image</span>
+                                        <p class="mb-2 text-sm text-white/60"><span class="font-semibold text-primary">Rasm yuklash</span></p>
+                                        <p class="text-xs text-white/40">PNG, JPG (MAX. 5MB)</p>
+                                    </div>
+                                </label>
+                                <div id="spa-image-preview" class="hidden mt-3 relative">
+                                    <img id="spa-preview-img" src="" alt="Preview" class="w-full h-48 object-cover rounded-xl border border-white/10">
+                                    <button onclick="removeSPAImage()" class="absolute top-2 right-2 bg-red-500/80 text-white rounded-full p-2 hover:bg-red-500 transition-all">
+                                        <span class="material-symbols-outlined text-[18px]">close</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+                    <div class="flex gap-3">
+                        <button onclick="closeTariffPaymentModal()" class="flex-1 h-12 bg-white/5 border border-white/10 rounded-xl text-white font-semibold text-sm hover:bg-white/10 transition-all">Bekor qilish</button>
+                        <button onclick="submitTariffPayment()" id="spa-submit-payment-btn" class="flex-1 h-12 bg-primary text-white font-bold text-sm rounded-xl hover:bg-primary/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed">Yuborish</button>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Profil tahrirlash bo'limi bottom sheet (scroll + X yopish) -->
@@ -2310,6 +2526,9 @@
                     window.newListingDraft = window.newListingDraft || {};
                     updateAddListingSummaries();
                     break;
+                case 'tariffs':
+                    loadTariffsPage();
+                    break;
             }
         }
 
@@ -2697,7 +2916,17 @@
 
             // Birinchi sahifa: 1 ta va 20 ta parallel yuklash — qaysi birinchi kelsa tez ko'rsatamiz
             if (page === 1) {
-                const urlBase = `/feed/api/listings?page=1&top_only=${topOnly}&gender=${encodeURIComponent(feedGender)}&sort=${encodeURIComponent(feedSort)}`;
+                let urlBase = `/feed/api/listings?page=1&top_only=${topOnly}&gender=${encodeURIComponent(feedGender)}&sort=${encodeURIComponent(feedSort)}`;
+                // Filter parametrlarini qo'shish
+                if (feedFilters.age_min) urlBase += `&age_min=${encodeURIComponent(feedFilters.age_min)}`;
+                if (feedFilters.age_max) urlBase += `&age_max=${encodeURIComponent(feedFilters.age_max)}`;
+                if (feedFilters.region) urlBase += `&region=${encodeURIComponent(feedFilters.region)}`;
+                if (feedFilters.nationality) urlBase += `&nationality=${encodeURIComponent(feedFilters.nationality)}`;
+                if (feedFilters.marital_status) urlBase += `&marital_status=${encodeURIComponent(feedFilters.marital_status)}`;
+                if (feedFilters.height_min) urlBase += `&height_min=${encodeURIComponent(feedFilters.height_min)}`;
+                if (feedFilters.height_max) urlBase += `&height_max=${encodeURIComponent(feedFilters.height_max)}`;
+                if (feedFilters.religious_level) urlBase += `&religious_level=${encodeURIComponent(feedFilters.religious_level)}`;
+                if (feedFilters.education) urlBase += `&education=${encodeURIComponent(feedFilters.education)}`;
                 let fullReceived = false;
                 function applyFull(data) {
                     if (!data || !data.listings || fullReceived) return;
@@ -2759,7 +2988,18 @@
 
             // page > 1: oddiy sahifa yuklash
             try {
-                const response = await fetch(`/feed/api/listings?page=${page}&per_page=20&top_only=${topOnly}&gender=${encodeURIComponent(feedGender)}&sort=${encodeURIComponent(feedSort)}`, {
+                let pageUrl = `/feed/api/listings?page=${page}&per_page=20&top_only=${topOnly}&gender=${encodeURIComponent(feedGender)}&sort=${encodeURIComponent(feedSort)}`;
+                // Filter parametrlarini qo'shish
+                if (feedFilters.age_min) pageUrl += `&age_min=${encodeURIComponent(feedFilters.age_min)}`;
+                if (feedFilters.age_max) pageUrl += `&age_max=${encodeURIComponent(feedFilters.age_max)}`;
+                if (feedFilters.region) pageUrl += `&region=${encodeURIComponent(feedFilters.region)}`;
+                if (feedFilters.nationality) pageUrl += `&nationality=${encodeURIComponent(feedFilters.nationality)}`;
+                if (feedFilters.marital_status) pageUrl += `&marital_status=${encodeURIComponent(feedFilters.marital_status)}`;
+                if (feedFilters.height_min) pageUrl += `&height_min=${encodeURIComponent(feedFilters.height_min)}`;
+                if (feedFilters.height_max) pageUrl += `&height_max=${encodeURIComponent(feedFilters.height_max)}`;
+                if (feedFilters.religious_level) pageUrl += `&religious_level=${encodeURIComponent(feedFilters.religious_level)}`;
+                if (feedFilters.education) pageUrl += `&education=${encodeURIComponent(feedFilters.education)}`;
+                const response = await fetch(pageUrl, {
                     method: 'GET',
                     headers: feedHeaders,
                     credentials: 'same-origin'
@@ -2872,6 +3112,11 @@
                                 ${listing.education || 'Oliy'}
                             </span>
                         </div>
+                        ${listing.profession || listing.salary ? `
+                        <div class="mt-1 flex items-center gap-2 text-[10px] font-bold text-white/80">
+                            ${listing.profession ? `<span class="flex items-center gap-1 truncate"><span class="material-symbols-outlined text-[13px] text-primary">work</span>${listing.profession}</span>` : ''}
+                            ${listing.salary ? `<span class="flex items-center gap-1 bg-primary/20 px-2 py-0.5 rounded-full text-primary text-[9px]">${listing.salary}</span>` : ''}
+                        </div>` : ''}
                     </div>
                 </div>
                 <div class="glass-strip px-4 py-2 flex justify-between items-center text-[8px] uppercase tracking-[0.12em] font-black">
@@ -3709,7 +3954,9 @@
                 }
                 const emptyDiv = document.getElementById('chats-empty');
                 if (emptyDiv) emptyDiv.classList.add('hidden');
-                data.chats.forEach(chat => container.appendChild(createChatCard(chat)));
+                // Saralash qo'llash
+                const sortedChats = sortChats(data.chats, chatsSort);
+                sortedChats.forEach(chat => container.appendChild(createChatCard(chat)));
                 pageDataLoaded.chats = true;
             } catch (error) {
                 console.error('Error loading chats:', error);
@@ -3725,6 +3972,66 @@
         }
         
         window.loadChatsData = loadChatsData;
+
+        // Xabarlar saralash
+        let chatsSort = 'new';
+        const chatsSortLabels = { 'new': 'Yangi', 'unread': 'O\'qilmagan', 'name_asc': 'A→Z', 'expiring': 'Tugayotgan' };
+
+        function openChatsSort() {
+            hapticTap('light');
+            openFilterSheet('chats-sort-sheet');
+            updateChatsSortUI();
+        }
+
+        function updateChatsSortUI() {
+            document.querySelectorAll('#chats-sort-sheet .chats-sort-option-btn').forEach(btn => {
+                const val = btn.dataset.sort;
+                const active = val === chatsSort;
+                btn.classList.toggle('border-primary', active);
+                btn.classList.toggle('bg-primary/10', active);
+                btn.classList.toggle('border-white/10', !active);
+                btn.classList.toggle('bg-white/5', !active);
+            });
+        }
+
+        function sortChats(chats, sortBy) {
+            if (!chats || !Array.isArray(chats)) return chats;
+            const sorted = [...chats];
+            switch(sortBy) {
+                case 'unread':
+                    sorted.sort((a, b) => (b.unread_count || 0) - (a.unread_count || 0));
+                    break;
+                case 'name_asc':
+                    sorted.sort((a, b) => ((a.other_user?.name || '').localeCompare(b.other_user?.name || '')));
+                    break;
+                case 'expiring':
+                    sorted.sort((a, b) => (a.days_remaining || 99) - (b.days_remaining || 99));
+                    break;
+                case 'new':
+                default:
+                    sorted.sort((a, b) => {
+                        const aTime = a.last_message?.created_at || a.created_at || '';
+                        const bTime = b.last_message?.created_at || b.created_at || '';
+                        return bTime.localeCompare(aTime);
+                    });
+            }
+            return sorted;
+        }
+
+        window.openChatsSort = openChatsSort;
+
+        // Chats sort sheet event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('#chats-sort-sheet .chats-sort-option-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    chatsSort = this.dataset.sort;
+                    const label = document.getElementById('chats-sort-label');
+                    if (label) label.textContent = chatsSortLabels[chatsSort] || 'Yangi';
+                    closeFilterSheet();
+                    loadChatsData();
+                });
+            });
+        });
 
         function createChatCard(chat) {
             const div = document.createElement('div');
@@ -4181,6 +4488,11 @@
                                 ${listing.education || 'Oliy'}
                             </span>
                         </div>
+                        ${listing.profession || listing.salary ? `
+                        <div class="mt-1 flex items-center gap-2 text-[10px] font-bold text-white/80">
+                            ${listing.profession ? `<span class="flex items-center gap-1 truncate"><span class="material-symbols-outlined text-[13px] text-primary">work</span>${listing.profession}</span>` : ''}
+                            ${listing.salary ? `<span class="flex items-center gap-1 bg-primary/20 px-2 py-0.5 rounded-full text-primary text-[9px]">${listing.salary}</span>` : ''}
+                        </div>` : ''}
                     </div>
                 </div>
                 <div class="glass-strip px-4 py-2 flex justify-between items-center text-[8px] uppercase tracking-[0.12em] font-black">
@@ -4241,13 +4553,15 @@
             const avatar = document.getElementById('profile-edit-avatar');
             if (avatar) avatar.textContent = (p.name || '?').charAt(0).toUpperCase();
             el('profile-edit-name', p.name ? `${p.name}${p.age ? ', ' + p.age : ''}` : '—');
-            el('profile-edit-region', p.region ? `${p.region}${p.nationality ? ', ' + p.nationality : ''}` : '—');
+            el('profile-edit-region', p.region ? `${p.country ? p.country + ', ' : ''}${p.region}${p.nationality ? ', ' + p.nationality : ''}` : '—');
+            el('profile-edit-shaxsiy-summary', p.name ? `${p.name}, ${p.gender || ''}, ${p.age ? p.age + ' yosh' : ''}`.replace(/,\s*,/g, ',').replace(/^,\s*|,\s*$/g, '') : 'Belgilanmagan');
             el('profile-edit-diniy-summary', [p.aqida, p.prays, p.quran_reading, p.mazhab, p.religious_level].filter(Boolean).join(', ') || 'Belgilanmagan');
-            el('profile-edit-joylashuv-summary', [p.region, p.nationality].filter(Boolean).join(', ') || 'Belgilanmagan');
+            el('profile-edit-joylashuv-summary', [p.country, p.region, p.nationality].filter(Boolean).join(', ') || 'Belgilanmagan');
             el('profile-edit-oilaviy-summary', p.marital_status || 'Belgilanmagan');
             el('profile-edit-jismoniy-summary', [p.height && p.height + ' sm', p.weight && p.weight + ' kg'].filter(Boolean).join(', ') || 'Belgilanmagan');
             el('profile-edit-talim-summary', p.education || 'Belgilanmagan');
-            el('profile-edit-ish-summary', p.profession ? (p.is_working ? p.profession + ', Ishlaman' : p.profession) : 'Belgilanmagan');
+            el('profile-edit-ish-summary', p.profession ? `${p.profession}${p.salary ? ', ' + p.salary : ''}${p.is_working ? ', Ishlaydi' : ''}` : 'Belgilanmagan');
+            el('profile-edit-juftga-summary', (p.partner_age_min || p.partner_age_max) ? `${p.partner_age_min || '?'}-${p.partner_age_max || '?'} yosh${p.partner_region ? ', ' + p.partner_region : ''}` : 'Belgilanmagan');
             const bioEl = document.getElementById('profile-edit-bio-summary');
             if (bioEl) { bioEl.textContent = (p.bio || '').trim() ? (p.bio.slice(0, 40) + (p.bio.length > 40 ? '…' : '')) : 'Belgilanmagan'; bioEl.classList.toggle('italic', !p.bio); }
         }
@@ -4323,12 +4637,41 @@
                     </div>
                 `;
             } else if (section === 'joylashuv') {
+                const countryOpts = ['O\'zbekiston','Rossiya','Turkiya','Ozarbayjon','Qozog\'iston','Qirg\'iziston','Tojikiston','Turkmaniston','AQSH','Buyuk Britaniya','Germaniya','Boshqa'];
+                const regionsByCountry = {
+                    'O\'zbekiston': ['Toshkent shahar','Toshkent viloyati','Samarqand','Buxoro','Andijon','Farg\'ona','Namangan','Qashqadaryo','Surxondaryo','Xorazm','Navoiy','Jizzax','Sirdaryo','Qoraqalpog\'iston'],
+                    'Rossiya': ['Moskva','Sankt-Peterburg','Novosibirsk','Yekaterinburg','Kazan','Nizhni Novgorod','Chelyabinsk','Samara','Ufa','Rostov-na-Donu','Boshqa'],
+                    'Turkiya': ['Istanbul','Anqara','Izmir','Bursa','Antalya','Adana','Gaziantep','Konya','Mersin','Boshqa'],
+                    'Ozarbayjon': ['Boku','Ganja','Sumqayit','Mingachevir','Shirvan','Boshqa'],
+                    'Qozog\'iston': ['Almati','Nur-Sultan (Astana)','Shimkent','Qoraqandi','Aqtobe','Boshqa'],
+                    'Qirg\'iziston': ['Bishkek','Osh','Jalal-Obod','Qoraqol','Tokmok','Boshqa'],
+                    'Tojikiston': ['Dushanbe','Xo\'jand','Kulob','Qo\'rg\'onteppa','Boshqa'],
+                    'Turkmaniston': ['Ashxobod','Turkmanobod','Mary','Dashoguz','Boshqa'],
+                    'AQSH': ['Nyu-York','Los-Anjeles','Chikago','Xyuston','Feniks','Boshqa'],
+                    'Buyuk Britaniya': ['London','Manchester','Birmingham','Liverpul','Boshqa'],
+                    'Germaniya': ['Berlin','Myunxen','Frankfurt','Gamburg','Dyusseldorf','Boshqa'],
+                    'Boshqa': ['Boshqa shahar']
+                };
+                const selectedCountry = p.country || 'O\'zbekiston';
+                const currentRegions = regionsByCountry[selectedCountry] || regionOpts;
                 body.innerHTML = `
-                    <label class="block text-[11px] font-bold text-white/60 mb-2">Hudud</label>
-                    <select name="region" class="w-full glass-card rounded-2xl px-4 py-3 text-white border border-white/10 bg-white/5 mb-4">${regionOpts.map(r => `<option value="${r}" ${(p.region === r) ? 'selected' : ''}>${r}</option>`).join('')}</select>
+                    <label class="block text-[11px] font-bold text-white/60 mb-2">Davlat</label>
+                    <select name="country" id="edit-country-select" class="w-full glass-card rounded-2xl px-4 py-3 text-white border border-white/10 bg-white/5 mb-4">${countryOpts.map(c => `<option value="${c}" ${(p.country === c || (!p.country && c === 'O\'zbekiston')) ? 'selected' : ''}>${c}</option>`).join('')}</select>
+                    <label class="block text-[11px] font-bold text-white/60 mb-2">Viloyat/Shahar</label>
+                    <select name="region" id="edit-region-select" class="w-full glass-card rounded-2xl px-4 py-3 text-white border border-white/10 bg-white/5 mb-4">${currentRegions.map(r => `<option value="${r}" ${(p.region === r) ? 'selected' : ''}>${r}</option>`).join('')}</select>
                     <label class="block text-[11px] font-bold text-white/60 mb-2">Millat</label>
-                    <select name="nationality" class="w-full glass-card rounded-2xl px-4 py-3 text-white border border-white/10 bg-white/5">${['O\'zbek','Rus','Tojik','Qozoq','Qoraqalpoq','Boshqa'].map(n => `<option value="${n}" ${(p.nationality === n) ? 'selected' : ''}>${n}</option>`).join('')}</select>
+                    <select name="nationality" class="w-full glass-card rounded-2xl px-4 py-3 text-white border border-white/10 bg-white/5">${['O\'zbek','Rus','Tojik','Qozoq','Qoraqalpoq','Turk','Ozarbayjonlik','Boshqa'].map(n => `<option value="${n}" ${(p.nationality === n) ? 'selected' : ''}>${n}</option>`).join('')}</select>
                 `;
+                // Davlat o'zgarganda viloyatlarni yangilash
+                const countrySelect = body.querySelector('#edit-country-select');
+                const regionSelect = body.querySelector('#edit-region-select');
+                if (countrySelect && regionSelect) {
+                    countrySelect.addEventListener('change', function() {
+                        const country = this.value;
+                        const regions = regionsByCountry[country] || ['Boshqa'];
+                        regionSelect.innerHTML = regions.map(r => `<option value="${r}">${r}</option>`).join('');
+                    });
+                }
             } else if (section === 'oilaviy') {
                 const isWoman = (p.gender === 'Ayol');
                 const options = isWoman ? ['Qiz bola', 'Beva', 'Ajrashgan'] : ['Bo\'ydoq', 'Oilali', 'Ajrashgan'];
@@ -4351,9 +4694,12 @@
                     </div>
                 `;
             } else if (section === 'ish') {
+                const salaryOpts = ['Belgilanmagan','500,000 - 1,000,000 so\'m','1,000,000 - 2,000,000 so\'m','2,000,000 - 3,000,000 so\'m','3,000,000 - 5,000,000 so\'m','5,000,000+ so\'m','$300 - $500','$500 - $1000','$1000 - $2000','$2000+'];
                 body.innerHTML = `
                     <label class="block text-[11px] font-bold text-white/60 mb-2">Kasb</label>
                     <input type="text" name="profession" value="${(p.profession || '').replace(/"/g, '&quot;')}" placeholder="Masalan: Dasturchi" class="w-full glass-card rounded-2xl px-4 py-3 text-white border border-white/10 bg-white/5 mb-4">
+                    <label class="block text-[11px] font-bold text-white/60 mb-2">Oylik maosh</label>
+                    <select name="salary" class="w-full glass-card rounded-2xl px-4 py-3 text-white border border-white/10 bg-white/5 mb-4">${salaryOpts.map(s => `<option value="${s === 'Belgilanmagan' ? '' : s}" ${(p.salary === s || (!p.salary && s === 'Belgilanmagan')) ? 'selected' : ''}>${s}</option>`).join('')}</select>
                     <p class="text-[11px] font-bold text-white/60 mb-2">Ishlaysizmi?</p>
                     <div class="flex gap-3">
                         <label class="flex-1 flex items-center justify-between p-4 rounded-2xl border cursor-pointer transition-all ${p.is_working === true ? 'border-primary bg-primary/10' : 'border-white/10 bg-white/5'}"><span>Ha</span><input type="radio" name="is_working" value="true" ${p.is_working === true ? 'checked' : ''} class="hidden"></label>
@@ -4444,14 +4790,14 @@
             const el = (id, text) => { const e = document.getElementById(id); if (e) e.textContent = text || 'Belgilanmagan'; };
             el('add-listing-avatar', d.name ? d.name[0] : null);
             el('add-listing-name', d.name || '—');
-            el('add-listing-region', d.region || '—');
+            el('add-listing-region', d.country ? `${d.country}, ${d.region || ''}` : (d.region || '—'));
             el('add-listing-shaxsiy-summary', d.name ? `${d.name}, ${d.gender || ''}, ${d.birth_year ? d.birth_year + ' yosh' : ''}`.replace(/,\s*,/g, ',').replace(/^,\s*|,\s*$/g, '') : null);
             el('add-listing-diniy-summary', d.prays ? `${d.prays}, ${d.mazhab || ''}`.replace(/,\s*$/g, '') : null);
-            el('add-listing-joylashuv-summary', d.region ? `${d.region}, ${d.nationality || ''}`.replace(/,\s*$/g, '') : null);
+            el('add-listing-joylashuv-summary', [d.country, d.region, d.nationality].filter(Boolean).join(', ') || null);
             el('add-listing-oilaviy-summary', d.marital_status || null);
             el('add-listing-jismoniy-summary', (d.height || d.weight) ? `${d.height || '?'} sm, ${d.weight || '?'} kg` : null);
             el('add-listing-talim-summary', d.education || null);
-            el('add-listing-ish-summary', d.profession ? (d.is_working === 'true' ? d.profession + ', Ishlaman' : d.profession) : null);
+            el('add-listing-ish-summary', d.profession ? `${d.profession}${d.salary ? ', ' + d.salary : ''}${d.is_working === 'true' ? ', Ishlaydi' : ''}` : null);
             el('add-listing-juftga-summary', (d.partner_age_min || d.partner_age_max) ? `${d.partner_age_min || '?'}-${d.partner_age_max || '?'} yosh` : null);
             const bioEl = document.getElementById('add-listing-bio-summary');
             if (bioEl) { bioEl.textContent = (d.bio || '').trim() ? (d.bio.slice(0, 40) + (d.bio.length > 40 ? '…' : '')) : 'Belgilanmagan'; bioEl.classList.toggle('italic', !d.bio); }
@@ -4474,6 +4820,7 @@
                         name: (d.name || '').trim(),
                         gender: (d.gender && String(d.gender).trim()) ? String(d.gender).trim() : '',
                         birth_year: d.birth_year ? parseInt(d.birth_year, 10) : null,
+                        country: d.country || '',
                         region: d.region || '',
                         nationality: d.nationality || '',
                         marital_status: d.marital_status || '',
@@ -4487,6 +4834,7 @@
                         religious_level: d.religious_level || '',
                         education: d.education || '',
                         profession: d.profession || '',
+                        salary: d.salary || '',
                         is_working: d.is_working === 'true',
                         partner_age_min: d.partner_age_min ? parseInt(d.partner_age_min, 10) : null,
                         partner_age_max: d.partner_age_max ? parseInt(d.partner_age_max, 10) : null,
@@ -4976,12 +5324,189 @@
             if (pageDataLoaded.favorites) renderFavoritesListWithFilter();
         }
 
+        // Filter holat
+        let feedFilters = {
+            age_min: '',
+            age_max: '',
+            region: '',
+            nationality: '',
+            marital_status: '',
+            height_min: '',
+            height_max: '',
+            religious_level: '',
+            education: ''
+        };
+
+        function resetFilters() {
+            feedFilters = { age_min: '', age_max: '', region: '', nationality: '', marital_status: '', height_min: '', height_max: '', religious_level: '', education: '' };
+            document.getElementById('filter-age-min')?.setAttribute('value', '');
+            document.getElementById('filter-age-max')?.setAttribute('value', '');
+            document.getElementById('filter-region')?.setAttribute('value', '');
+            document.getElementById('filter-nationality')?.setAttribute('value', '');
+            document.getElementById('filter-marital-status')?.setAttribute('value', '');
+            document.getElementById('filter-height-min')?.setAttribute('value', '');
+            document.getElementById('filter-height-max')?.setAttribute('value', '');
+            document.getElementById('filter-religious-level')?.setAttribute('value', '');
+            document.getElementById('filter-education')?.setAttribute('value', '');
+            // Reset select elements
+            ['filter-age-min', 'filter-age-max', 'filter-region', 'filter-nationality', 'filter-marital-status', 'filter-height-min', 'filter-height-max', 'filter-religious-level', 'filter-education'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.selectedIndex = 0;
+            });
+        }
+
+        function applyFilters() {
+            feedFilters.age_min = document.getElementById('filter-age-min')?.value || '';
+            feedFilters.age_max = document.getElementById('filter-age-max')?.value || '';
+            feedFilters.region = document.getElementById('filter-region')?.value || '';
+            feedFilters.nationality = document.getElementById('filter-nationality')?.value || '';
+            feedFilters.marital_status = document.getElementById('filter-marital-status')?.value || '';
+            feedFilters.height_min = document.getElementById('filter-height-min')?.value || '';
+            feedFilters.height_max = document.getElementById('filter-height-max')?.value || '';
+            feedFilters.religious_level = document.getElementById('filter-religious-level')?.value || '';
+            feedFilters.education = document.getElementById('filter-education')?.value || '';
+            closeFilterSheet();
+            loadFeedListings(1, document.getElementById('feed-top-only')?.checked || false);
+        }
+
+        window.resetFilters = resetFilters;
+        window.applyFilters = applyFilters;
+
+        // Tariff Page Functions
+        let spaSelectedTariff = null;
+        let spaSelectedPrice = null;
+        let spaSelectedImage = null;
+
+        async function loadTariffsPage() {
+            // Aktiv tarifni tekshirish
+            try {
+                const response = await fetch('/tariff/api/status', {
+                    method: 'GET',
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                    credentials: 'same-origin'
+                });
+                const data = await response.json();
+                if (data.has_tariff && data.tariff) {
+                    const t = data.tariff;
+                    document.getElementById('tariff-active-info')?.classList.remove('hidden');
+                    document.getElementById('tariff-active-name').textContent = t.tariff_name + ' tarif';
+                    document.getElementById('tariff-active-requests').textContent = `${t.requests_count} / ${t.total_requests}`;
+                    document.getElementById('tariff-active-days').textContent = t.days_remaining + ' kun';
+                    if (t.is_top && !t.is_top_expired) {
+                        document.getElementById('tariff-top-info')?.classList.remove('hidden');
+                        document.getElementById('tariff-top-days').textContent = 'TOP rejimida - ' + t.top_days_remaining + ' kun qoldi';
+                    }
+                    // Disable buttons
+                    ['tariff-kumush-btn', 'tariff-oltin-btn', 'tariff-vip-btn'].forEach(id => {
+                        const btn = document.getElementById(id);
+                        if (btn) {
+                            btn.disabled = true;
+                            btn.textContent = 'Aktiv obuna mavjud';
+                            btn.className = 'w-full h-14 bg-white/5 border border-white/10 rounded-xl text-white/40 font-bold text-sm tracking-wide cursor-not-allowed';
+                        }
+                    });
+                } else {
+                    document.getElementById('tariff-active-info')?.classList.add('hidden');
+                }
+            } catch (err) {
+                console.error('Tariff status error:', err);
+            }
+        }
+
+        function selectTariffSPA(tariffName, price) {
+            spaSelectedTariff = tariffName;
+            spaSelectedPrice = price;
+            document.getElementById('spa-selected-tariff-name').textContent = tariffName;
+            document.getElementById('spa-selected-tariff-price').textContent = price.toLocaleString('uz-UZ') + ' UZS';
+            document.getElementById('tariff-payment-modal').classList.remove('hidden');
+        }
+
+        function closeTariffPaymentModal() {
+            document.getElementById('tariff-payment-modal').classList.add('hidden');
+            spaSelectedTariff = null;
+            spaSelectedPrice = null;
+            spaSelectedImage = null;
+            document.getElementById('spa-receipt-image').value = '';
+            document.getElementById('spa-image-preview').classList.add('hidden');
+            const btn = document.getElementById('spa-submit-payment-btn');
+            if (btn) { btn.disabled = false; btn.textContent = 'Yuborish'; }
+        }
+
+        function copySPACardNumber() {
+            const cardNumber = document.getElementById('spa-card-number').textContent;
+            navigator.clipboard.writeText(cardNumber.replace(/\s/g, '')).then(() => {
+                if (typeof window.showNotification === 'function') window.showNotification('Karta raqami nusxalandi!');
+                else alert('Karta raqami nusxalandi!');
+            });
+        }
+
+        function handleSPAImageSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                if (file.size > 5 * 1024 * 1024) { alert('Rasm hajmi 5MB dan katta bo\'lishi mumkin emas!'); event.target.value = ''; return; }
+                if (!file.type.startsWith('image/')) { alert('Faqat rasm fayllari qabul qilinadi!'); event.target.value = ''; return; }
+                spaSelectedImage = file;
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('spa-preview-img').src = e.target.result;
+                    document.getElementById('spa-image-preview').classList.remove('hidden');
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function removeSPAImage() {
+            spaSelectedImage = null;
+            document.getElementById('spa-receipt-image').value = '';
+            document.getElementById('spa-image-preview').classList.add('hidden');
+        }
+
+        async function submitTariffPayment() {
+            if (!spaSelectedImage) { alert('Iltimos, to\'lov cheki rasmini yuklang!'); return; }
+            const submitBtn = document.getElementById('spa-submit-payment-btn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Yuborilmoqda...';
+            const formData = new FormData();
+            formData.append('tariff_name', spaSelectedTariff);
+            formData.append('amount', spaSelectedPrice);
+            formData.append('receipt_image', spaSelectedImage);
+            try {
+                const response = await fetch('/tariff/api/create-payment-request', {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    body: formData
+                });
+                const data = await response.json();
+                if (data.success) {
+                    if (typeof window.showNotification === 'function') window.showNotification('To\'lov so\'rovi yuborildi!');
+                    else alert('To\'lov so\'rovi yuborildi! Admin tekshirgach sizga xabar beriladi.');
+                    closeTariffPaymentModal();
+                } else {
+                    alert(data.error || 'Xatolik yuz berdi');
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Yuborish';
+                }
+            } catch (error) {
+                console.error('Payment error:', error);
+                alert('Xatolik yuz berdi');
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Yuborish';
+            }
+        }
+
+        window.selectTariffSPA = selectTariffSPA;
+        window.closeTariffPaymentModal = closeTariffPaymentModal;
+        window.copySPACardNumber = copySPACardNumber;
+        window.handleSPAImageSelect = handleSPAImageSelect;
+        window.removeSPAImage = removeSPAImage;
+        window.submitTariffPayment = submitTariffPayment;
+
         // Filter button event listener
         document.addEventListener('DOMContentLoaded', () => {
             const filterBtn = document.getElementById('feed-filter');
             if (filterBtn) {
                 filterBtn.addEventListener('click', () => {
-                    openFilterSheet('filter-main-sheet');
+                    openFilterSheet('feed-filter-sheet');
                 });
             }
             const sortBtn = document.getElementById('feed-sort-btn');
@@ -5856,6 +6381,194 @@
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter Sheet -->
+    <div id="feed-filter-sheet" class="bottom-sheet">
+        <div class="max-w-md mx-auto rounded-t-[40px] px-6 pb-14 max-h-[85vh] overflow-y-auto">
+            <div class="ios-handle"></div>
+            <div class="flex items-center justify-between mb-6 sticky top-0 bg-[#0a0a0f] py-2">
+                <h3 class="text-2xl font-extrabold tracking-tight">Filtrlar</h3>
+                <div class="flex items-center gap-3">
+                    <button onclick="resetFilters()" class="text-[11px] font-black text-white/40 uppercase tracking-widest hover:text-primary transition-colors">Tozalash</button>
+                    <button class="filter-close-btn size-10 rounded-full glass-panel flex items-center justify-center active:scale-95 transition-transform" title="Yopish">
+                        <span class="material-symbols-outlined text-[22px]">close</span>
+                    </button>
+                </div>
+            </div>
+            <div class="space-y-5">
+                <!-- Yosh oralig'i -->
+                <div>
+                    <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-white/60 mb-2">Yosh oralig'i</label>
+                    <div class="flex gap-3 items-center">
+                        <select id="filter-age-min" class="flex-1 glass-card rounded-2xl px-4 py-3 text-white border border-white/10 bg-white/5">
+                            <option value="">Min</option>
+                            <option value="18">18</option>
+                            <option value="20">20</option>
+                            <option value="25">25</option>
+                            <option value="30">30</option>
+                            <option value="35">35</option>
+                            <option value="40">40</option>
+                            <option value="45">45</option>
+                            <option value="50">50</option>
+                        </select>
+                        <span class="text-white/40">—</span>
+                        <select id="filter-age-max" class="flex-1 glass-card rounded-2xl px-4 py-3 text-white border border-white/10 bg-white/5">
+                            <option value="">Max</option>
+                            <option value="25">25</option>
+                            <option value="30">30</option>
+                            <option value="35">35</option>
+                            <option value="40">40</option>
+                            <option value="45">45</option>
+                            <option value="50">50</option>
+                            <option value="55">55</option>
+                            <option value="60">60</option>
+                            <option value="65">65</option>
+                        </select>
+                    </div>
+                </div>
+                <!-- Hudud -->
+                <div>
+                    <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-white/60 mb-2">Hudud</label>
+                    <select id="filter-region" class="w-full glass-card rounded-2xl px-4 py-3 text-white border border-white/10 bg-white/5">
+                        <option value="">Barchasi</option>
+                        <option value="Toshkent shahar">Toshkent shahar</option>
+                        <option value="Toshkent viloyati">Toshkent viloyati</option>
+                        <option value="Samarqand">Samarqand</option>
+                        <option value="Buxoro">Buxoro</option>
+                        <option value="Andijon">Andijon</option>
+                        <option value="Farg'ona">Farg'ona</option>
+                        <option value="Namangan">Namangan</option>
+                        <option value="Qashqadaryo">Qashqadaryo</option>
+                        <option value="Surxondaryo">Surxondaryo</option>
+                        <option value="Xorazm">Xorazm</option>
+                        <option value="Navoiy">Navoiy</option>
+                        <option value="Jizzax">Jizzax</option>
+                        <option value="Sirdaryo">Sirdaryo</option>
+                        <option value="Qoraqalpog'iston">Qoraqalpog'iston</option>
+                    </select>
+                </div>
+                <!-- Millat -->
+                <div>
+                    <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-white/60 mb-2">Millat</label>
+                    <select id="filter-nationality" class="w-full glass-card rounded-2xl px-4 py-3 text-white border border-white/10 bg-white/5">
+                        <option value="">Barchasi</option>
+                        <option value="O'zbek">O'zbek</option>
+                        <option value="Rus">Rus</option>
+                        <option value="Tojik">Tojik</option>
+                        <option value="Qozoq">Qozoq</option>
+                        <option value="Qoraqalpoq">Qoraqalpoq</option>
+                        <option value="Turk">Turk</option>
+                        <option value="Boshqa">Boshqa</option>
+                    </select>
+                </div>
+                <!-- Oilaviy holati -->
+                <div>
+                    <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-white/60 mb-2">Oilaviy holati</label>
+                    <select id="filter-marital-status" class="w-full glass-card rounded-2xl px-4 py-3 text-white border border-white/10 bg-white/5">
+                        <option value="">Barchasi</option>
+                        <option value="Bo'ydoq">Bo'ydoq</option>
+                        <option value="Qiz bola">Qiz bola</option>
+                        <option value="Ajrashgan">Ajrashgan</option>
+                        <option value="Beva">Beva</option>
+                    </select>
+                </div>
+                <!-- Bo'y -->
+                <div>
+                    <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-white/60 mb-2">Bo'y (sm)</label>
+                    <div class="flex gap-3 items-center">
+                        <select id="filter-height-min" class="flex-1 glass-card rounded-2xl px-4 py-3 text-white border border-white/10 bg-white/5">
+                            <option value="">Min</option>
+                            <option value="150">150</option>
+                            <option value="155">155</option>
+                            <option value="160">160</option>
+                            <option value="165">165</option>
+                            <option value="170">170</option>
+                            <option value="175">175</option>
+                            <option value="180">180</option>
+                        </select>
+                        <span class="text-white/40">—</span>
+                        <select id="filter-height-max" class="flex-1 glass-card rounded-2xl px-4 py-3 text-white border border-white/10 bg-white/5">
+                            <option value="">Max</option>
+                            <option value="160">160</option>
+                            <option value="165">165</option>
+                            <option value="170">170</option>
+                            <option value="175">175</option>
+                            <option value="180">180</option>
+                            <option value="185">185</option>
+                            <option value="190">190</option>
+                            <option value="200">200</option>
+                        </select>
+                    </div>
+                </div>
+                <!-- Diniy daraja -->
+                <div>
+                    <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-white/60 mb-2">Diniy daraja</label>
+                    <select id="filter-religious-level" class="w-full glass-card rounded-2xl px-4 py-3 text-white border border-white/10 bg-white/5">
+                        <option value="">Barchasi</option>
+                        <option value="Jiddiy">Jiddiy</option>
+                        <option value="O'rtacha">O'rtacha</option>
+                        <option value="Yengil">Yengil</option>
+                    </select>
+                </div>
+                <!-- Ta'lim -->
+                <div>
+                    <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-white/60 mb-2">Ta'lim</label>
+                    <select id="filter-education" class="w-full glass-card rounded-2xl px-4 py-3 text-white border border-white/10 bg-white/5">
+                        <option value="">Barchasi</option>
+                        <option value="Oliy">Oliy</option>
+                        <option value="O'rta maxsus">O'rta maxsus</option>
+                        <option value="O'rta">O'rta</option>
+                    </select>
+                </div>
+            </div>
+            <button onclick="applyFilters()" class="w-full mt-6 bg-primary text-black font-black py-4 rounded-2xl text-sm tracking-[0.22em] uppercase shadow-[0_10px_30px_rgba(64,255,0,0.3)] hover:scale-[1.02] active:scale-[0.98] transition-all">
+                QIDIRISH
+            </button>
+        </div>
+    </div>
+
+    <!-- Xabarlar saralash Sheet -->
+    <div id="chats-sort-sheet" class="bottom-sheet">
+        <div class="max-w-md mx-auto rounded-t-[40px] px-6 pb-14">
+            <div class="ios-handle"></div>
+            <div class="flex items-center justify-between mb-8">
+                <h3 class="text-2xl font-extrabold tracking-tight">Xabarlarni saralash</h3>
+                <button class="filter-close-btn size-10 rounded-full glass-panel flex items-center justify-center active:scale-95 transition-transform" title="Yopish">
+                    <span class="material-symbols-outlined text-[22px]">close</span>
+                </button>
+            </div>
+            <div class="space-y-3" id="chats-sort-options">
+                <button type="button" data-sort="new" class="chats-sort-option-btn w-full flex items-center justify-between p-4 rounded-2xl border glass-card transition-all group">
+                    <div class="flex items-center gap-4">
+                        <span class="material-symbols-outlined text-[24px] sort-option-icon">new_releases</span>
+                        <span class="text-[15px] font-bold sort-option-label">Yangi xabarlar</span>
+                    </div>
+                    <div class="flex items-center gap-1 bg-black/40 rounded-full px-2 py-1 border border-primary/30 sort-option-badge">
+                        <span class="material-symbols-outlined text-[20px]">expand_less</span>
+                        <span class="text-[10px] font-black uppercase">NEW</span>
+                    </div>
+                </button>
+                <button type="button" data-sort="unread" class="chats-sort-option-btn w-full flex items-center justify-between p-4 rounded-2xl border glass-card transition-all group">
+                    <div class="flex items-center gap-4">
+                        <span class="material-symbols-outlined text-[24px] sort-option-icon">mark_email_unread</span>
+                        <span class="text-[15px] font-bold sort-option-label">O'qilmagan birinchi</span>
+                    </div>
+                </button>
+                <button type="button" data-sort="name_asc" class="chats-sort-option-btn w-full flex items-center justify-between p-4 rounded-2xl border glass-card transition-all group">
+                    <div class="flex items-center gap-4">
+                        <span class="material-symbols-outlined text-[24px] sort-option-icon">sort_by_alpha</span>
+                        <span class="text-[15px] font-bold sort-option-label">Ism bo'yicha A → Z</span>
+                    </div>
+                </button>
+                <button type="button" data-sort="expiring" class="chats-sort-option-btn w-full flex items-center justify-between p-4 rounded-2xl border glass-card transition-all group">
+                    <div class="flex items-center gap-4">
+                        <span class="material-symbols-outlined text-[24px] sort-option-icon">hourglass_bottom</span>
+                        <span class="text-[15px] font-bold sort-option-label">Tez tugaydiganlar</span>
+                    </div>
+                </button>
             </div>
         </div>
     </div>

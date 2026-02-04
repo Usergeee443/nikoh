@@ -35,6 +35,10 @@ class Profile(db.Model):
     education = db.Column(db.String(100))
     profession = db.Column(db.String(100))
     is_working = db.Column(db.Boolean)
+    salary = db.Column(db.String(50))  # Maosh: "500-1000$", "1000-2000$", etc.
+
+    # 5.4.1 Joylashuv (kengaytirilgan)
+    country = db.Column(db.String(100))  # Davlat: O'zbekiston, Rossiya, Turkiya, etc.
 
     # 5.5 Juftga qo'yiladigan talablar
     partner_age_min = db.Column(db.Integer)
@@ -157,6 +161,8 @@ class Profile(db.Model):
             'education': self.education,
             'profession': self.profession,
             'is_working': self.is_working,
+            'salary': self.salary,
+            'country': self.country,
             'bio': self.bio,
             'is_active': self.is_active,
             'completion_percentage': self.completion_percentage,
@@ -166,7 +172,6 @@ class Profile(db.Model):
             'partner_religious_level': self.partner_religious_level,
             'partner_marital_status': self.partner_marital_status,
             'photo_url': None,  # Will be generated on frontend using gradient
-            'salary': None,  # Not stored in profile, will be calculated if needed
             'views_count': 0,  # Placeholder
             'favorites_count': 0  # Placeholder
         }
