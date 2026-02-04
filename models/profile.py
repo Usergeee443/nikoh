@@ -48,6 +48,7 @@ class Profile(db.Model):
     # 6. E'lon ma'lumotlari
     bio = db.Column(db.Text)  # Qisqa tavsif
     is_active = db.Column(db.Boolean, default=False, index=True)  # E'lon aktiv/passiv
+    is_published = db.Column(db.Boolean, default=False, index=True)  # E'lon qilingan/qoralama
     activated_at = db.Column(db.DateTime, index=True)
 
     # Timestamps
@@ -162,6 +163,8 @@ class Profile(db.Model):
             'salary': self.salary,
             'bio': self.bio,
             'is_active': self.is_active,
+            'is_published': self.is_published,
+            'birth_year': self.birth_year,
             'completion_percentage': self.completion_percentage,
             'partner_age_min': self.partner_age_min,
             'partner_age_max': self.partner_age_max,

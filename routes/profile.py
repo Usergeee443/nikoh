@@ -282,7 +282,7 @@ def list_my_listings():
     profiles = user.profiles.order_by(Profile.is_primary.desc(), Profile.id).all()
     return jsonify({
         'listings': [p.to_dict() for p in profiles],
-        'profiles': [{'id': p.id, 'name': p.name or 'E\'lon', 'is_primary': p.is_primary, 'is_active': p.is_active} for p in profiles]
+        'profiles': [{'id': p.id, 'name': p.name or 'E\'lon', 'is_primary': p.is_primary, 'is_active': p.is_active, 'is_published': getattr(p, 'is_published', True)} for p in profiles]
     })
 
 
@@ -357,12 +357,125 @@ def create_listing():
             partner_marital_status=(data.get('partner_marital_status') or '')[:20] or None,
             bio=(data.get('bio') or '').strip() or None
         )
+        # is_published ni faqat ustun mavjud bo'lsa o'rnatish
+        try:
+            profile.is_published = _parse_bool(data.get('is_published')) if data.get('is_published') is not None else False
+        except:
+            pass
         db.session.add(profile)
         db.session.commit()
-        return jsonify({'success': True, 'profile': profile.to_dict(), 'id': profile.id})
+        return jsonify({'success': True, 'profile': profile.to_dict(), 'id': profile.id, 'listing_id': profile.id})
     except Exception as e:
         db.session.rollback()
         err_msg = str(e)
+        import traceback
+        traceback.print_exc()
         if 'Duplicate' in err_msg or 'UNIQUE' in err_msg or 'unique' in err_msg:
             return jsonify({'error': 'Bunday e\'lon allaqachon mavjud', 'message': 'E\'lon saqlanmadi.'}), 500
+        if 'is_published' in err_msg:
+            return jsonify({'error': 'Baza migratsiyasi kerak', 'message': 'Serverni qayta ishga tushiring.'}), 500
         return jsonify({'error': err_msg, 'message': 'E\'lon saqlanmadi. Qaytadan urinib ko\'ring.'}), 500
+
+
+@profile_bp.route('/api/listings/<int:listing_id>', methods=['GET'])
+@login_required
+def get_listing(listing_id):
+    """Bitta e'lonni olish (tahrirlash uchun)"""
+    user = User.query.get(session['user_id'])
+    profile = Profile.query.filter_by(id=listing_id, user_id=user.id).first()
+    if not profile:
+        return jsonify({'error': 'E\'lon topilmadi'}), 404
+    return jsonify({'success': True, 'listing': profile.to_dict()})
+
+
+@profile_bp.route('/api/listings/<int:listing_id>', methods=['PUT'])
+@login_required
+def update_listing(listing_id):
+    """E'lonni tahrirlash"""
+    user = User.query.get(session['user_id'])
+    profile = Profile.query.filter_by(id=listing_id, user_id=user.id).first()
+    if not profile:
+        return jsonify({'error': 'E\'lon topilmadi'}), 404
+    if profile.is_primary:
+        return jsonify({'error': 'Asosiy profilni bu yerda tahrirlab bo\'lmaydi'}), 400
+    
+    data = request.get_json(silent=True) or {}
+    
+    profile.name = (data.get('name') or profile.name or '').strip()[:100] or profile.name
+    if data.get('gender') in ('Erkak', 'Ayol'):
+        profile.gender = data.get('gender')
+    profile.birth_year = _parse_int(data.get('birth_year')) or profile.birth_year
+    profile.country = (data.get('country') or '')[:100] or profile.country
+    profile.region = (data.get('region') or '')[:100] or profile.region
+    profile.nationality = (data.get('nationality') or '')[:50] or profile.nationality
+    profile.marital_status = (data.get('marital_status') or '')[:20] or profile.marital_status
+    profile.height = _parse_int(data.get('height')) or profile.height
+    profile.weight = _parse_int(data.get('weight')) or profile.weight
+    profile.aqida = (data.get('aqida') or '')[:50] or profile.aqida
+    profile.prays = (data.get('prays') or '')[:20] or profile.prays
+    profile.fasts = (data.get('fasts') or '')[:10] or profile.fasts
+    profile.quran_reading = (data.get('quran_reading') or '')[:50] or profile.quran_reading
+    profile.mazhab = (data.get('mazhab') or '')[:30] or profile.mazhab
+    profile.religious_level = (data.get('religious_level') or '')[:20] or profile.religious_level
+    profile.education = (data.get('education') or '')[:100] or profile.education
+    profile.profession = (data.get('profession') or '')[:100] or profile.profession
+    if data.get('is_working') is not None:
+        profile.is_working = _parse_bool(data.get('is_working'))
+    profile.salary = (data.get('salary') or '').strip()[:100] or profile.salary
+    profile.partner_age_min = _parse_int(data.get('partner_age_min')) or profile.partner_age_min
+    profile.partner_age_max = _parse_int(data.get('partner_age_max')) or profile.partner_age_max
+    profile.partner_region = (data.get('partner_region') or '')[:100] or profile.partner_region
+    profile.partner_religious_level = (data.get('partner_religious_level') or '')[:20] or profile.partner_religious_level
+    profile.partner_marital_status = (data.get('partner_marital_status') or '')[:20] or profile.partner_marital_status
+    profile.bio = (data.get('bio') or '').strip() or profile.bio
+    if data.get('is_published') is not None:
+        profile.is_published = _parse_bool(data.get('is_published'))
+    
+    try:
+        db.session.commit()
+        return jsonify({'success': True, 'listing': profile.to_dict(), 'listing_id': profile.id})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e), 'message': 'Xatolik yuz berdi'}), 500
+
+
+@profile_bp.route('/api/listings/<int:listing_id>', methods=['DELETE'])
+@login_required
+def delete_listing(listing_id):
+    """E'lonni o'chirish"""
+    user = User.query.get(session['user_id'])
+    profile = Profile.query.filter_by(id=listing_id, user_id=user.id).first()
+    if not profile:
+        return jsonify({'error': 'E\'lon topilmadi'}), 404
+    if profile.is_primary:
+        return jsonify({'error': 'Asosiy profilni o\'chirib bo\'lmaydi'}), 400
+    
+    try:
+        db.session.delete(profile)
+        db.session.commit()
+        return jsonify({'success': True, 'message': 'E\'lon o\'chirildi'})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
+
+@profile_bp.route('/api/listings/<int:listing_id>/publish', methods=['POST'])
+@login_required
+def toggle_listing_publish(listing_id):
+    """E'lonni yoqish/o'chirish (publish/unpublish)"""
+    user = User.query.get(session['user_id'])
+    profile = Profile.query.filter_by(id=listing_id, user_id=user.id).first()
+    if not profile:
+        return jsonify({'error': 'E\'lon topilmadi'}), 404
+    
+    data = request.get_json(silent=True) or {}
+    publish = _parse_bool(data.get('publish'))
+    
+    profile.is_published = publish if publish is not None else not profile.is_published
+    
+    try:
+        db.session.commit()
+        return jsonify({'success': True, 'is_published': profile.is_published, 'message': 'E\'lon yoqildi' if profile.is_published else 'E\'lon o\'chirildi'})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500

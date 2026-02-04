@@ -1072,7 +1072,7 @@
                             </div>
                             <input id="requests-search" class="w-full h-11 search-glass rounded-full pl-10 pr-4 text-[13px] bg-transparent text-white placeholder:text-white/30 border-none focus:ring-1 focus:ring-primary/30 outline-none" placeholder="Ism yoki ID qidirish..." type="text"/>
                         </div>
-                        <button class="flex items-center gap-1.5 h-11 px-4 glass-card rounded-full text-[10px] font-black uppercase tracking-[0.1em] text-white/40">
+                        <button id="requests-sort-btn" type="button" class="flex items-center gap-1.5 h-11 px-4 glass-card rounded-full text-[10px] font-black uppercase tracking-[0.1em] text-white/40 hover:text-primary hover:border-primary/40 transition-all active:scale-95" title="Saralash">
                             <span>SARALASH</span>
                             <span class="material-symbols-outlined text-[16px]">sort</span>
                         </button>
@@ -1390,7 +1390,7 @@
                     <div id="profile-listings-section" class="space-y-2">
                         <h3 class="px-2 text-[10px] font-black uppercase tracking-[0.2em] text-white/30 mb-2">E'lonlarim</h3>
                         <div id="profile-listings-list" class="space-y-2"></div>
-                        <button type="button" id="profile-add-listing-btn" onclick="window.showPage('add-listing')" class="w-full glass-card rounded-2xl p-4 flex items-center justify-between group active:scale-[0.98] transition-transform border border-dashed border-primary/30 bg-primary/5">
+                        <button type="button" id="profile-add-listing-btn" onclick="window.startNewListing()" class="w-full glass-card rounded-2xl p-4 flex items-center justify-between group active:scale-[0.98] transition-transform border border-dashed border-primary/30 bg-primary/5">
                             <div class="flex items-center gap-4">
                                 <div class="size-10 rounded-xl bg-primary/20 flex items-center justify-center text-primary">
                                     <span class="material-symbols-outlined text-[22px]">add_circle</span>
@@ -1698,9 +1698,19 @@
                         <span class="material-symbols-outlined text-primary">add_circle</span>
                     </button>
                 </div>
-                <button type="button" id="add-listing-save-btn" onclick="window.saveNewListing()" class="mt-10 w-full bg-primary text-black font-black py-4 rounded-2xl text-base uppercase tracking-wider active:scale-[0.98] transition-all neon-glow">
-                    E'lonni saqlash
-                </button>
+                <div class="mt-10 space-y-3">
+                    <button type="button" id="add-listing-draft-btn" onclick="window.saveDraftListing()" class="w-full bg-white/10 text-white font-bold py-4 rounded-2xl text-base active:scale-[0.98] transition-all border border-white/10">
+                        <span class="material-symbols-outlined text-[20px] align-middle mr-2">save</span>Qoralama saqlash
+                    </button>
+                    <button type="button" id="add-listing-publish-btn" onclick="window.publishNewListing()" class="w-full bg-primary text-black font-black py-4 rounded-2xl text-base uppercase tracking-wider active:scale-[0.98] transition-all neon-glow">
+                        <span class="material-symbols-outlined text-[20px] align-middle mr-2">publish</span>E'lon qilish
+                    </button>
+                </div>
+                <div id="add-listing-delete-section" class="mt-6 hidden">
+                    <button type="button" onclick="window.deleteCurrentListing()" class="w-full py-3 text-red-400 text-sm font-medium active:scale-[0.98] transition-all">
+                        <span class="material-symbols-outlined text-[18px] align-middle mr-1">delete</span>E'lonni o'chirish
+                    </button>
+                </div>
             </main>
         </div>
 
@@ -3374,6 +3384,8 @@
 
         // REQUESTS PAGE
         let requestsCurrentTab = 'received';
+        let requestsSort = 'new';
+        let sortSheetContext = 'feed';
 
         async function loadRequestsData() {
             if (!userData) await initUserData();
@@ -3423,6 +3435,24 @@
             } else {
                 container.innerHTML = '';
             }
+        }
+
+        function sortRequestsBy(list, sortKey) {
+            if (!list || !Array.isArray(list)) return list;
+            const arr = [...list];
+            const getSender = r => r.sender || r.receiver || {};
+            const getDate = r => (r.created_at && new Date(r.created_at).getTime()) || 0;
+            const getName = r => (getSender(r).name || '').toLowerCase();
+            const getAge = r => parseInt(getSender(r).age, 10) || 0;
+            const getHeight = r => parseInt(getSender(r).height, 10) || 0;
+            if (sortKey === 'new') arr.sort((a, b) => getDate(b) - getDate(a));
+            else if (sortKey === 'name_asc') arr.sort((a, b) => getName(a).localeCompare(getName(b)));
+            else if (sortKey === 'name_desc') arr.sort((a, b) => getName(b).localeCompare(getName(a)));
+            else if (sortKey === 'age_asc') arr.sort((a, b) => getAge(b) - getAge(a));
+            else if (sortKey === 'age_desc') arr.sort((a, b) => getAge(a) - getAge(b));
+            else if (sortKey === 'height_asc') arr.sort((a, b) => getHeight(a) - getHeight(b));
+            else if (sortKey === 'height_desc') arr.sort((a, b) => getHeight(b) - getHeight(a));
+            return arr;
         }
 
         function switchRequestsTab(tab) {
@@ -3507,7 +3537,8 @@
                     badge.classList.remove('hidden');
                 }
 
-                data.requests.forEach(request => {
+                const sorted = sortRequestsBy(data.requests, requestsSort);
+                sorted.forEach(request => {
                     container.appendChild(createReceivedRequestCard(request));
                 });
 
@@ -3558,7 +3589,8 @@
                     badge.classList.remove('hidden');
                 }
 
-                data.requests.forEach(request => {
+                const sorted = sortRequestsBy(data.requests, requestsSort);
+                sorted.forEach(request => {
                     container.appendChild(createSentRequestCard(request));
                 });
 
@@ -4470,9 +4502,14 @@
         }
 
         let _sheetDataSource = null;
-        function openProfileEditSheet(section, dataSource) {
+        let addListingShaxsiyStep = 0;
+        const SHAXSIY_STEP_NAMES = ['Jins', 'Ism', 'Tug\'ilgan yil', 'Davlat', 'Viloyat / Shahar', 'Millat'];
+        function openProfileEditSheet(section, dataSource, initialShaxsiyStep) {
             currentProfileEditSection = section;
             _sheetDataSource = dataSource || null;
+            if (section === 'shaxsiy' && _sheetDataSource) {
+                addListingShaxsiyStep = (typeof initialShaxsiyStep === 'number') ? initialShaxsiyStep : 0;
+            }
             hapticTap('light');
             const sheet = document.getElementById('profile-edit-sheet');
             const overlay = document.getElementById('profile-edit-sheet-overlay');
@@ -4504,7 +4541,61 @@
                 const defaultGender = (p.gender && (p.gender === 'Erkak' || p.gender === 'Ayol')) ? p.gender : 'Ayol';
                 const isWoman = (defaultGender === 'Ayol');
                 const maritalOpts = isWoman ? ['Qiz bola', 'Beva', 'Ajrashgan'] : ['Bo\'ydoq', 'Oilali', 'Ajrashgan'];
-                body.innerHTML = `
+                const isAddListingSteps = !!_sheetDataSource;
+                const step = isAddListingSteps ? addListingShaxsiyStep : 0;
+                if (isAddListingSteps) {
+                    title.textContent = SHAXSIY_STEP_NAMES[step] || 'Shaxsiy';
+                    const countryForRegion = p.country || "O'zbekiston";
+                    const regionList = LOCATION_COUNTRIES_REGIONS[countryForRegion] || [];
+                    const stepContents = [
+                        `<label class="block text-[11px] font-bold text-white/60 mb-4">Jins</label>
+                        <div class="flex gap-3 mb-6">
+                            <label class="flex-1 flex items-center justify-center p-5 rounded-2xl border-2 cursor-pointer transition-all ${p.gender === 'Erkak' ? 'border-primary bg-primary/10' : 'border-white/10 bg-white/5'}"><span class="text-lg font-bold">Erkak</span><input type="radio" name="gender" value="Erkak" ${p.gender === 'Erkak' ? 'checked' : ''} class="hidden"></label>
+                            <label class="flex-1 flex items-center justify-center p-5 rounded-2xl border-2 cursor-pointer transition-all ${p.gender === 'Ayol' ? 'border-primary bg-primary/10' : 'border-white/10 bg-white/5'}"><span class="text-lg font-bold">Ayol</span><input type="radio" name="gender" value="Ayol" ${p.gender === 'Ayol' ? 'checked' : ''} class="hidden"></label>
+                        </div>
+                        <div class="flex gap-3 pt-2"><button type="button" onclick="window.addListingShaxsiyNext()" class="flex-1 bg-primary text-black font-bold py-3.5 rounded-2xl">Keyingi</button></div>`,
+                        `<label class="block text-[11px] font-bold text-white/60 mb-2">Ism</label>
+                        <input type="text" name="name" value="${(p.name || '').replace(/"/g, '&quot;')}" placeholder="Ismni kiriting" class="w-full glass-card rounded-2xl px-4 py-3 text-white border border-white/10 bg-white/5 mb-6">
+                        <div class="flex gap-3 pt-2"><button type="button" onclick="window.addListingShaxsiyBack()" class="px-6 py-3.5 rounded-2xl border border-white/20 text-white/80 font-bold">Orqaga</button><button type="button" onclick="window.addListingShaxsiyNext()" class="flex-1 bg-primary text-black font-bold py-3.5 rounded-2xl">Keyingi</button></div>`,
+                        `<label class="block text-[11px] font-bold text-white/60 mb-2">Tug'ilgan yil (yosh)</label>
+                        <select name="birth_year" class="w-full glass-card rounded-2xl px-4 py-3 text-white border border-white/10 bg-white/5 mb-6">${yearOpts.map(y => `<option value="${y}" ${(p.birth_year == y) ? 'selected' : ''}>${y} yil</option>`).join('')}</select>
+                        <div class="flex gap-3 pt-2"><button type="button" onclick="window.addListingShaxsiyBack()" class="px-6 py-3.5 rounded-2xl border border-white/20 text-white/80 font-bold">Orqaga</button><button type="button" onclick="window.addListingShaxsiyNext()" class="flex-1 bg-primary text-black font-bold py-3.5 rounded-2xl">Keyingi</button></div>`,
+                        `<label class="block text-[11px] font-bold text-white/60 mb-2">Davlat</label>
+                        <select name="country" id="profile-edit-country" class="w-full glass-card rounded-2xl px-4 py-3 text-white border border-white/10 bg-white/5 mb-6">${countryList.map(c => `<option value="${c}" ${(p.country === c) ? 'selected' : ''}>${c}</option>`).join('')}</select>
+                        <div class="flex gap-3 pt-2"><button type="button" onclick="window.addListingShaxsiyBack()" class="px-6 py-3.5 rounded-2xl border border-white/20 text-white/80 font-bold">Orqaga</button><button type="button" onclick="window.addListingShaxsiyNext()" class="flex-1 bg-primary text-black font-bold py-3.5 rounded-2xl">Keyingi</button></div>`,
+                        `<label class="block text-[11px] font-bold text-white/60 mb-2">Viloyat / Shahar</label>
+                        <select name="region" id="profile-edit-region-select" class="w-full glass-card rounded-2xl px-4 py-3 text-white border border-white/10 bg-white/5 mb-6">${regionList.map(r => `<option value="${r}" ${(p.region === r) ? 'selected' : ''}>${r}</option>`).join('')}</select>
+                        <div class="flex gap-3 pt-2"><button type="button" onclick="window.addListingShaxsiyBack()" class="px-6 py-3.5 rounded-2xl border border-white/20 text-white/80 font-bold">Orqaga</button><button type="button" onclick="window.addListingShaxsiyNext()" class="flex-1 bg-primary text-black font-bold py-3.5 rounded-2xl">Keyingi</button></div>`,
+                        `<label class="block text-[11px] font-bold text-white/60 mb-2">Millat</label>
+                        <select name="nationality" class="w-full glass-card rounded-2xl px-4 py-3 text-white border border-white/10 bg-white/5 mb-6">${['O\'zbek','Rus','Tojik','Qozoq','Qoraqalpoq','Boshqa'].map(n => `<option value="${n}" ${(p.nationality === n) ? 'selected' : ''}>${n}</option>`).join('')}</select>
+                        <div class="flex gap-3 pt-2"><button type="button" onclick="window.addListingShaxsiyBack()" class="px-6 py-3.5 rounded-2xl border border-white/20 text-white/80 font-bold">Orqaga</button><button type="button" onclick="window.addListingShaxsiySave()" class="flex-1 bg-primary text-black font-bold py-3.5 rounded-2xl">Saqlash</button></div>`
+                    ];
+                    body.innerHTML = stepContents[step] || stepContents[0];
+                    if (step === 0) {
+                        body.querySelectorAll('input[type=radio][name=gender]').forEach(radio => {
+                            radio.addEventListener('change', function() {
+                                body.querySelectorAll('label').forEach(l => l.classList.remove('border-primary', 'bg-primary/10'));
+                                this.closest('label')?.classList.add('border-primary', 'bg-primary/10');
+                            });
+                        });
+                    }
+                    if (step === 3) {
+                        const countryEl = document.getElementById('profile-edit-country');
+                        const regionEl = document.getElementById('profile-edit-region-select');
+                        if (countryEl && regionEl) countryEl.addEventListener('change', function() {
+                            const regs = LOCATION_COUNTRIES_REGIONS[this.value] || [];
+                            regionEl.innerHTML = regs.map(r => `<option value="${r}">${r}</option>`).join('');
+                        });
+                    }
+                    body.querySelectorAll('input[type=radio]').forEach(radio => {
+                        radio.addEventListener('change', function() {
+                            body.querySelectorAll('label').forEach(l => l.classList.remove('border-primary', 'bg-primary/10'));
+                            body.querySelectorAll('input[type=radio]:checked').forEach(r => r.closest('label')?.classList.add('border-primary', 'bg-primary/10'));
+                        });
+                    });
+                    document.getElementById('profile-edit-sheet-save')?.classList.add('hidden');
+                } else {
+                    body.innerHTML = `
                     <label class="block text-[11px] font-bold text-white/60 mb-2">Ism</label>
                     <input type="text" name="name" value="${(p.name || '').replace(/"/g, '&quot;')}" placeholder="Ism" class="w-full glass-card rounded-2xl px-4 py-3 text-white border border-white/10 bg-white/5 mb-4">
                     <label class="block text-[11px] font-bold text-white/60 mb-2">Jins</label>
@@ -4525,14 +4616,15 @@
                         ${maritalOpts.map(v => `<label class="flex items-center justify-between p-4 rounded-2xl border cursor-pointer transition-all ${(p.marital_status === v) ? 'border-primary bg-primary/10' : 'border-white/10 bg-white/5'}"><span>${v}</span><input type="radio" name="marital_status" value="${v}" ${(p.marital_status === v) ? 'checked' : ''} class="hidden"></label>`).join('')}
                     </div>
                 `;
-                const countryEl = document.getElementById('profile-edit-country');
-                const regionEl = document.getElementById('profile-edit-region-select');
-                if (countryEl && regionEl) countryEl.addEventListener('change', function() {
-                    const regs = LOCATION_COUNTRIES_REGIONS[this.value] || [];
-                    const curVal = regionEl.value;
-                    regionEl.innerHTML = regs.map(r => `<option value="${r}">${r}</option>`).join('');
-                    if (regs.indexOf(curVal) !== -1) regionEl.value = curVal;
-                });
+                    const countryEl = document.getElementById('profile-edit-country');
+                    const regionEl = document.getElementById('profile-edit-region-select');
+                    if (countryEl && regionEl) countryEl.addEventListener('change', function() {
+                        const regs = LOCATION_COUNTRIES_REGIONS[this.value] || [];
+                        const curVal = regionEl.value;
+                        regionEl.innerHTML = regs.map(r => `<option value="${r}">${r}</option>`).join('');
+                        if (regs.indexOf(curVal) !== -1) regionEl.value = curVal;
+                    });
+                }
             } else if (section === 'diniy') {
                 body.innerHTML = `
                     <p class="text-[11px] font-bold text-white/60 mb-2">Aqidasi</p>
@@ -4646,12 +4738,40 @@
             const sheet = document.getElementById('profile-edit-sheet');
             const overlay = document.getElementById('profile-edit-sheet-overlay');
             const content = document.getElementById('profile-edit-sheet-content');
+            const saveBtn = document.getElementById('profile-edit-sheet-save');
             if (sheet) sheet.classList.add('pointer-events-none');
             if (overlay) { overlay.classList.remove('opacity-100'); overlay.classList.add('pointer-events-none'); }
             if (content) content.classList.add('translate-y-full');
+            if (saveBtn) saveBtn.classList.remove('hidden');
             currentProfileEditSection = null;
             _sheetDataSource = null;
         }
+
+        function collectShaxsiyStepToDraft() {
+            const body = document.getElementById('profile-edit-sheet-body');
+            if (!body) return;
+            window.newListingDraft = window.newListingDraft || {};
+            body.querySelectorAll('input, select, textarea').forEach(el => {
+                if (el.name && (el.type !== 'radio' || el.checked)) window.newListingDraft[el.name] = el.value;
+            });
+        }
+
+        window.addListingShaxsiyNext = function() {
+            collectShaxsiyStepToDraft();
+            addListingShaxsiyStep++;
+            openProfileEditSheet('shaxsiy', window.newListingDraft, addListingShaxsiyStep);
+        };
+
+        window.addListingShaxsiyBack = function() {
+            addListingShaxsiyStep--;
+            openProfileEditSheet('shaxsiy', window.newListingDraft, addListingShaxsiyStep);
+        };
+
+        window.addListingShaxsiySave = function() {
+            collectShaxsiyStepToDraft();
+            updateAddListingSummaries();
+            closeProfileEditSheet();
+        };
 
         async function saveProfileEditSheet() {
             if (!currentProfileEditSection) return;
@@ -4707,63 +4827,6 @@
             if (bioEl) { bioEl.textContent = (d.bio || '').trim() ? (d.bio.slice(0, 40) + (d.bio.length > 40 ? '…' : '')) : 'Belgilanmagan'; bioEl.classList.toggle('italic', !d.bio); }
         }
 
-        window.saveNewListing = async function() {
-            const d = window.newListingDraft || {};
-            if (!(d.name || '').trim() || !d.gender) {
-                alert('Ism va jinsni to\'ldiring (Shaxsiy bo\'limda)');
-                return;
-            }
-            const btn = document.getElementById('add-listing-save-btn');
-            if (btn) { btn.disabled = true; btn.textContent = 'Saqlanmoqda...'; }
-            try {
-                const r = await fetch('/profile/api/listings', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
-                    credentials: 'same-origin',
-                    body: JSON.stringify({
-                        name: (d.name || '').trim(),
-                        gender: (d.gender && String(d.gender).trim()) ? String(d.gender).trim() : '',
-                        birth_year: d.birth_year ? parseInt(d.birth_year, 10) : null,
-                        country: d.country || '',
-                        region: d.region || '',
-                        nationality: d.nationality || '',
-                        marital_status: d.marital_status || '',
-                        height: d.height ? parseInt(d.height, 10) : null,
-                        weight: d.weight ? parseInt(d.weight, 10) : null,
-                        aqida: d.aqida || '',
-                        prays: d.prays || '',
-                        fasts: d.fasts || '',
-                        quran_reading: d.quran_reading || '',
-                        mazhab: d.mazhab || '',
-                        religious_level: d.religious_level || '',
-                        education: d.education || '',
-                        profession: d.profession || '',
-                        is_working: d.is_working === 'true',
-                        salary: (d.salary || '').trim() || null,
-                        partner_age_min: d.partner_age_min ? parseInt(d.partner_age_min, 10) : null,
-                        partner_age_max: d.partner_age_max ? parseInt(d.partner_age_max, 10) : null,
-                        partner_region: d.partner_region || '',
-                        partner_religious_level: d.partner_religious_level || '',
-                        partner_marital_status: d.partner_marital_status || '',
-                        bio: (d.bio || '').trim()
-                    })
-                });
-                let data = {};
-                try { data = await r.json(); } catch (_) { data = {}; }
-                if (r.ok && data.success) {
-                    if (typeof window.showNotification === 'function') window.showNotification('✅ E\'lon qo\'shildi');
-                    window.showPage('profile');
-                    loadProfileListings();
-                } else {
-                    const msg = data.message || data.error || 'Xatolik yuz berdi';
-                    alert(msg);
-                }
-            } catch (e) {
-                alert('Xatolik yuz berdi. Internet aloqangizni tekshiring.');
-            } finally {
-                if (btn) { btn.disabled = false; btn.textContent = 'E\'lonni saqlash'; }
-            }
-        };
 
         document.getElementById('profile-edit-sheet-overlay')?.addEventListener('click', closeProfileEditSheet);
 
@@ -4844,6 +4907,14 @@
             loadProfileListings();
         }
 
+        window.startNewListing = function() {
+            window.newListingDraft = {};
+            window.currentEditingListingId = null;
+            document.getElementById('add-listing-delete-section')?.classList.add('hidden');
+            updateAddListingSummaries();
+            window.showPage('add-listing');
+        };
+
         async function loadProfileListings() {
             const listEl = document.getElementById('profile-listings-list');
             if (!listEl) return;
@@ -4857,24 +4928,170 @@
                     const name = p.name || 'E\'lon';
                     const isPrimary = p.is_primary;
                     const isActive = p.is_active;
+                    const isPublished = p.is_published !== false;
                     const div = document.createElement('div');
-                    div.className = 'glass-card rounded-2xl p-4 flex items-center justify-between';
+                    div.className = 'glass-card rounded-2xl p-4';
                     div.innerHTML = `
-                        <div class="flex items-center gap-3">
-                            <div class="size-10 rounded-xl bg-white/5 flex items-center justify-center text-white/60">
-                                <span class="material-symbols-outlined text-[22px]">person</span>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-3 flex-1 min-w-0" onclick="window.editListing(${p.id})">
+                                <div class="size-10 rounded-xl ${isPublished ? 'bg-primary/10 text-primary' : 'bg-white/5 text-white/40'} flex items-center justify-center shrink-0">
+                                    <span class="material-symbols-outlined text-[22px]">${isPublished ? 'visibility' : 'visibility_off'}</span>
+                                </div>
+                                <div class="min-w-0">
+                                    <p class="text-sm font-bold text-white truncate">${name}</p>
+                                    <p class="text-[10px] text-white/40">${isPrimary ? 'Asosiy profil' : (isPublished ? 'E\'lon qilingan' : 'Qoralama')}</p>
+                                </div>
                             </div>
-                            <div>
-                                <p class="text-sm font-bold text-white">${name}</p>
-                                <p class="text-[10px] text-white/40">${isPrimary ? 'Asosiy profil' : 'Qo\'shimcha e\'lon'} ${isActive ? '• Aktiv' : '• Passiv'}</p>
+                            <div class="flex items-center gap-2 shrink-0">
+                                ${!isPrimary ? `<label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" class="sr-only peer" ${isPublished ? 'checked' : ''} onchange="window.toggleListingPublish(${p.id}, this.checked)">
+                                    <div class="w-11 h-6 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                                </label>` : ''}
+                                <button onclick="window.editListing(${p.id})" class="size-8 rounded-lg flex items-center justify-center text-white/40 hover:text-white hover:bg-white/10 transition-all">
+                                    <span class="material-symbols-outlined text-[20px]">edit</span>
+                                </button>
                             </div>
                         </div>
-                        <span class="material-symbols-outlined text-white/30">chevron_right</span>
                     `;
                     listEl.appendChild(div);
                 });
             } catch (e) { console.warn('Profile listings load error', e); }
         }
+
+        window.toggleListingPublish = async function(listingId, publish) {
+            try {
+                const r = await fetch(`/profile/api/listings/${listingId}/publish`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+                    credentials: 'same-origin',
+                    body: JSON.stringify({ publish: publish })
+                });
+                const data = await r.json();
+                if (r.ok && data.success) {
+                    if (typeof window.showNotification === 'function') window.showNotification(publish ? '✅ E\'lon yoqildi' : 'E\'lon o\'chirildi');
+                    loadProfileListings();
+                } else {
+                    alert(data.message || data.error || 'Xatolik');
+                    loadProfileListings();
+                }
+            } catch (e) {
+                alert('Xatolik yuz berdi');
+                loadProfileListings();
+            }
+        };
+
+        window.editListing = function(listingId) {
+            window.currentEditingListingId = listingId;
+            fetch(`/profile/api/listings/${listingId}`, { headers: { 'X-Requested-With': 'XMLHttpRequest' }, credentials: 'same-origin' })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success && data.listing) {
+                        window.newListingDraft = { ...data.listing };
+                        document.getElementById('add-listing-delete-section')?.classList.remove('hidden');
+                        updateAddListingSummaries();
+                        window.showPage('add-listing');
+                    }
+                })
+                .catch(e => alert('Xatolik yuz berdi'));
+        };
+
+        window.saveDraftListing = async function() {
+            const d = window.newListingDraft || {};
+            if (!(d.name || '').trim() || !d.gender) {
+                alert('Kamida ism va jinsni to\'ldiring');
+                return;
+            }
+            const btn = document.getElementById('add-listing-draft-btn');
+            if (btn) { btn.disabled = true; btn.innerHTML = '<span class="material-symbols-outlined text-[20px] align-middle mr-2 animate-spin">sync</span>Saqlanmoqda...'; }
+            try {
+                const listingId = window.currentEditingListingId;
+                const url = listingId ? `/profile/api/listings/${listingId}` : '/profile/api/listings';
+                const method = listingId ? 'PUT' : 'POST';
+                const r = await fetch(url, {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+                    credentials: 'same-origin',
+                    body: JSON.stringify({ ...d, is_published: false })
+                });
+                const data = await r.json();
+                if (r.ok && data.success) {
+                    if (typeof window.showNotification === 'function') window.showNotification('✅ Qoralama saqlandi');
+                    window.currentEditingListingId = data.listing_id || listingId;
+                    document.getElementById('add-listing-delete-section')?.classList.remove('hidden');
+                } else {
+                    alert(data.message || data.error || 'Xatolik');
+                }
+            } catch (e) {
+                alert('Xatolik yuz berdi');
+            } finally {
+                if (btn) { btn.disabled = false; btn.innerHTML = '<span class="material-symbols-outlined text-[20px] align-middle mr-2">save</span>Qoralama saqlash'; }
+            }
+        };
+
+        window.publishNewListing = async function() {
+            const d = window.newListingDraft || {};
+            if (!(d.name || '').trim() || !d.gender) {
+                alert('Kamida ism va jinsni to\'ldiring');
+                return;
+            }
+            const btn = document.getElementById('add-listing-publish-btn');
+            if (btn) { btn.disabled = true; btn.innerHTML = '<span class="material-symbols-outlined text-[20px] align-middle mr-2 animate-spin">sync</span>E\'lon qilinmoqda...'; }
+            try {
+                const listingId = window.currentEditingListingId;
+                const url = listingId ? `/profile/api/listings/${listingId}` : '/profile/api/listings';
+                const method = listingId ? 'PUT' : 'POST';
+                const r = await fetch(url, {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+                    credentials: 'same-origin',
+                    body: JSON.stringify({ ...d, is_published: true })
+                });
+                const data = await r.json();
+                if (r.ok && data.success) {
+                    if (typeof window.showNotification === 'function') window.showNotification('✅ E\'lon qilindi!');
+                    window.newListingDraft = {};
+                    window.currentEditingListingId = null;
+                    window.showPage('profile');
+                    loadProfileListings();
+                } else {
+                    alert(data.message || data.error || 'Xatolik');
+                }
+            } catch (e) {
+                alert('Xatolik yuz berdi');
+            } finally {
+                if (btn) { btn.disabled = false; btn.innerHTML = '<span class="material-symbols-outlined text-[20px] align-middle mr-2">publish</span>E\'lon qilish'; }
+            }
+        };
+
+        window.deleteCurrentListing = async function() {
+            const listingId = window.currentEditingListingId;
+            if (!listingId) {
+                window.newListingDraft = {};
+                updateAddListingSummaries();
+                window.showPage('profile');
+                return;
+            }
+            if (!confirm('Haqiqatan ham bu e\'lonni o\'chirmoqchimisiz?')) return;
+            try {
+                const r = await fetch(`/profile/api/listings/${listingId}`, {
+                    method: 'DELETE',
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                    credentials: 'same-origin'
+                });
+                const data = await r.json();
+                if (r.ok && data.success) {
+                    if (typeof window.showNotification === 'function') window.showNotification('E\'lon o\'chirildi');
+                    window.newListingDraft = {};
+                    window.currentEditingListingId = null;
+                    window.showPage('profile');
+                    loadProfileListings();
+                } else {
+                    alert(data.message || data.error || 'Xatolik');
+                }
+            } catch (e) {
+                alert('Xatolik yuz berdi');
+            }
+        };
 
         
         // To'liq profil modalini yopish va profil sahifasiga o'tish (to'liq profil to'ldirish uchun)
@@ -4991,7 +5208,7 @@
                 sheet.classList.add('active');
                 currentFilterSheet = sheetId;
             }
-            if (sheetId === 'filter-sort-sheet') updateSortSheetUI();
+            if (sheetId === 'filter-sort-sheet') updateSortSheetUI(sortSheetContext === 'requests' ? requestsSort : feedSort);
             if (sheetId === 'filter-physical-sheet') {
                 initScrollDials();
             }
@@ -5004,7 +5221,7 @@
                     const forG = btn.getAttribute('data-for-gender');
                     const show = forG === feedGender || forG === 'both';
                     btn.style.display = show ? '' : 'none';
-                    const isSelected = (filterState.family && filterState.family.status === btn.getAttribute('data-value'));
+                    const isSelected = (feedFilterMarital === btn.getAttribute('data-value'));
                     btn.classList.toggle('selected', isSelected);
                     btn.classList.toggle('border-primary/50', isSelected);
                     btn.classList.toggle('bg-primary/5', isSelected);
@@ -5013,8 +5230,52 @@
                     if (icon) icon.classList.toggle('text-primary', isSelected), icon.classList.toggle('text-white/40', !isSelected);
                     const span = btn.querySelector('.text-xs');
                     if (span) span.classList.toggle('text-primary', isSelected), span.classList.toggle('text-white/80', !isSelected);
-                    const check = btn.querySelector('.absolute');
-                    if (check) check.style.display = isSelected ? '' : 'none';
+                    let check = btn.querySelector('.absolute');
+                    if (isSelected && !check) {
+                        check = document.createElement('div');
+                        check.className = 'absolute top-2 right-2';
+                        check.innerHTML = '<span class="material-symbols-outlined text-[14px] text-primary">check_circle</span>';
+                        btn.appendChild(check);
+                    } else if (check) check.style.display = isSelected ? '' : 'none';
+                });
+                document.querySelectorAll('#filter-family-sheet .filter-family-children').forEach(b => {
+                    const v = b.getAttribute('data-value');
+                    const active = (feedFilterChildren || 'Bor') === v;
+                    b.classList.toggle('bg-primary', active); b.classList.toggle('text-black', active);
+                    b.classList.toggle('bg-white/[0.05]', !active); b.classList.toggle('text-white/60', !active);
+                });
+                document.querySelectorAll('#filter-family-sheet .filter-family-polygamy').forEach(b => {
+                    const v = b.getAttribute('data-value');
+                    const active = (feedFilterPolygamy || '1') === v;
+                    b.classList.toggle('border-l-primary', active); b.classList.toggle('border-l-transparent', !active);
+                    const span = b.querySelector('span:first-child');
+                    if (span) { span.classList.toggle('text-primary', active); span.classList.toggle('text-white/60', !active); }
+                    const icon = b.querySelector('.material-symbols-outlined');
+                    if (icon) { icon.classList.toggle('text-primary', active); icon.classList.toggle('text-white/10', !active); icon.textContent = active ? 'check_circle' : 'circle'; }
+                });
+            }
+            if (sheetId === 'filter-education-sheet') {
+                document.querySelectorAll('#filter-education-sheet .filter-education-opt').forEach(b => {
+                    const v = b.getAttribute('data-value');
+                    const active = feedFilterEducation === v;
+                    b.classList.toggle('filter-education-selected', active); b.classList.toggle('border-primary/40', active);
+                    b.classList.toggle('border-white/[0.05]', !active);
+                    const textSpan = b.querySelector('.text-sm');
+                    if (textSpan) { textSpan.classList.toggle('text-white', active); textSpan.classList.toggle('text-white/60', !active); }
+                    const icon = b.querySelector('.size-5');
+                    if (icon) {
+                        if (active) { icon.className = 'size-5 rounded-full bg-primary flex items-center justify-center'; icon.innerHTML = '<span class="material-symbols-outlined text-black text-[14px] font-bold">check</span>'; }
+                        else { icon.className = 'size-5 rounded-full border-2 border-white/10'; icon.innerHTML = ''; }
+                    }
+                });
+            }
+            if (sheetId === 'filter-work-sheet') {
+                initSalarySlider();
+                document.querySelectorAll('#filter-work-sheet .filter-work-profession').forEach(b => {
+                    const v = b.getAttribute('data-value');
+                    const active = feedFilterProfession === v;
+                    b.classList.toggle('bg-primary', active); b.classList.toggle('text-black', active); b.classList.toggle('shadow-[0_4px_15px_rgba(64,255,0,0.2)]', active);
+                    b.classList.toggle('bg-white/[0.05]', !active); b.classList.toggle('border', !active); b.classList.toggle('border-white/[0.1]', !active); b.classList.toggle('text-white/70', !active);
                 });
             }
         }
@@ -5027,6 +5288,10 @@
             } else if (sheet === 'filter-family-sheet') {
                 const sel = document.querySelector('#filter-family-sheet .filter-family-opt.selected, #filter-family-sheet .status-card.selected');
                 feedFilterMarital = sel ? (sel.getAttribute('data-value') || null) : feedFilterMarital;
+                const childrenSel = document.querySelector('#filter-family-sheet .filter-family-children.bg-primary');
+                feedFilterChildren = childrenSel ? (childrenSel.getAttribute('data-value') || null) : feedFilterChildren;
+                const polygamySel = document.querySelector('#filter-family-sheet .filter-family-polygamy.border-l-primary');
+                feedFilterPolygamy = polygamySel ? (polygamySel.getAttribute('data-value') || null) : feedFilterPolygamy;
             } else if (sheet === 'filter-religious-sheet') {
                 const selAqida = document.querySelector('#filter-religious-sheet [data-filter="aqida"].chip-selected');
                 const selPrays = document.querySelector('#filter-religious-sheet [data-filter="prays"].chip-selected, #filter-religious-sheet [data-filter="prays"].radio-item-selected');
@@ -5064,6 +5329,7 @@
             if (sheet && sheet.startsWith('filter-') && sheet.endsWith('-sheet')) {
                 pageDataLoaded.feed = false;
                 loadFeedData();
+                updateFilterButtonState();
             }
             document.querySelectorAll('.bottom-sheet').forEach(s => {
                 s.classList.remove('active');
@@ -5329,8 +5595,9 @@
             
             const SALARY_MIN = 0;
             const SALARY_MAX = 5000;
-            let minVal = 500;
-            let maxVal = 5000;
+            let minVal = (feedFilterSalaryMin != null && feedFilterSalaryMin > 0) ? feedFilterSalaryMin : 500;
+            let maxVal = (feedFilterSalaryMax != null && feedFilterSalaryMax > 0) ? feedFilterSalaryMax : 5000;
+            if (minVal >= maxVal) { minVal = 500; maxVal = 5000; }
             
             function valToPercent(val) {
                 return Math.max(0, Math.min(100, (val / SALARY_MAX) * 100));
@@ -5400,36 +5667,23 @@
             handleDrag(minThumb, true);
             handleDrag(maxThumb, false);
             updateSlider();
-            
-            // Kasb tugmalari
-            document.querySelectorAll('.filter-work-profession').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    document.querySelectorAll('.filter-work-profession').forEach(b => {
-                        b.classList.remove('bg-primary', 'text-black', 'shadow-[0_4px_15px_rgba(64,255,0,0.2)]');
-                        b.classList.add('bg-white/[0.05]', 'border', 'border-white/[0.1]', 'text-white/70');
-                    });
-                    btn.classList.remove('bg-white/[0.05]', 'border', 'border-white/[0.1]', 'text-white/70');
-                    btn.classList.add('bg-primary', 'text-black', 'shadow-[0_4px_15px_rgba(64,255,0,0.2)]');
-                    hapticFeedback('light');
-                });
-            });
-            
-            // Toifa tugmalari
-            document.querySelectorAll('.filter-work-category').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const isActive = btn.classList.contains('border-primary/50');
-                    document.querySelectorAll('.filter-work-category').forEach(b => {
-                        b.classList.remove('border-primary/50', 'bg-primary/5');
-                        b.classList.add('border-white/[0.06]', 'bg-white/[0.03]');
-                    });
-                    if (!isActive) {
-                        btn.classList.remove('border-white/[0.06]', 'bg-white/[0.03]');
-                        btn.classList.add('border-primary/50', 'bg-primary/5');
-                    }
-                    hapticFeedback('light');
-                });
-            });
         }
+        
+        document.addEventListener('click', (e) => {
+            if (e.target.closest('#filter-work-sheet .filter-work-category')) {
+                const btn = e.target.closest('.filter-work-category');
+                const isActive = btn.classList.contains('border-primary/50');
+                document.querySelectorAll('#filter-work-sheet .filter-work-category').forEach(b => {
+                    b.classList.remove('border-primary/50', 'bg-primary/5');
+                    b.classList.add('border-white/[0.06]', 'bg-white/[0.03]');
+                });
+                if (!isActive) {
+                    btn.classList.remove('border-white/[0.06]', 'bg-white/[0.03]');
+                    btn.classList.add('border-primary/50', 'bg-primary/5');
+                }
+                hapticFeedback('light');
+            }
+        });
 
         // Legacy alias for getAppleDialValue
         function getAppleDialValue(dialEl) {
@@ -5450,10 +5704,11 @@
             else labelEl.textContent = '—';
         }
 
-        function updateSortSheetUI() {
+        function updateSortSheetUI(currentSort) {
+            const sortVal = currentSort != null ? currentSort : feedSort;
             document.querySelectorAll('#filter-sort-sheet .sort-option-btn').forEach(btn => {
                 const val = btn.getAttribute('data-sort');
-                const active = val === feedSort;
+                const active = val === sortVal;
                 btn.classList.toggle('sort-option-active', active);
                 btn.classList.toggle('border-primary/30', active);
                 btn.classList.toggle('border-white/5', !active);
@@ -5558,6 +5813,36 @@
                 }
             });
 
+            // Oilaviy: Farzandi (Bor/Yo'q)
+            document.addEventListener('click', (e) => {
+                if (e.target.closest('#filter-family-sheet .filter-family-children')) {
+                    const btn = e.target.closest('.filter-family-children');
+                    document.querySelectorAll('#filter-family-sheet .filter-family-children').forEach(b => {
+                        b.classList.remove('bg-primary', 'text-black');
+                        b.classList.add('bg-white/[0.05]', 'text-white/60');
+                    });
+                    btn.classList.remove('bg-white/[0.05]', 'text-white/60');
+                    btn.classList.add('bg-primary', 'text-black');
+                }
+            });
+            // Oilaviy: Nechinchilikka (1/2/3-ro'zg'or)
+            document.addEventListener('click', (e) => {
+                if (e.target.closest('#filter-family-sheet .filter-family-polygamy')) {
+                    const btn = e.target.closest('.filter-family-polygamy');
+                    document.querySelectorAll('#filter-family-sheet .filter-family-polygamy').forEach(b => {
+                        b.classList.remove('border-l-primary');
+                        b.classList.add('border-l-transparent');
+                        b.querySelector('span:first-child')?.classList.remove('text-primary'), b.querySelector('span:first-child')?.classList.add('text-white/60');
+                        const ic = b.querySelector('.material-symbols-outlined');
+                        if (ic) { ic.classList.remove('text-primary'); ic.classList.add('text-white/10'); ic.textContent = 'circle'; }
+                    });
+                    btn.classList.remove('border-l-transparent');
+                    btn.classList.add('border-l-primary');
+                    btn.querySelector('span:first-child')?.classList.remove('text-white/60'), btn.querySelector('span:first-child')?.classList.add('text-primary');
+                    const icon = btn.querySelector('.material-symbols-outlined');
+                    if (icon) { icon.classList.remove('text-white/10'); icon.classList.add('text-primary'); icon.textContent = 'check_circle'; }
+                }
+            });
             // Status card selection
             document.addEventListener('click', (e) => {
                 if (e.target.closest('.status-card')) {
@@ -5632,21 +5917,18 @@
                 }
             });
 
-            // Ish & Daromad: kasb chip tanlash
+            // Ish & Daromad: kasb tanlash (active = yashil)
             document.addEventListener('click', (e) => {
                 if (e.target.closest('#filter-work-sheet .filter-work-profession')) {
                     const btn = e.target.closest('.filter-work-profession');
                     const sheet = document.getElementById('filter-work-sheet');
                     if (!sheet || !sheet.classList.contains('active')) return;
-                    const wasSelected = btn.classList.contains('bg-primary');
-                    sheet.querySelectorAll('.filter-work-profession').forEach(b => {
-                        b.classList.remove('bg-primary', 'text-black');
-                        b.classList.add('bg-white/[0.05]', 'text-white/60', 'border', 'border-white/[0.08]');
+                    document.querySelectorAll('#filter-work-sheet .filter-work-profession').forEach(b => {
+                        b.classList.remove('bg-primary', 'text-black', 'shadow-[0_4px_15px_rgba(64,255,0,0.2)]');
+                        b.classList.add('bg-white/[0.05]', 'border', 'border-white/[0.1]', 'text-white/70');
                     });
-                    if (!wasSelected) {
-                        btn.classList.add('bg-primary', 'text-black');
-                        btn.classList.remove('bg-white/[0.05]', 'text-white/60', 'border', 'border-white/[0.08]');
-                    }
+                    btn.classList.remove('bg-white/[0.05]', 'border', 'border-white/[0.1]', 'text-white/70');
+                    btn.classList.add('bg-primary', 'text-black', 'shadow-[0_4px_15px_rgba(64,255,0,0.2)]');
                 }
             });
 
@@ -5662,17 +5944,32 @@
                 }
             });
 
-            // Tag active/inactive toggle
+            // Tag active/inactive (Ilm & Til tillari va boshqa)
             document.addEventListener('click', (e) => {
-                if (e.target.closest('.tag-active, .tag-inactive')) {
-                    const tag = e.target.closest('.tag-active, .tag-inactive');
-                    if (tag.classList.contains('tag-active')) {
-                        tag.classList.remove('tag-active');
-                        tag.classList.add('tag-inactive');
-                    } else {
-                        tag.classList.remove('tag-inactive');
-                        tag.classList.add('tag-active');
-                    }
+                const tag = e.target.closest('.tag-active, .tag-inactive');
+                if (!tag) return;
+                if (tag.classList.contains('tag-active')) {
+                    tag.classList.remove('tag-active');
+                    tag.classList.add('tag-inactive');
+                } else {
+                    tag.classList.remove('tag-inactive');
+                    tag.classList.add('tag-active');
+                }
+            });
+            // Diniy ilm (Ilm & Til) bitta tanlash
+            document.addEventListener('click', (e) => {
+                if (e.target.closest('#filter-education-sheet .filter-education-religious')) {
+                    const btn = e.target.closest('.filter-education-religious');
+                    document.querySelectorAll('#filter-education-sheet .filter-education-religious').forEach(b => {
+                        b.classList.remove('border-primary/40', 'bg-primary/5');
+                        b.classList.add('border-white/[0.05]', 'bg-white/[0.03]');
+                        b.querySelector('span:last-child')?.classList.remove('text-white');
+                        b.querySelector('span:last-child')?.classList.add('text-white/60');
+                    });
+                    btn.classList.remove('border-white/[0.05]', 'bg-white/[0.03]');
+                    btn.classList.add('border-primary/40', 'bg-primary/5');
+                    btn.querySelector('span:last-child')?.classList.remove('text-white/60');
+                    btn.querySelector('span:last-child')?.classList.add('text-white');
                 }
             });
         }
@@ -5682,6 +5979,8 @@
         let chatMessageSort = 'desc';   // desc = yangi birinchi, asc = eski birinchi
         let feedFilterRegions = [];
         let feedFilterMarital = null;
+        let feedFilterChildren = null;
+        let feedFilterPolygamy = null;
         let feedFilterAqida = null;
         let feedFilterPrays = null;
         let feedFilterReligiousLevel = null;
@@ -5702,6 +6001,8 @@
         function clearAllFilters() {
             feedFilterRegions = [];
             feedFilterMarital = null;
+            feedFilterChildren = null;
+            feedFilterPolygamy = null;
             feedFilterAqida = null;
             feedFilterPrays = null;
             feedFilterReligiousLevel = null;
@@ -5721,6 +6022,7 @@
             pageDataLoaded.feed = false;
             const sumEl = document.getElementById('filter-physical-summary');
             if (sumEl) sumEl.textContent = 'Yosh, bo\'y, vazn';
+            updateFilterButtonState();
         }
 
         function buildFeedFilterParams() {
@@ -5744,6 +6046,25 @@
             if (feedFilterSalaryMin != null && feedFilterSalaryMin > 0) s += '&salary_min=' + feedFilterSalaryMin;
             if (feedFilterSalaryMax != null && feedFilterSalaryMax > 0) s += '&salary_max=' + feedFilterSalaryMax;
             return s;
+        }
+
+        function hasActiveFilters() {
+            return (feedFilterRegions && feedFilterRegions.length > 0) || feedFilterMarital || feedFilterChildren || feedFilterPolygamy ||
+                feedFilterAqida || feedFilterPrays || feedFilterReligiousLevel || feedFilterQuran || feedFilterMazhab ||
+                feedFilterEducation || feedFilterProfession || (feedFilterAgeMin != null && feedFilterAgeMin > 0) || (feedFilterAgeMax != null && feedFilterAgeMax > 0) ||
+                (feedFilterHeightMin != null && feedFilterHeightMin > 0) || (feedFilterHeightMax != null && feedFilterHeightMax > 0) ||
+                (feedFilterWeightMin != null && feedFilterWeightMin > 0) || (feedFilterWeightMax != null && feedFilterWeightMax > 0) ||
+                feedFilterHasSalary === 'true' || (feedFilterSalaryMin != null && feedFilterSalaryMin > 0) || (feedFilterSalaryMax != null && feedFilterSalaryMax > 0);
+        }
+
+        function updateFilterButtonState() {
+            const btn = document.getElementById('favorites-filter-btn');
+            if (!btn) return;
+            if (hasActiveFilters()) {
+                btn.classList.add('!bg-primary/25', '!border-primary', '!text-primary');
+            } else {
+                btn.classList.remove('!bg-primary/25', '!border-primary', '!text-primary');
+            }
         }
 
         function updateFeedGenderUI() {
@@ -5802,8 +6123,10 @@
             if (favKelin) favKelin.addEventListener('click', () => setFeedGender('Erkak'));
             const favSort = document.getElementById('favorites-sort-btn');
             const favFilter = document.getElementById('favorites-filter-btn');
-            if (favSort) favSort.addEventListener('click', () => openFilterSheet('filter-sort-sheet'));
+            if (favSort) favSort.addEventListener('click', () => { sortSheetContext = 'feed'; openFilterSheet('filter-sort-sheet'); });
             if (favFilter) favFilter.addEventListener('click', () => openFilterSheet('filter-main-sheet'));
+            const requestsSortBtn = document.getElementById('requests-sort-btn');
+            if (requestsSortBtn) requestsSortBtn.addEventListener('click', () => { sortSheetContext = 'requests'; openFilterSheet('filter-sort-sheet'); });
 
             // Chat xabarlari saralash tugmasi
             const chatSortBtn = document.getElementById('chat-messages-sort-btn');
@@ -5815,16 +6138,24 @@
                 });
             }
 
-            // Saralash variantlari: tanlanganda feedSort yangilanadi, sheet yopiladi, feed qayta yuklanadi
+            // Saralash variantlari: tanlanganda feedSort/requestsSort yangilanadi, sheet yopiladi
             document.querySelectorAll('#filter-sort-sheet .sort-option-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
                     const val = btn.getAttribute('data-sort');
                     if (!val) return;
-                    feedSort = val;
-                    updateSortSheetUI();
-                    closeFilterSheet();
-                    pageDataLoaded.feed = false;
-                    loadFeedData();
+                    if (sortSheetContext === 'requests') {
+                        requestsSort = val;
+                        updateSortSheetUI(requestsSort);
+                        closeFilterSheet();
+                        pageDataLoaded.requests = false;
+                        loadRequestsData();
+                    } else {
+                        feedSort = val;
+                        updateSortSheetUI(feedSort);
+                        closeFilterSheet();
+                        pageDataLoaded.feed = false;
+                        loadFeedData();
+                    }
                 });
             });
             const favSearch = document.getElementById('favorites-search');
@@ -6407,23 +6738,23 @@
                 </div>
                 <div class="space-y-4">
                     <p class="text-[10px] font-bold text-white/40 uppercase tracking-widest ml-1">Farzandi</p>
-                    <div class="flex gap-3">
-                        <button class="chip chip-active flex-1">Bor</button>
-                        <button class="chip chip-inactive flex-1">Yo'q</button>
+                    <div class="flex gap-3" id="filter-family-children">
+                        <button type="button" class="filter-family-children flex-1 py-3 rounded-2xl text-sm font-bold transition-all bg-primary text-black" data-value="Bor">Bor</button>
+                        <button type="button" class="filter-family-children flex-1 py-3 rounded-2xl text-sm font-bold transition-all bg-white/[0.05] text-white/60" data-value="Yo'q">Yo'q</button>
                     </div>
                 </div>
                 <div class="space-y-4">
                     <p class="text-[10px] font-bold text-white/40 uppercase tracking-widest ml-1">Nechinchilikka (Ruhsat)</p>
-                    <div class="bg-white/[0.03] rounded-3xl border border-white/[0.05] overflow-hidden">
-                        <button class="w-full px-6 py-5 flex items-center justify-between border-b border-white/[0.03] active:bg-white/[0.05]">
-                            <span class="text-sm font-semibold">1-ro'zg'or</span>
+                    <div class="bg-white/[0.03] rounded-3xl border border-white/[0.05] overflow-hidden" id="filter-family-polygamy">
+                        <button type="button" class="filter-family-polygamy w-full px-6 py-5 flex items-center justify-between border-b border-white/[0.03] active:bg-white/[0.05] transition-colors border-l-4 border-l-primary" data-value="1">
+                            <span class="text-sm font-semibold text-primary">1-ro'zg'or</span>
                             <span class="material-symbols-outlined text-primary text-[20px]">check_circle</span>
                         </button>
-                        <button class="w-full px-6 py-5 flex items-center justify-between border-b border-white/[0.03] active:bg-white/[0.05]">
+                        <button type="button" class="filter-family-polygamy w-full px-6 py-5 flex items-center justify-between border-b border-white/[0.03] active:bg-white/[0.05] transition-colors border-l-4 border-l-transparent" data-value="2">
                             <span class="text-sm font-semibold text-white/60">2-ro'zg'or</span>
                             <span class="material-symbols-outlined text-white/10 text-[20px]">circle</span>
                         </button>
-                        <button class="w-full px-6 py-5 flex items-center justify-between active:bg-white/[0.05]">
+                        <button type="button" class="filter-family-polygamy w-full px-6 py-5 flex items-center justify-between active:bg-white/[0.05] transition-colors border-l-4 border-l-transparent" data-value="3">
                             <span class="text-sm font-semibold text-white/60">3-ro'zg'or va h.k.</span>
                             <span class="material-symbols-outlined text-white/10 text-[20px]">circle</span>
                         </button>
@@ -6605,13 +6936,13 @@
                 <section>
                     <p class="text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] mb-4">Diniy ilm darajasi</p>
                     <div class="grid grid-cols-2 gap-3">
-                        <button class="flex items-center gap-3 p-3 rounded-xl bg-white/[0.03] border border-white/[0.05]">
+                        <button type="button" class="filter-education-religious flex items-center gap-3 p-3 rounded-xl bg-white/[0.03] border border-primary/40 bg-primary/5 transition-all" data-value="Qur'on o'qish">
                             <div class="size-8 rounded-lg bg-white/5 flex items-center justify-center">
                                 <span class="material-symbols-outlined text-[18px] text-white/40">menu_book</span>
                             </div>
-                            <span class="text-xs font-medium text-white/60">Qur'on o'qish</span>
+                            <span class="text-xs font-medium text-white">Qur'on o'qish</span>
                         </button>
-                        <button class="flex items-center gap-3 p-3 rounded-xl bg-white/[0.03] border border-white/[0.05]">
+                        <button type="button" class="filter-education-religious flex items-center gap-3 p-3 rounded-xl bg-white/[0.03] border border-white/[0.05] transition-all" data-value="Tajvid">
                             <div class="size-8 rounded-lg bg-white/5 flex items-center justify-center">
                                 <span class="material-symbols-outlined text-[18px] text-white/40">auto_stories</span>
                             </div>

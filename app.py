@@ -20,6 +20,43 @@ app.secret_key = app.config['SECRET_KEY']
 # Database'ni sozlash
 init_db(app)
 
+# Migratsiya: is_published ustunini qo'shish va user_id UNIQUE cheklovini olib tashlash
+def run_migrations():
+    from database import db
+    with app.app_context():
+        # 1. is_published ustunini qo'shish
+        try:
+            result = db.session.execute(db.text("SHOW COLUMNS FROM profiles LIKE 'is_published'"))
+            if not result.fetchone():
+                print("📝 is_published ustuni qo'shilmoqda...")
+                db.session.execute(db.text("ALTER TABLE profiles ADD COLUMN is_published BOOLEAN DEFAULT TRUE"))
+                db.session.execute(db.text("UPDATE profiles SET is_published = 1 WHERE is_published IS NULL"))
+                db.session.commit()
+                print("✅ is_published ustuni qo'shildi")
+        except Exception as e:
+            db.session.rollback()
+            if 'Duplicate' not in str(e) and 'already exists' not in str(e).lower():
+                print(f"⚠️ Migratsiya (is_published): {e}")
+        
+        # 2. user_id UNIQUE cheklovini olib tashlash (bir user ko'p e'lon yarata olishi uchun)
+        try:
+            # UNIQUE indeksni topish va o'chirish
+            result = db.session.execute(db.text("SHOW INDEX FROM profiles WHERE Column_name = 'user_id' AND Non_unique = 0"))
+            indexes = result.fetchall()
+            for idx in indexes:
+                idx_name = idx[2]  # Key_name
+                if idx_name != 'PRIMARY':
+                    print(f"📝 {idx_name} UNIQUE indeksi o'chirilmoqda...")
+                    db.session.execute(db.text(f"ALTER TABLE profiles DROP INDEX {idx_name}"))
+                    db.session.commit()
+                    print(f"✅ {idx_name} indeksi o'chirildi")
+        except Exception as e:
+            db.session.rollback()
+            if "Can't DROP" not in str(e) and "check that" not in str(e).lower():
+                print(f"⚠️ Migratsiya (user_id unique): {e}")
+
+run_migrations()
+
 # Blueprintlarni ro'yxatdan o'tkazish
 register_blueprints(app)
 
