@@ -40,19 +40,49 @@ def run_migrations():
         
         # 2. user_id UNIQUE cheklovini olib tashlash (bir user ko'p e'lon yarata olishi uchun)
         try:
-            # UNIQUE indeksni topish va o'chirish
-            result = db.session.execute(db.text("SHOW INDEX FROM profiles WHERE Column_name = 'user_id' AND Non_unique = 0"))
-            indexes = result.fetchall()
-            for idx in indexes:
-                idx_name = idx[2]  # Key_name
-                if idx_name != 'PRIMARY':
-                    print(f"📝 {idx_name} UNIQUE indeksi o'chirilmoqda...")
-                    db.session.execute(db.text(f"ALTER TABLE profiles DROP INDEX {idx_name}"))
+            # MySQL: user_id ustunidagi UNIQUE indeks FK bilan bog'liq bo'lishi mumkin — avval FK ni olib tashlash kerak
+            dialect = db.engine.url.get_dialect().name
+            if dialect == 'mysql':
+                # FK nomini topish (user_id orqali users ga bog'langan)
+                r = db.session.execute(db.text("""
+                    SELECT CONSTRAINT_NAME FROM information_schema.KEY_COLUMN_USAGE
+                    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'profiles'
+                    AND COLUMN_NAME = 'user_id' AND REFERENCED_TABLE_NAME IS NOT NULL
+                    LIMIT 1
+                """))
+                fk_row = r.fetchone()
+                fk_name = fk_row[0] if fk_row else None
+                # user_id ustunida UNIQUE indeks bormi (information_schema orqali)
+                r2 = db.session.execute(db.text("""
+                    SELECT INDEX_NAME FROM information_schema.STATISTICS
+                    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'profiles'
+                    AND COLUMN_NAME = 'user_id' AND NON_UNIQUE = 0 LIMIT 1
+                """))
+                uq_row = r2.fetchone()
+                if uq_row and fk_name:
+                    idx_name = uq_row[0]
+                    print("📝 MySQL: user_id UNIQUE olib tashlanmoqda (FK vaqtincha o'chiriladi)...")
+                    db.session.execute(db.text(f"ALTER TABLE profiles DROP FOREIGN KEY `{fk_name}`"))
+                    db.session.execute(db.text(f"ALTER TABLE profiles DROP INDEX `{idx_name}`"))
+                    db.session.execute(db.text(f"ALTER TABLE profiles ADD CONSTRAINT `{fk_name}` FOREIGN KEY (user_id) REFERENCES users(id)"))
                     db.session.commit()
-                    print(f"✅ {idx_name} indeksi o'chirildi")
+                    print("✅ user_id UNIQUE olib tashlandi, FK qayta qo'shildi")
+                elif fk_name is None:
+                    # UNIQUE boshqa indeks nomida bo'lishi mumkin
+                    r3 = db.session.execute(db.text("SHOW INDEX FROM profiles WHERE Column_name = 'user_id'"))
+                    for row in r3.fetchall():
+                        idx_name = row[2]
+                        if idx_name != 'PRIMARY':
+                            db.session.execute(db.text(f"ALTER TABLE profiles DROP INDEX `{idx_name}`"))
+                            db.session.commit()
+                            print(f"✅ {idx_name} indeksi o'chirildi")
+                            break
+            else:
+                # SQLite: SHOW INDEX yo'q; database.py dagi DROP INDEX urinishlari yetarli
+                pass
         except Exception as e:
             db.session.rollback()
-            if "Can't DROP" not in str(e) and "check that" not in str(e).lower():
+            if "Can't DROP" not in str(e) and "check that" not in str(e).lower() and "Duplicate" not in str(e):
                 print(f"⚠️ Migratsiya (user_id unique): {e}")
 
 run_migrations()

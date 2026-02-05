@@ -477,6 +477,19 @@
             letter-spacing: 0.15em;
             font-weight: 800;
         }
+        /* Yangi e'lon: to'ldirilgan bo'lim — rangli, to'ldirilmagan — oddiy */
+        .add-listing-section-complete {
+            border-color: rgba(23, 130, 77, 0.35);
+            background: linear-gradient(135deg, rgba(23, 130, 77, 0.08) 0%, rgba(23, 130, 77, 0.02) 100%);
+        }
+        .add-listing-section-complete .add-listing-section-icon {
+            background: rgba(23, 130, 77, 0.15);
+            color: rgb(23, 130, 77);
+            border-color: rgba(23, 130, 77, 0.3);
+        }
+        .add-listing-section-complete .text-white\/50 {
+            color: rgba(23, 130, 77, 0.85);
+        }
     </style>
 
     <!-- Telegram Web App SDK -->
@@ -663,14 +676,7 @@
                                 <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-white/60 mb-2">Davlat</label>
                                 <select name="country" id="onboarding-country" required class="w-full glass-card glass-input rounded-2xl px-4 py-4 text-base">
                                     <option value="">Davlatni tanlang</option>
-                                    <option value="O'zbekiston">O'zbekiston</option>
-                                    <option value="Qozog'iston">Qozog'iston</option>
-                                    <option value="Qirg'iziston">Qirg'iziston</option>
-                                    <option value="Tojikiston">Tojikiston</option>
-                                    <option value="Rossiya">Rossiya</option>
-                                    <option value="Turkiya">Turkiya</option>
-                                    <option value="Ozarbayjon">Ozarbayjon</option>
-                                    <option value="Boshqa">Boshqa</option>
+                                    <!-- Davlatlar ro'yxati JS orqali LOCATION_COUNTRIES_REGIONS dan to'ldiriladi -->
                                 </select>
                             </div>
                             <div>
@@ -1553,6 +1559,18 @@
                         </div>
                         <span class="material-symbols-outlined text-white/30 group-hover:text-primary transition-colors">chevron_right</span>
                     </button>
+                    <button type="button" onclick="openProfileEditSheet('juftga')" class="w-full glass-card rounded-2xl p-5 flex items-center justify-between group active:scale-[0.98] transition-all text-left">
+                        <div class="flex items-center gap-4">
+                            <div class="size-12 rounded-2xl bg-white/5 flex items-center justify-center text-white/60 border border-white/10">
+                                <span class="material-symbols-outlined text-[26px]">favorite</span>
+                            </div>
+                            <div>
+                                <p class="font-bold text-base text-white">Juftga talablari</p>
+                                <p id="profile-edit-juftga-summary" class="text-sm text-white/50">Belgilanmagan</p>
+                            </div>
+                        </div>
+                        <span class="material-symbols-outlined text-white/30 group-hover:text-primary transition-colors">chevron_right</span>
+                    </button>
                     <button type="button" onclick="openProfileEditSheet('bio')" class="w-full glass-card rounded-2xl p-5 flex items-center justify-between group active:scale-[0.98] transition-all text-left border border-dashed border-primary/20 bg-primary/5">
                         <div class="flex items-center gap-4">
                             <div class="size-12 rounded-2xl bg-primary/20 flex items-center justify-center text-primary">
@@ -1588,21 +1606,21 @@
                 </div>
                 <div class="space-y-4">
                     <h3 class="px-1 text-[10px] font-black uppercase tracking-[0.2em] text-white/40 mb-2">Shaxsiy ma'lumotlar</h3>
-                    <button type="button" onclick="openProfileEditSheet('shaxsiy', window.newListingDraft)" class="w-full glass-card rounded-2xl p-5 flex items-center justify-between group active:scale-[0.98] transition-all text-left">
+                    <button type="button" data-section="shaxsiy" onclick="openProfileEditSheet('shaxsiy', window.newListingDraft)" class="add-listing-section-btn w-full glass-card rounded-2xl p-5 flex items-center justify-between group active:scale-[0.98] transition-all text-left border border-white/10">
                         <div class="flex items-center gap-4">
-                            <div class="size-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary border border-primary/20">
+                            <div class="add-listing-section-icon size-12 rounded-2xl bg-white/5 flex items-center justify-center text-white/60 border border-white/10">
                                 <span class="material-symbols-outlined text-[26px]">person</span>
                             </div>
                             <div>
-                                <p class="font-bold text-base text-white">Ism, jins, yosh, joylashuv</p>
+                                <p class="font-bold text-base text-white">Ism, jins, yosh</p>
                                 <p id="add-listing-shaxsiy-summary" class="text-sm text-white/50">Belgilanmagan</p>
                             </div>
                         </div>
                         <span class="material-symbols-outlined text-white/30 group-hover:text-primary transition-colors">chevron_right</span>
                     </button>
-                    <button type="button" onclick="openProfileEditSheet('diniy', window.newListingDraft)" class="w-full glass-card rounded-2xl p-5 flex items-center justify-between group active:scale-[0.98] transition-all text-left">
+                    <button type="button" data-section="diniy" onclick="openProfileEditSheet('diniy', window.newListingDraft)" class="add-listing-section-btn w-full glass-card rounded-2xl p-5 flex items-center justify-between group active:scale-[0.98] transition-all text-left border border-white/10">
                         <div class="flex items-center gap-4">
-                            <div class="size-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary border border-primary/20">
+                            <div class="add-listing-section-icon size-12 rounded-2xl bg-white/5 flex items-center justify-center text-white/60 border border-white/10">
                                 <span class="material-symbols-outlined text-[26px]">mosque</span>
                             </div>
                             <div>
@@ -1612,9 +1630,9 @@
                         </div>
                         <span class="material-symbols-outlined text-white/30 group-hover:text-primary transition-colors">chevron_right</span>
                     </button>
-                    <button type="button" onclick="openProfileEditSheet('joylashuv', window.newListingDraft)" class="w-full glass-card rounded-2xl p-5 flex items-center justify-between group active:scale-[0.98] transition-all text-left">
+                    <button type="button" data-section="joylashuv" onclick="openProfileEditSheet('joylashuv', window.newListingDraft)" class="add-listing-section-btn w-full glass-card rounded-2xl p-5 flex items-center justify-between group active:scale-[0.98] transition-all text-left border border-white/10">
                         <div class="flex items-center gap-4">
-                            <div class="size-12 rounded-2xl bg-white/5 flex items-center justify-center text-white/60 border border-white/10">
+                            <div class="add-listing-section-icon size-12 rounded-2xl bg-white/5 flex items-center justify-center text-white/60 border border-white/10">
                                 <span class="material-symbols-outlined text-[26px]">location_on</span>
                             </div>
                             <div>
@@ -1624,9 +1642,9 @@
                         </div>
                         <span class="material-symbols-outlined text-white/30 group-hover:text-primary transition-colors">chevron_right</span>
                     </button>
-                    <button type="button" onclick="openProfileEditSheet('oilaviy', window.newListingDraft)" class="w-full glass-card rounded-2xl p-5 flex items-center justify-between group active:scale-[0.98] transition-all text-left">
+                    <button type="button" data-section="oilaviy" onclick="openProfileEditSheet('oilaviy', window.newListingDraft)" class="add-listing-section-btn w-full glass-card rounded-2xl p-5 flex items-center justify-between group active:scale-[0.98] transition-all text-left border border-white/10">
                         <div class="flex items-center gap-4">
-                            <div class="size-12 rounded-2xl bg-white/5 flex items-center justify-center text-white/60 border border-white/10">
+                            <div class="add-listing-section-icon size-12 rounded-2xl bg-white/5 flex items-center justify-center text-white/60 border border-white/10">
                                 <span class="material-symbols-outlined text-[26px]">favorite</span>
                             </div>
                             <div>
@@ -1637,9 +1655,9 @@
                         <span class="material-symbols-outlined text-white/30 group-hover:text-primary transition-colors">chevron_right</span>
                     </button>
                     <h3 class="pt-6 px-1 text-[10px] font-black uppercase tracking-[0.2em] text-white/40 mb-2">Qo'shimcha tafsilotlar</h3>
-                    <button type="button" onclick="openProfileEditSheet('jismoniy', window.newListingDraft)" class="w-full glass-card rounded-2xl p-5 flex items-center justify-between group active:scale-[0.98] transition-all text-left">
+                    <button type="button" data-section="jismoniy" onclick="openProfileEditSheet('jismoniy', window.newListingDraft)" class="add-listing-section-btn w-full glass-card rounded-2xl p-5 flex items-center justify-between group active:scale-[0.98] transition-all text-left border border-white/10">
                         <div class="flex items-center gap-4">
-                            <div class="size-12 rounded-2xl bg-white/5 flex items-center justify-center text-white/60 border border-white/10">
+                            <div class="add-listing-section-icon size-12 rounded-2xl bg-white/5 flex items-center justify-center text-white/60 border border-white/10">
                                 <span class="material-symbols-outlined text-[26px]">straighten</span>
                             </div>
                             <div>
@@ -1649,9 +1667,9 @@
                         </div>
                         <span class="material-symbols-outlined text-white/30 group-hover:text-primary transition-colors">chevron_right</span>
                     </button>
-                    <button type="button" onclick="openProfileEditSheet('talim', window.newListingDraft)" class="w-full glass-card rounded-2xl p-5 flex items-center justify-between group active:scale-[0.98] transition-all text-left">
+                    <button type="button" data-section="talim" onclick="openProfileEditSheet('talim', window.newListingDraft)" class="add-listing-section-btn w-full glass-card rounded-2xl p-5 flex items-center justify-between group active:scale-[0.98] transition-all text-left border border-white/10">
                         <div class="flex items-center gap-4">
-                            <div class="size-12 rounded-2xl bg-white/5 flex items-center justify-center text-white/60 border border-white/10">
+                            <div class="add-listing-section-icon size-12 rounded-2xl bg-white/5 flex items-center justify-center text-white/60 border border-white/10">
                                 <span class="material-symbols-outlined text-[26px]">school</span>
                             </div>
                             <div>
@@ -1661,9 +1679,9 @@
                         </div>
                         <span class="material-symbols-outlined text-white/30 group-hover:text-primary transition-colors">chevron_right</span>
                     </button>
-                    <button type="button" onclick="openProfileEditSheet('ish', window.newListingDraft)" class="w-full glass-card rounded-2xl p-5 flex items-center justify-between group active:scale-[0.98] transition-all text-left">
+                    <button type="button" data-section="ish" onclick="openProfileEditSheet('ish', window.newListingDraft)" class="add-listing-section-btn w-full glass-card rounded-2xl p-5 flex items-center justify-between group active:scale-[0.98] transition-all text-left border border-white/10">
                         <div class="flex items-center gap-4">
-                            <div class="size-12 rounded-2xl bg-white/5 flex items-center justify-center text-white/60 border border-white/10">
+                            <div class="add-listing-section-icon size-12 rounded-2xl bg-white/5 flex items-center justify-center text-white/60 border border-white/10">
                                 <span class="material-symbols-outlined text-[26px]">work</span>
                             </div>
                             <div>
@@ -1673,9 +1691,9 @@
                         </div>
                         <span class="material-symbols-outlined text-white/30 group-hover:text-primary transition-colors">chevron_right</span>
                     </button>
-                    <button type="button" onclick="openProfileEditSheet('juftga', window.newListingDraft)" class="w-full glass-card rounded-2xl p-5 flex items-center justify-between group active:scale-[0.98] transition-all text-left">
+                    <button type="button" data-section="juftga" onclick="openProfileEditSheet('juftga', window.newListingDraft)" class="add-listing-section-btn w-full glass-card rounded-2xl p-5 flex items-center justify-between group active:scale-[0.98] transition-all text-left border border-white/10">
                         <div class="flex items-center gap-4">
-                            <div class="size-12 rounded-2xl bg-white/5 flex items-center justify-center text-white/60 border border-white/10">
+                            <div class="add-listing-section-icon size-12 rounded-2xl bg-white/5 flex items-center justify-center text-white/60 border border-white/10">
                                 <span class="material-symbols-outlined text-[26px]">handshake</span>
                             </div>
                             <div>
@@ -1685,17 +1703,17 @@
                         </div>
                         <span class="material-symbols-outlined text-white/30 group-hover:text-primary transition-colors">chevron_right</span>
                     </button>
-                    <button type="button" onclick="openProfileEditSheet('bio', window.newListingDraft)" class="w-full glass-card rounded-2xl p-5 flex items-center justify-between group active:scale-[0.98] transition-all text-left border border-dashed border-primary/20 bg-primary/5">
+                    <button type="button" data-section="bio" onclick="openProfileEditSheet('bio', window.newListingDraft)" class="add-listing-section-btn w-full glass-card rounded-2xl p-5 flex items-center justify-between group active:scale-[0.98] transition-all text-left border border-white/10">
                         <div class="flex items-center gap-4">
-                            <div class="size-12 rounded-2xl bg-primary/20 flex items-center justify-center text-primary">
+                            <div class="add-listing-section-icon size-12 rounded-2xl bg-white/5 flex items-center justify-center text-white/60 border border-white/10">
                                 <span class="material-symbols-outlined text-[26px]">history_edu</span>
                             </div>
                             <div>
                                 <p class="font-bold text-base text-white">O'zim haqimda</p>
-                                <p id="add-listing-bio-summary" class="text-sm text-primary/60 italic">Belgilanmagan</p>
+                                <p id="add-listing-bio-summary" class="text-sm text-white/50 italic">Belgilanmagan</p>
                             </div>
                         </div>
-                        <span class="material-symbols-outlined text-primary">add_circle</span>
+                        <span class="material-symbols-outlined text-white/30 group-hover:text-primary transition-colors">chevron_right</span>
                     </button>
                 </div>
                 <div class="mt-10 space-y-3">
@@ -2103,7 +2121,7 @@
                 </div>
             </header>
             <main class="max-w-md mx-auto px-6 py-5 space-y-5" style="padding-bottom: 140px;">
-                <p class="text-sm text-white/50 text-center">O'zingizga mos tarifni tanlang</p>
+                <p id="tariff-page-subtitle" class="text-sm text-white/50 text-center">O'zingizga mos tarifni tanlang</p>
                 <div id="tariff-cards-container" class="space-y-4">
                     <div class="space-y-4 skeleton" style="min-height: 200px;"></div>
                 </div>
@@ -2152,6 +2170,60 @@
                 </div>
             </div>
         </div>
+
+        <!-- To'lov modali (tarif sotib olish — SPA ichida) -->
+        <div id="tariff-payment-modal" class="hidden fixed inset-0 z-[60] flex items-end sm:items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+            <div class="glass-card rounded-t-3xl sm:rounded-2xl p-6 max-w-md w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-white/10">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-xl font-bold text-white">To'lov</h3>
+                    <button type="button" onclick="window.closeTariffPaymentModal()" class="text-white/60 hover:text-white p-1">
+                        <span class="material-symbols-outlined">close</span>
+                    </button>
+                </div>
+                <div class="space-y-4">
+                    <div class="bg-white/5 rounded-xl p-4 border border-white/10">
+                        <p class="text-white/60 text-xs uppercase tracking-wider mb-1">Tarif</p>
+                        <p id="tariff-payment-name" class="text-white text-lg font-bold"></p>
+                        <p id="tariff-payment-price" class="text-primary text-xl font-bold mt-1"></p>
+                    </div>
+                    <div class="bg-white/5 rounded-xl p-4 border border-white/10">
+                        <p class="text-white/60 text-xs uppercase tracking-wider mb-2">Karta raqami</p>
+                        <div class="flex items-center gap-2">
+                            <span class="text-white font-mono text-sm" id="tariff-payment-card"></span>
+                            <button type="button" onclick="window.copyTariffCardNumber()" class="text-primary">
+                                <span class="material-symbols-outlined text-[20px]">content_copy</span>
+                            </button>
+                        </div>
+                        <p class="text-white/40 text-xs mt-1" id="tariff-payment-card-name"></p>
+                    </div>
+                    <div class="bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-3">
+                        <p class="text-yellow-400 text-xs font-semibold">To'lov chekini yuklang, admin tekshiradi</p>
+                    </div>
+                    <div>
+                        <label class="block text-white/60 text-xs uppercase tracking-wider mb-2">To'lov cheki rasmi *</label>
+                        <input type="file" id="tariff-payment-receipt" accept="image/*" class="hidden">
+                        <label for="tariff-payment-receipt" class="flex flex-col items-center justify-center w-full h-28 border-2 border-dashed border-white/20 rounded-xl cursor-pointer bg-white/5 hover:bg-white/10 transition-all">
+                            <span class="material-symbols-outlined text-white/40 text-[32px]">image</span>
+                            <span class="text-sm text-white/60 mt-1" id="tariff-payment-receipt-label">Rasm yuklash</span>
+                        </label>
+                        <div id="tariff-payment-receipt-preview" class="hidden mt-2 relative">
+                            <img id="tariff-payment-preview-img" src="" alt="" class="w-full h-40 object-cover rounded-xl border border-white/10">
+                            <button type="button" onclick="window.clearTariffReceipt()" class="absolute top-2 right-2 bg-red-500/90 text-white rounded-full p-1.5">
+                                <span class="material-symbols-outlined text-[18px]">close</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-white/60 text-xs uppercase tracking-wider mb-2">Qo'shimcha xabar (ixtiyoriy)</label>
+                        <textarea id="tariff-payment-message" class="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-white text-sm focus:outline-none focus:border-primary/50 resize-none" rows="2" placeholder="To'lov haqida..."></textarea>
+                    </div>
+                    <div class="flex gap-3 pt-2">
+                        <button type="button" onclick="window.closeTariffPaymentModal()" class="flex-1 h-12 bg-white/10 border border-white/10 rounded-xl text-white font-semibold text-sm">Bekor qilish</button>
+                        <button type="button" id="tariff-payment-submit-btn" onclick="window.submitTariffPayment()" class="flex-1 h-12 bg-primary text-black font-bold text-sm rounded-xl active:scale-[0.98]">Yuborish</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
     
     <!-- Main JavaScript - Inline for instant loading -->
@@ -2185,6 +2257,84 @@
         let hasActiveTariff = false;
         let lastTariffCheck = null; // Obuna tekshiruvi uchun
         let onboardingDone = false;
+
+        // Davlatlar va viloyatlar (barcha joylarda ishlatiladi)
+        const LOCATION_COUNTRIES_REGIONS = {
+            "O'zbekiston": ["Toshkent shahar","Toshkent viloyati","Samarqand","Buxoro","Andijon","Farg'ona","Namangan","Qashqadaryo","Surxondaryo","Xorazm","Navoiy","Jizzax","Sirdaryo","Qoraqalpog'iston"],
+            "Qozog'iston": ["Olmaota","Ostona","Shymkent","Qarag'anda","Aqtobe","Pavlodar","Semey","Oral","Atirau","Qostanay","Oqmoʻla","Shimoliy Qozog'iston","Sharqiy Qozog'iston","Mangʻistau"],
+            "Qirg'iziston": ["Bishkek","O'sh","Jalal-Abad","Qorako'l","Naryn","Batlken","Talas","Chuy","Issiqko'l"],
+            "Tojikiston": ["Dushanbe","Xujand","Qurghonteppa","Kulob","Istaravshan","Panjakent","Xatlon","Sughd","Badaxshon"],
+            "Turkmaniston": ["Ashxobod","Turkmanobod","Mary","Balkanobod","Dasoguz","Boldumsaz","Tejen"],
+            "Rossiya": ["Moskva","Sankt-Peterburg","Qozon","Novosibirsk","Yekaterinburg","Samara","Rostov","Nijniy Novgorod","Chelyabinsk","Krasnodar","Sochi","Krasnoyarsk","Perm","Voronej","Volgograd","Saratov","Krasnodar","Ufa","Tyumen","Omsk","Tolyatti","Kemerovo","Habarovsk","Vladivostok","Irkutsk","Yaroslavl","Tula","Lipetsk","Tatariston","Bashqirdiston","Dagiston","Checheniston","Krasnodar o'lkasi","Stavropol o'lkasi"],
+            "Turkiya": ["Istanbul","Ankara","Izmir","Bursa","Antalya","Adana","Konya","Gaziantep","Kayseri","Mersin","Eskişehir","Diyarbakir","Samsun","Denizli","Trabzon","Malatya","Kocaeli","Manisa","Kahramanmaraş","Van","Afyon","Aydin","Tekirdag","Sakarya","Muğla","Mardin"],
+            "Ozarbayjon": ["Boku","Ganja","Sumqayit","Lankaran","Mingachevir","Naxchivan","Shirvan","Shaki","Yevlax","Quba","Qusar","Masalli","Lachin","Fuzuli"],
+            "Gruziya": ["Tbilisi","Batumi","Kutaisi","Rustavi","Zugdidi","Gori","Poti","Samtredia","Kobuleti","Mtsxeta"],
+            "Armaniston": ["Yerevan","Gyumri","Vanadzor","Vagharshapat","Abovyan","Kapan","Armavir","Hrazdan","Artashat"],
+            "Afg'oniston": ["Kobul","Qandahor","Herat","Mazori Sharif","Jalolobod","Kunduz","Pol-e Xomri","Bog'lon","Bomiyon"],
+            "Pokiston": ["Islomobod","Lahor","Karachi","Peshovar","Quetta","Faysolobod","Rawalpindi","Multon","Sarg'odha","Sialkot","Gujranvala"],
+            "Hindiston": ["Dehli","Mumbai","Bangalor","Chennay","Kolkata","Haydarobod","Pune","Ahmadobod","Jaipur","Surat","Lucknow","Kanpur","Nagpur","Indor","Thane","Bhopal","Visakhapatnam","Patna","Ludhiana","Agra"],
+            "Bangladesh": ["Dakka","Chittagong","Rajshahi","Khulna","Sylhet","Barisal","Rangpur","Mymensingh","Comilla","Narayanganj"],
+            "Nepal": ["Kathmandu","Pokhara","Lalitpur","Biratnagar","Bharatpur","Janakpur","Hetauda","Dharan"],
+            "Shri Lanka": ["Kolombo","Kandi","Galle","Jaffna","Negombo","Anuradhapura","Trincomalee","Batticaloa","Ratnapura"],
+            "Malayziya": ["Kuala Lumpur","George Town","Johor Bahru","Ipoh","Shah Alam","Petaling Jaya","Kuching","Kota Kinabalu","Alor Setar","Kota Bharu"],
+            "Indoneziya": ["Jakarta","Surabaya","Bandung","Medan","Semarang","Makassar","Palembang","Batam","Pekanbaru","Bogor","Denpasar"],
+            "Tailand": ["Bangkok","Chiang Mai","Phuket","Hat Yai","Udon Thani","Khon Kaen","Nakhon Ratchasima","Nakhon Si Thammarat","Lampang"],
+            "Vyetnam": ["Ho Chi Minh","Hanoi","Da Nang","Haiphong","Can Tho","Nha Trang","Hue","Vung Tau","Da Lat","Qui Nhon"],
+            "Filippin": ["Manila","Quezon City","Davao","Cebu","Caloocan","Zamboanga","Taguig","Antipolo","Cagayan de Oro","Pasig"],
+            "Singapur": ["Singapur"],
+            "Saudiya Arabistoni": ["Ar-Riyod","Jidda","Makkah","Madina","Dammam","Tabuk","Abha","Taif","Buroyda","Khomis Mushayt"],
+            "BAA": ["Dubay","Abu Dabi","Sharja","Ajman","Ras al-Xayma","Fujayra","Umm al-Qaywayn"],
+            "Quvayt": ["Quvayt shahri","Hawalli","Ahmadi","Jahra","Farwania","Mubarak al-Kabir"],
+            "Bahrayn": ["Manama","Muharraq","Riffa","Hamad Town","Isa Town","Sitra"],
+            "Qatar": ["Doha","Al Rayyan","Al Wakrah","Al Khor","Umm Salal","Mesaieed"],
+            "Ummon": ["Maskat","Salala","Suhar","Nizva","Sur","Ibri","Barka","Rustaq"],
+            "Iroq": ["Bag'dod","Basra","Mosul","Arbil","Najaf","Karbalo","Sulaymaniya","Kirkuk","Nasiriya"],
+            "Eron": ["Tehron","Mashhad","Isfahan","Shiraz","Tabriz","Qum","Ahvoz","Kermonshoh","Rasht","Kerman"],
+            "Iordaniya": ["Amman","Zarqa","Irbid","Ras al-Ayn","Aqaba","Madaba","Jerash","Salt"],
+            "Suriya": ["Damashq","Halab","Hims","Hama","Latakiya","Raqqa","Daraa","Idlib","Tartus"],
+            "Livan": ["Bayrut","Tripoli","Sidon","Tyr","Jounieh","Zahle","Baalbek","Nabatiye"],
+            "Yaman": ["Sana","Aden","Taizz","Al Hudaydah","Ibb","Dhamar","Mukalla","Say'un"],
+            "Misr": ["Qohira","Iskandariya","Giza","Sharm al-Shayx","Luxor","Asuan","Port Said","Suez","Mansura","Tanta","Fayyum"],
+            "Liviya": ["Tripoli","Banghazi","Misrata","Bayda","Tobruk","Sabha","Zawiya","Ajdabiya"],
+            "Tunis": ["Tunis","Sfax","Sousse","Kairuan","Bizerte","Gabes","Monastir","Béja","Jendouba"],
+            "Jazoir": ["Jazoir shahri","Oran","Konstantin","Annaba","Blida","Batna","Setif","Sidi Bel Abbes","Biskra"],
+            "Marokash": ["Rabat","Casablanca","Fes","Marakesh","Tanger","Agadir","Meknes","Oujda","Kenitra"],
+            "Sudan": ["Xartum","Omdurman","Port Sudan","Kassala","Gedaref","Nyala","Al Fashir","Kosti"],
+            "Germaniya": ["Berlin","Myunxen","Gamburg","Keln","Frankfurt","Shtutgart","Dusseldorf","Leypsig","Dortmund","Essen","Bremen","Drezden","Hanover","Nurnberg","Duisburg"],
+            "Fransiya": ["Parij","Marsel","Lion","Tuluza","Nitsa","Nant","Strasburg","Montpellier","Bordo","Lill","Renn","Reims","Sent-Etyen","Tulon","Grenobl"],
+            "Buyuk Britaniya": ["London","Birmingem","Lids","Glazgo","Sheffild","Bristol","Manchester","Edinburg","Liverpul","Lester","Koventry","Nottingem","Belfast","Kardiff"],
+            "Italiya": ["Rim","Milan","Neapol","Turin","Palermo","Genuya","Bologna","Florentsiya","Venetsiya","Verona","Messina","Padua","Triest","Brescia","Taranto"],
+            "Ispaniya": ["Madrid","Barselona","Valensiya","Sevilya","Saragosa","Malaga","Murcia","Palma","Las Palmas","Bilbao","Alicante","Kordova","Valladolid"],
+            "Niderlandiya": ["Amsterdam","Rotterdam","Gaaga","Utrext","Eindhoven","Groningen","Tilburg","Almere","Breda","Nijmegen"],
+            "Belgiya": ["Bryussel","Antverpen","Gent","Charleroi","Lyej","Brugge","Namur","Loven","Mons","Aalst"],
+            "Shveysariya": ["Syurix","Jeneva","Bazel","Bern","Lozanna","Lucerne","Lugano","Winterthur","St. Gallen"],
+            "Avstriya": ["Vena","Graz","Lints","Zalsburg","Innsbruck","Klagenfurt","Villach","Vels","Sankt Pölten"],
+            "Polsha": ["Varshava","Krakov","Lodz","Vrotslav","Poznan","Gdansk","Shchetsin","Bydgoszcz","Lublin","Katowice"],
+            "Ukraina": ["Kiyev","Xarkov","Odessa","Dnepr","Donetsk","Zaporijiya","Lvov","Krivoy Rog","Nikolayev","Mariupol"],
+            "Belarus": ["Minsk","Gomel","Mogilyov","Vitebsk","Grodno","Brest","Bobruysk","Baranovichi","Pinsk","Orsha"],
+            "Litva": ["Vilnyus","Kaunas","Klaipeda","Siauliai","Panevezys","Alytus","Marijampole","Mazeikiai","Utena"],
+            "Latviya": ["Riga","Daugavpils","Liepaja","Jelgava","Jurmala","Ventspils","Rezekne","Valmiera","Jekabpils"],
+            "Estoniya": ["Tallin","Tartu","Narva","Parnu","Kohtla-Jarve","Viljandi","Rakvere","Sillamae","Maardu"],
+            "Finlandiya": ["Helsinki","Espoo","Tampere","Vantaa","Oulu","Turku","Jyväskylä","Lahti","Kuopio","Pori"],
+            "Shvetsiya": ["Stokgolm","Gothenburg","Malmö","Uppsala","Västerås","Örebro","Linköping","Helsingborg","Jönköping","Norrköping"],
+            "Norvegiya": ["Oslo","Bergen","Trondheim","Stavanger","Drammen","Fredrikstad","Kristiansand","Sandnes","Tromsø","Sarpsborg"],
+            "Daniya": ["Kopengagen","Aarhus","Odense","Aalborg","Frederiksberg","Esbjerg","Gentofte","Gladsaxe","Randers","Kolding"],
+            "AQSH": ["New York","Los Angeles","Chicago","Houston","Phoenix","Philadelphia","San Antonio","San Diego","Dallas","San Jose","Austin","Jacksonville","Fort Worth","Columbus","Charlotte","San Francisco","Indianapolis","Seattle","Denver","Boston"],
+            "Kanada": ["Toronto","Montreal","Vancouver","Calgary","Edmonton","Ottawa","Winnipeg","Quebec","Hamilton","Kitchener"],
+            "Meksika": ["Mexiko shahri","Guadalajara","Monterrey","Puebla","Tijuana","Leon","Juarez","Zapopan","Merida","Cancun"],
+            "Braziliya": ["San-Paulu","Rio-de-Janeyro","Brasilia","Salvador","Fortaleza","Belo Horizonte","Manaus","Kuritiba","Resifi","Portu-Alegri"],
+            "Argentina": ["Buenos Ayres","Kordova","Rosario","Mendoza","San Miguel de Tukuman","La Plata","Mar del Plata","Salta","Santa Fe","San Xuan"],
+            "Xitoy": ["Pekin","Shanxay","Guanchjou","Shenchjen","Chengdu","Xanchjou","Uxan","Xi'an","Tianjin","Nanjing","Chunqing","Suzhou","Dongguan","Kunming","Qingdao"],
+            "Yaponiya": ["Tokio","Yokohama","Osaka","Nagoya","Sapporo","Kobe","Kioto","Fukuoka","Kawasaki","Saitama"],
+            "Janubiy Koreya": ["Seul","Busan","Incheon","Daegu","Daejeon","Gwangju","Suwon","Ulsan","Changwon","Seongnam"],
+            "Tayvan": ["Taypey","Kaohsiung","Taichung","Tainan","Banqiao","Taoyuan","Keelung","Hsinchu","Changhua"],
+            "Avstraliya": ["Sidney","Melburn","Brisben","Perth","Adelaida","Gold Coast","Newcastle","Canberra","Sunshine Coast","Wollongong"],
+            "Yangi Zelandiya": ["Oklend","Vellington","Christchurch","Hamilton","Tauranga","Napier-Hastings","Dunedin","Palmerston North","Nelson","Rotorua"],
+            "Janubiy Afrika": ["Yohannesburg","Keyp Taun","Durban","Pretoriya","Port Elizabet","Bloemfontein","East London","Pietermaritzburg","Kimberley"],
+            "Nigeriya": ["Lagos","Abuja","Kano","Ibadan","Kaduna","Port Harcourt","Benin City","Maiduguri","Zaria","Aba"],
+            "Keniya": ["Nairobi","Mombasa","Kisumu","Nakuru","Eldoret","Thika","Malindi","Kitale","Garissa","Kakamega"],
+            "Boshqa": []
+        };
 
         // Sahifa ma'lumotlari faqat 1 marta yuklanadi (sahifadan sahifaga qaytganda qayta yuklanmaydi)
         let pageDataLoaded = { feed: false, chats: false, favorites: false, profile: false, requests: false };
@@ -2472,7 +2622,43 @@
         async function loadTariffPageData() {
             const container = document.getElementById('tariff-cards-container');
             if (!container) return;
+            container.innerHTML = '<p class="text-white/50 text-center py-8">Yuklanmoqda...</p>';
             try {
+                const statusRes = await fetch('/tariff/api/status', { credentials: 'same-origin' });
+                const statusData = statusRes.ok ? await statusRes.json() : {};
+                const hasActive = !!statusData.has_active_tariff;
+                const activeTariff = statusData.tariff || null;
+
+                var subtitleEl = document.getElementById('tariff-page-subtitle');
+                if (hasActive && activeTariff) {
+                    if (subtitleEl) subtitleEl.textContent = 'Sizning aktiv tarifingiz';
+                    container.innerHTML = `
+                        <div class="glass-card rounded-2xl p-6 border border-primary/30 bg-primary/5">
+                            <div class="flex items-center justify-between mb-4">
+                                <div>
+                                    <h4 class="text-primary text-lg font-bold mb-1">Aktiv obuna</h4>
+                                    <p class="text-white/60 text-sm">${activeTariff.name || 'Tarif'} tarif</p>
+                                </div>
+                                <span class="bg-primary/20 text-primary px-4 py-2 rounded-full text-xs font-bold uppercase">Aktiv</span>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4 mt-4">
+                                <div>
+                                    <p class="text-white/40 text-xs mb-1">Qolgan so'rovlar</p>
+                                    <p class="text-white text-xl font-bold">${activeTariff.requests_count ?? 0} / ${activeTariff.total_requests ?? 0}</p>
+                                </div>
+                                <div>
+                                    <p class="text-white/40 text-xs mb-1">Qolgan kunlar</p>
+                                    <p class="text-white text-xl font-bold">${activeTariff.days_remaining ?? 0} kun</p>
+                                </div>
+                            </div>
+                            ${activeTariff.is_top ? `<div class="mt-4 pt-4 border-t border-white/10"><p class="text-yellow-400 text-sm font-semibold flex items-center gap-2"><span class="material-symbols-outlined text-[18px]">star</span>TOP rejimida</p></div>` : ''}
+                        </div>
+                        <p class="text-white/40 text-center text-sm mt-4">Aktiv tarifingiz mavjud. Yangi tarif kerak bo'lsa, obuna tugagach qayta kirishingiz mumkin.</p>
+                    `;
+                    return;
+                }
+
+                if (subtitleEl) subtitleEl.textContent = 'O\'zingizga mos tarifni tanlang';
                 const [tariffsRes, paymentRes] = await Promise.all([
                     fetch('/tariff/api/tariffs', { credentials: 'same-origin' }),
                     fetch('/tariff/api/payment-info', { credentials: 'same-origin' })
@@ -2480,11 +2666,10 @@
                 const tariffsData = tariffsRes.ok ? await tariffsRes.json() : { tariffs: [] };
                 const paymentInfo = paymentRes.ok ? await paymentRes.json() : {};
                 const tariffs = tariffsData.tariffs || [];
-                const cardNumber = paymentInfo.card_number || '';
-                const cardName = paymentInfo.card_name || '';
+                window._tariffPaymentInfo = { card_number: paymentInfo.card_number || '', card_name: paymentInfo.card_name || '' };
                 container.innerHTML = '';
                 if (tariffs.length === 0) {
-                    container.innerHTML = '<p class="text-white/50 text-center py-8">Tariflar yuklanmoqda...</p>';
+                    container.innerHTML = '<p class="text-white/50 text-center py-8">Tariflar topilmadi</p>';
                     return;
                 }
                 tariffs.forEach(t => {
@@ -2492,19 +2677,20 @@
                     card.className = 'glass-card rounded-2xl p-5 border border-white/10';
                     const isGold = t.name === 'OLTIN';
                     if (isGold) card.classList.add('border-yellow-500/30', 'bg-yellow-500/5');
+                    const price = t.price || 0;
                     card.innerHTML = `
                         <div class="flex justify-between items-start mb-3">
                             <h3 class="text-lg font-bold ${isGold ? 'text-yellow-400' : 'text-white'}">${t.name}</h3>
                             <div class="text-right">
-                                <span class="text-xl font-extrabold text-primary">${(t.price || 0).toLocaleString('uz-UZ')}</span>
+                                <span class="text-xl font-extrabold text-primary">${price.toLocaleString('uz-UZ')}</span>
                                 <span class="text-white/50 text-sm"> UZS</span>
                             </div>
                         </div>
                         <ul class="space-y-2 mb-4 text-sm text-white/70">
                             ${(t.features || []).map(f => `<li class="flex items-center gap-2"><span class="material-symbols-outlined text-primary text-[16px]">check_circle</span>${f}</li>`).join('')}
                         </ul>
-                        <button type="button" onclick="window.location.href='/tariff/purchase'" class="w-full h-12 rounded-xl font-bold text-sm uppercase tracking-wider transition-all active:scale-[0.98] ${isGold ? 'bg-yellow-500 text-black' : 'bg-primary text-black'}">
-                            Hozir yoqish
+                        <button type="button" onclick="window.openTariffPayment('${(t.name || '').replace(/'/g, "\\'")}', ${price})" class="w-full h-12 rounded-xl font-bold text-sm uppercase tracking-wider transition-all active:scale-[0.98] ${isGold ? 'bg-yellow-500 text-black' : 'bg-primary text-black'}">
+                            Sotib olish
                         </button>
                     `;
                     container.appendChild(card);
@@ -2514,6 +2700,74 @@
                 container.innerHTML = '<p class="text-red-400 text-center py-8">Xatolik yuz berdi</p>';
             }
         }
+
+        window.openTariffPayment = function(name, price) {
+            window._tariffPaymentSelected = { name: name, price: price };
+            document.getElementById('tariff-payment-name').textContent = name || '';
+            document.getElementById('tariff-payment-price').textContent = (price || 0).toLocaleString('uz-UZ') + ' UZS';
+            const info = window._tariffPaymentInfo || {};
+            document.getElementById('tariff-payment-card').textContent = info.card_number || '—';
+            document.getElementById('tariff-payment-card-name').textContent = info.card_name || '';
+            document.getElementById('tariff-payment-message').value = '';
+            document.getElementById('tariff-payment-receipt').value = '';
+            document.getElementById('tariff-payment-receipt-label').textContent = 'Rasm yuklash';
+            document.getElementById('tariff-payment-receipt-preview').classList.add('hidden');
+            document.getElementById('tariff-payment-submit-btn').disabled = false;
+            document.getElementById('tariff-payment-submit-btn').textContent = 'Yuborish';
+            document.getElementById('tariff-payment-modal').classList.remove('hidden');
+        };
+        window.closeTariffPaymentModal = function() {
+            document.getElementById('tariff-payment-modal').classList.add('hidden');
+            window._tariffPaymentSelected = null;
+        };
+        window.copyTariffCardNumber = function() {
+            const el = document.getElementById('tariff-payment-card');
+            const num = (el && el.textContent || '').replace(/\s/g, '');
+            if (!num || num === '—') return;
+            navigator.clipboard.writeText(num).then(function() {
+                if (typeof window.showNotification === 'function') window.showNotification('Karta raqami nusxalandi');
+                else alert('Karta raqami nusxalandi');
+            });
+        };
+        window.clearTariffReceipt = function() {
+            var inp = document.getElementById('tariff-payment-receipt');
+            if (inp) inp.value = '';
+            document.getElementById('tariff-payment-receipt-preview').classList.add('hidden');
+            window._tariffPaymentReceiptFile = null;
+            document.getElementById('tariff-payment-receipt-label').textContent = 'Rasm yuklash';
+        };
+        window.submitTariffPayment = function() {
+            var sel = window._tariffPaymentSelected;
+            var fileInput = document.getElementById('tariff-payment-receipt');
+            var file = (fileInput && fileInput.files && fileInput.files[0]) || window._tariffPaymentReceiptFile;
+            if (!sel || !sel.name || !sel.price) { alert('Tarif tanlanmagan'); return; }
+            if (!file) { alert('To\'lov cheki rasmini yuklang'); return; }
+            if (file.size > 5 * 1024 * 1024) { alert('Rasm 5MB dan oshmasin'); return; }
+            var msg = (document.getElementById('tariff-payment-message') || {}).value || '';
+            var btn = document.getElementById('tariff-payment-submit-btn');
+            if (btn) { btn.disabled = true; btn.textContent = 'Yuborilmoqda...'; }
+            var formData = new FormData();
+            formData.append('tariff_name', sel.name);
+            formData.append('amount', String(sel.price));
+            formData.append('message', msg);
+            formData.append('receipt_image', file);
+            fetch('/tariff/api/create-payment-request', { method: 'POST', credentials: 'same-origin', body: formData })
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    if (data.success) {
+                        if (typeof window.showNotification === 'function') window.showNotification('To\'lov so\'rovi yuborildi! Admin tekshiradi.');
+                        window.closeTariffPaymentModal();
+                        loadTariffPageData();
+                        if (typeof window.refreshUserData === 'function') window.refreshUserData();
+                    } else {
+                        alert(data.error || 'Xatolik');
+                    }
+                })
+                .catch(function() { alert('Xatolik yuz berdi'); })
+                .finally(function() {
+                    if (btn) { btn.disabled = false; btn.textContent = 'Yuborish'; }
+                });
+        };
 
         // Notification functions
         window.showNotification = function(message) {
@@ -2606,22 +2860,13 @@
                     hapticTap('light');
                 });
             });
-            // Onboarding: davlat o'zgarganda viloyat ro'yxatini yangilash
-            const ONBOARDING_REGIONS = {
-                "O'zbekiston": ["Toshkent shahar","Toshkent viloyati","Samarqand","Buxoro","Andijon","Farg'ona","Namangan","Qashqadaryo","Surxondaryo","Xorazm","Navoiy","Jizzax","Sirdaryo","Qoraqalpog'iston"],
-                "Qozog'iston": ["Olmaota","Ostona","Shymkent","Qarag'anda","Aqtobe","Pavlodar","Semey","Oral","Atirau"],
-                "Qirg'iziston": ["Bishkek","O'sh","Jalal-Abad","Qorako'l","Naryn","Batlken","Talas"],
-                "Tojikiston": ["Dushanbe","Xujand","Qurghonteppa","Kulob","Istaravshan","Panjakent"],
-                "Rossiya": ["Moskva","Sankt-Peterburg","Qozon","Novosibirsk","Yekaterinburg","Samara","Rostov","Nijniy Novgorod","Chelyabinsk"],
-                "Turkiya": ["Istanbul","Ankara","Izmir","Bursa","Antalya","Adana","Konya","Gaziantep"],
-                "Ozarbayjon": ["Boku","Ganja","Sumqayit","Lankaran","Mingachevir","Naxchivan"],
-                "Boshqa": []
-            };
+            // Onboarding: davlatlar ro'yxatini to'ldirish va davlat o'zgarganda viloyat yangilash (global LOCATION_COUNTRIES_REGIONS)
             const obCountry = document.getElementById('onboarding-country');
             const obRegion = document.getElementById('onboarding-region');
-            if (obCountry && obRegion) {
+            if (obCountry && obRegion && typeof LOCATION_COUNTRIES_REGIONS !== 'undefined') {
+                obCountry.innerHTML = '<option value="">Davlatni tanlang</option>' + Object.keys(LOCATION_COUNTRIES_REGIONS).map(c => '<option value="' + c.replace(/"/g, '&quot;') + '">' + c + '</option>').join('');
                 obCountry.addEventListener('change', function() {
-                    const regs = ONBOARDING_REGIONS[this.value] || [];
+                    const regs = LOCATION_COUNTRIES_REGIONS[this.value] || [];
                     obRegion.innerHTML = '<option value="">Viloyatni tanlang</option>' + regs.map(r => `<option value="${r}">${r}</option>`).join('');
                     obRegion.required = regs.length > 0;
                 });
@@ -2804,6 +3049,8 @@
                 }
             }
         }
+
+        window.refreshUserData = function() { initUserData(); };
 
         // Initialize user data
         async function initUserData() {
@@ -3427,9 +3674,9 @@
                                 <p class="text-[11px] text-yellow-400/80">So'rov yuborish uchun tarif sotib oling</p>
                             </div>
                         </div>
-                        <a href="/tariff/purchase" class="block w-full bg-primary text-black py-3 rounded-xl text-center font-bold text-sm uppercase tracking-wider neon-glow active:scale-95 transition-all">
+                        <button type="button" onclick="window.showPage('tariff')" class="w-full bg-primary text-black py-3 rounded-xl text-center font-bold text-sm uppercase tracking-wider neon-glow active:scale-95 transition-all">
                             Tarif sotib olish
-                        </a>
+                        </button>
                     </div>
                 `;
             } else {
@@ -4497,6 +4744,12 @@
             el('profile-edit-jismoniy-summary', [p.height && p.height + ' sm', p.weight && p.weight + ' kg'].filter(Boolean).join(', ') || 'Belgilanmagan');
             el('profile-edit-talim-summary', p.education || 'Belgilanmagan');
             el('profile-edit-ish-summary', (p.profession ? (p.profession + (p.is_working ? ', Ishlaman' : '') + (p.salary ? ' · ' + p.salary : '')) : null) || 'Belgilanmagan');
+            const juftgaParts = [];
+            if (p.partner_age_min != null || p.partner_age_max != null) juftgaParts.push((p.partner_age_min ?? '?') + '-' + (p.partner_age_max ?? '?') + ' yosh');
+            if (p.partner_region) juftgaParts.push(p.partner_region);
+            if (p.partner_religious_level) juftgaParts.push(p.partner_religious_level);
+            if (p.partner_marital_status) juftgaParts.push(p.partner_marital_status);
+            el('profile-edit-juftga-summary', juftgaParts.length ? juftgaParts.join(', ') : 'Belgilanmagan');
             const bioEl = document.getElementById('profile-edit-bio-summary');
             if (bioEl) { bioEl.textContent = (p.bio || '').trim() ? (p.bio.slice(0, 40) + (p.bio.length > 40 ? '…' : '')) : 'Belgilanmagan'; bioEl.classList.toggle('italic', !p.bio); }
         }
@@ -4524,16 +4777,6 @@
             content.classList.remove('translate-y-full');
             const titles = { shaxsiy: 'Ism, jins, yosh', diniy: 'Diniy ma\'lumotlar', joylashuv: 'Joylashuv', oilaviy: 'Oilaviy holati', jismoniy: 'Jismoniy', talim: 'Ta\'lim', ish: 'Ish & Kasb', juftga: 'Juftga talablari', bio: 'O\'zim haqimda' };
             title.textContent = titles[section] || 'Tahrirlash';
-            const LOCATION_COUNTRIES_REGIONS = {
-                "O'zbekiston": ["Toshkent shahar","Toshkent viloyati","Samarqand","Buxoro","Andijon","Farg'ona","Namangan","Qashqadaryo","Surxondaryo","Xorazm","Navoiy","Jizzax","Sirdaryo","Qoraqalpog'iston"],
-                "Qozog'iston": ["Olmaota","Ostona","Shymkent","Qarag'anda","Aqtobe","Pavlodar","Semey","Oral","Atirau"],
-                "Qirg'iziston": ["Bishkek","O'sh","Jalal-Abad","Qorako'l","Naryn","Batlken","Talas"],
-                "Tojikiston": ["Dushanbe","Xujand","Qurghonteppa","Kulob","Istaravshan","Panjakent"],
-                "Rossiya": ["Moskva","Sankt-Peterburg","Qozon","Novosibirsk","Yekaterinburg","Samara","Rostov","Nijniy Novgorod","Chelyabinsk"],
-                "Turkiya": ["Istanbul","Ankara","Izmir","Bursa","Antalya","Adana","Konya","Gaziantep"],
-                "Ozarbayjon": ["Boku","Ganja","Sumqayit","Lankaran","Mingachevir","Naxchivan"],
-                "Boshqa": []
-            };
             const countryList = Object.keys(LOCATION_COUNTRIES_REGIONS);
             const regionOpts = LOCATION_COUNTRIES_REGIONS["O'zbekiston"] || [];
             const yearOpts = Array.from({length: 48}, (_, i) => 2006 - i);
@@ -4542,58 +4785,26 @@
                 const isWoman = (defaultGender === 'Ayol');
                 const maritalOpts = isWoman ? ['Qiz bola', 'Beva', 'Ajrashgan'] : ['Bo\'ydoq', 'Oilali', 'Ajrashgan'];
                 const isAddListingSteps = !!_sheetDataSource;
-                const step = isAddListingSteps ? addListingShaxsiyStep : 0;
                 if (isAddListingSteps) {
-                    title.textContent = SHAXSIY_STEP_NAMES[step] || 'Shaxsiy';
-                    const countryForRegion = p.country || "O'zbekiston";
-                    const regionList = LOCATION_COUNTRIES_REGIONS[countryForRegion] || [];
-                    const stepContents = [
-                        `<label class="block text-[11px] font-bold text-white/60 mb-4">Jins</label>
-                        <div class="flex gap-3 mb-6">
+                    title.textContent = 'Ism, jins, yosh';
+                    body.innerHTML = `
+                        <label class="block text-[11px] font-bold text-white/60 mb-2">Jins</label>
+                        <div class="flex gap-3 mb-4">
                             <label class="flex-1 flex items-center justify-center p-5 rounded-2xl border-2 cursor-pointer transition-all ${p.gender === 'Erkak' ? 'border-primary bg-primary/10' : 'border-white/10 bg-white/5'}"><span class="text-lg font-bold">Erkak</span><input type="radio" name="gender" value="Erkak" ${p.gender === 'Erkak' ? 'checked' : ''} class="hidden"></label>
                             <label class="flex-1 flex items-center justify-center p-5 rounded-2xl border-2 cursor-pointer transition-all ${p.gender === 'Ayol' ? 'border-primary bg-primary/10' : 'border-white/10 bg-white/5'}"><span class="text-lg font-bold">Ayol</span><input type="radio" name="gender" value="Ayol" ${p.gender === 'Ayol' ? 'checked' : ''} class="hidden"></label>
                         </div>
-                        <div class="flex gap-3 pt-2"><button type="button" onclick="window.addListingShaxsiyNext()" class="flex-1 bg-primary text-black font-bold py-3.5 rounded-2xl">Keyingi</button></div>`,
-                        `<label class="block text-[11px] font-bold text-white/60 mb-2">Ism</label>
-                        <input type="text" name="name" value="${(p.name || '').replace(/"/g, '&quot;')}" placeholder="Ismni kiriting" class="w-full glass-card rounded-2xl px-4 py-3 text-white border border-white/10 bg-white/5 mb-6">
-                        <div class="flex gap-3 pt-2"><button type="button" onclick="window.addListingShaxsiyBack()" class="px-6 py-3.5 rounded-2xl border border-white/20 text-white/80 font-bold">Orqaga</button><button type="button" onclick="window.addListingShaxsiyNext()" class="flex-1 bg-primary text-black font-bold py-3.5 rounded-2xl">Keyingi</button></div>`,
-                        `<label class="block text-[11px] font-bold text-white/60 mb-2">Tug'ilgan yil (yosh)</label>
-                        <select name="birth_year" class="w-full glass-card rounded-2xl px-4 py-3 text-white border border-white/10 bg-white/5 mb-6">${yearOpts.map(y => `<option value="${y}" ${(p.birth_year == y) ? 'selected' : ''}>${y} yil</option>`).join('')}</select>
-                        <div class="flex gap-3 pt-2"><button type="button" onclick="window.addListingShaxsiyBack()" class="px-6 py-3.5 rounded-2xl border border-white/20 text-white/80 font-bold">Orqaga</button><button type="button" onclick="window.addListingShaxsiyNext()" class="flex-1 bg-primary text-black font-bold py-3.5 rounded-2xl">Keyingi</button></div>`,
-                        `<label class="block text-[11px] font-bold text-white/60 mb-2">Davlat</label>
-                        <select name="country" id="profile-edit-country" class="w-full glass-card rounded-2xl px-4 py-3 text-white border border-white/10 bg-white/5 mb-6">${countryList.map(c => `<option value="${c}" ${(p.country === c) ? 'selected' : ''}>${c}</option>`).join('')}</select>
-                        <div class="flex gap-3 pt-2"><button type="button" onclick="window.addListingShaxsiyBack()" class="px-6 py-3.5 rounded-2xl border border-white/20 text-white/80 font-bold">Orqaga</button><button type="button" onclick="window.addListingShaxsiyNext()" class="flex-1 bg-primary text-black font-bold py-3.5 rounded-2xl">Keyingi</button></div>`,
-                        `<label class="block text-[11px] font-bold text-white/60 mb-2">Viloyat / Shahar</label>
-                        <select name="region" id="profile-edit-region-select" class="w-full glass-card rounded-2xl px-4 py-3 text-white border border-white/10 bg-white/5 mb-6">${regionList.map(r => `<option value="${r}" ${(p.region === r) ? 'selected' : ''}>${r}</option>`).join('')}</select>
-                        <div class="flex gap-3 pt-2"><button type="button" onclick="window.addListingShaxsiyBack()" class="px-6 py-3.5 rounded-2xl border border-white/20 text-white/80 font-bold">Orqaga</button><button type="button" onclick="window.addListingShaxsiyNext()" class="flex-1 bg-primary text-black font-bold py-3.5 rounded-2xl">Keyingi</button></div>`,
-                        `<label class="block text-[11px] font-bold text-white/60 mb-2">Millat</label>
-                        <select name="nationality" class="w-full glass-card rounded-2xl px-4 py-3 text-white border border-white/10 bg-white/5 mb-6">${['O\'zbek','Rus','Tojik','Qozoq','Qoraqalpoq','Boshqa'].map(n => `<option value="${n}" ${(p.nationality === n) ? 'selected' : ''}>${n}</option>`).join('')}</select>
-                        <div class="flex gap-3 pt-2"><button type="button" onclick="window.addListingShaxsiyBack()" class="px-6 py-3.5 rounded-2xl border border-white/20 text-white/80 font-bold">Orqaga</button><button type="button" onclick="window.addListingShaxsiySave()" class="flex-1 bg-primary text-black font-bold py-3.5 rounded-2xl">Saqlash</button></div>`
-                    ];
-                    body.innerHTML = stepContents[step] || stepContents[0];
-                    if (step === 0) {
-                        body.querySelectorAll('input[type=radio][name=gender]').forEach(radio => {
-                            radio.addEventListener('change', function() {
-                                body.querySelectorAll('label').forEach(l => l.classList.remove('border-primary', 'bg-primary/10'));
-                                this.closest('label')?.classList.add('border-primary', 'bg-primary/10');
-                            });
-                        });
-                    }
-                    if (step === 3) {
-                        const countryEl = document.getElementById('profile-edit-country');
-                        const regionEl = document.getElementById('profile-edit-region-select');
-                        if (countryEl && regionEl) countryEl.addEventListener('change', function() {
-                            const regs = LOCATION_COUNTRIES_REGIONS[this.value] || [];
-                            regionEl.innerHTML = regs.map(r => `<option value="${r}">${r}</option>`).join('');
-                        });
-                    }
-                    body.querySelectorAll('input[type=radio]').forEach(radio => {
+                        <label class="block text-[11px] font-bold text-white/60 mb-2">Ism</label>
+                        <input type="text" name="name" value="${(p.name || '').replace(/"/g, '&quot;')}" placeholder="Ismni kiriting" class="w-full glass-card rounded-2xl px-4 py-3 text-white border border-white/10 bg-white/5 mb-4">
+                        <label class="block text-[11px] font-bold text-white/60 mb-2">Tug'ilgan yil</label>
+                        <select name="birth_year" class="w-full glass-card rounded-2xl px-4 py-3 text-white border border-white/10 bg-white/5 mb-4">${yearOpts.map(y => `<option value="${y}" ${(p.birth_year == y) ? 'selected' : ''}>${y} yil</option>`).join('')}</select>
+                    `;
+                    body.querySelectorAll('input[type=radio][name=gender]').forEach(radio => {
                         radio.addEventListener('change', function() {
                             body.querySelectorAll('label').forEach(l => l.classList.remove('border-primary', 'bg-primary/10'));
-                            body.querySelectorAll('input[type=radio]:checked').forEach(r => r.closest('label')?.classList.add('border-primary', 'bg-primary/10'));
+                            this.closest('label')?.classList.add('border-primary', 'bg-primary/10');
                         });
                     });
-                    document.getElementById('profile-edit-sheet-save')?.classList.add('hidden');
+                    document.getElementById('profile-edit-sheet-save')?.classList.remove('hidden');
                 } else {
                     body.innerHTML = `
                     <label class="block text-[11px] font-bold text-white/60 mb-2">Ism</label>
@@ -4704,13 +4915,14 @@
                 `;
             } else if (section === 'juftga') {
                 const ageOpts = Array.from({length: 50}, (_, i) => 18 + i);
+                const juftgaRegionOpts = (p.country && LOCATION_COUNTRIES_REGIONS[p.country]) || regionOpts || [];
                 body.innerHTML = `
                     <label class="block text-[11px] font-bold text-white/60 mb-2">Yosh oralig'i (min)</label>
-                    <select name="partner_age_min" class="w-full glass-card rounded-2xl px-4 py-3 text-white border border-white/10 bg-white/5 mb-4">${ageOpts.map(a => `<option value="${a}" ${(p.partner_age_min === a) ? 'selected' : ''}>${a} yosh</option>`).join('')}</select>
+                    <select name="partner_age_min" class="w-full glass-card rounded-2xl px-4 py-3 text-white border border-white/10 bg-white/5 mb-4">${ageOpts.map(a => `<option value="${a}" ${(p.partner_age_min == a) ? 'selected' : ''}>${a} yosh</option>`).join('')}</select>
                     <label class="block text-[11px] font-bold text-white/60 mb-2">Yosh oralig'i (max)</label>
-                    <select name="partner_age_max" class="w-full glass-card rounded-2xl px-4 py-3 text-white border border-white/10 bg-white/5 mb-4">${ageOpts.map(a => `<option value="${a}" ${(p.partner_age_max === a) ? 'selected' : ''}>${a} yosh</option>`).join('')}</select>
+                    <select name="partner_age_max" class="w-full glass-card rounded-2xl px-4 py-3 text-white border border-white/10 bg-white/5 mb-4">${ageOpts.map(a => `<option value="${a}" ${(p.partner_age_max == a) ? 'selected' : ''}>${a} yosh</option>`).join('')}</select>
                     <label class="block text-[11px] font-bold text-white/60 mb-2">Hudud</label>
-                    <select name="partner_region" class="w-full glass-card rounded-2xl px-4 py-3 text-white border border-white/10 bg-white/5 mb-4">${regionOpts.map(r => `<option value="${r}" ${(p.partner_region === r) ? 'selected' : ''}>${r}</option>`).join('')}</select>
+                    <select name="partner_region" class="w-full glass-card rounded-2xl px-4 py-3 text-white border border-white/10 bg-white/5 mb-4">${juftgaRegionOpts.map(r => `<option value="${r}" ${(p.partner_region === r) ? 'selected' : ''}>${r}</option>`).join('')}</select>
                     <label class="block text-[11px] font-bold text-white/60 mb-2">Diniy daraja</label>
                     <div class="space-y-2 mb-4">
                         ${['Jiddiy','O\'rtacha','Yengil'].map(v => `<label class="flex items-center justify-between p-4 rounded-2xl border cursor-pointer transition-all ${(p.partner_religious_level === v) ? 'border-primary bg-primary/10' : 'border-white/10 bg-white/5'}"><span>${v}</span><input type="radio" name="partner_religious_level" value="${v}" ${(p.partner_religious_level === v) ? 'checked' : ''} class="hidden"></label>`).join('')}
@@ -4809,6 +5021,37 @@
             }
         }
 
+        function isAddListingSectionFilled(section, d) {
+            switch (section) {
+                case 'shaxsiy': return !!(d.name && (d.name || '').trim() && d.gender && d.birth_year);
+                case 'diniy': return !!(d.prays && d.fasts && d.religious_level);
+                case 'joylashuv': return !!(d.country && d.region && d.nationality);
+                case 'oilaviy': return !!(d.marital_status && (d.marital_status || '').trim());
+                case 'jismoniy': return d.height != null && d.height !== '' && d.weight != null && d.weight !== '';
+                case 'talim': return !!(d.education && (d.education || '').trim());
+                case 'ish': return !!(d.profession && (d.profession || '').trim() && (d.is_working === true || d.is_working === 'true' || d.is_working === false || d.is_working === 'false'));
+                case 'juftga': return !!(d.partner_age_min != null && d.partner_age_max != null && d.partner_region && d.partner_religious_level && d.partner_marital_status);
+                case 'bio': return !!((d.bio || '').trim());
+                default: return false;
+            }
+        }
+
+        function validateAddListingFull(d) {
+            var msg = [];
+            if (!(d.name || '').trim() || !d.gender || !d.birth_year) msg.push('Ism, jins, yosh');
+            if (!d.country || !d.region || !d.nationality) msg.push('Joylashuv');
+            if (!d.prays || !d.fasts || !d.religious_level) msg.push('Diniy');
+            if (!(d.marital_status || '').trim()) msg.push('Oilaviy holati');
+            if (d.height == null || d.height === '' || d.weight == null || d.weight === '') msg.push('Jismoniy (bo\'y, vazn)');
+            if (!(d.education || '').trim()) msg.push('Ta\'lim');
+            if (!(d.profession || '').trim()) msg.push('Ish & Kasb');
+            if (d.is_working !== true && d.is_working !== 'true' && d.is_working !== false && d.is_working !== 'false') msg.push('Ish & Kasb (ishlaymanmi)');
+            if (d.partner_age_min == null || d.partner_age_max == null || !(d.partner_region || '').trim() || !(d.partner_religious_level || '').trim() || !(d.partner_marital_status || '').trim()) msg.push('Juftga talablari');
+            if (!(d.bio || '').trim()) msg.push('O\'zim haqimda');
+            if (msg.length === 0) return { ok: true };
+            return { ok: false, message: 'Quyidagi bo\'limlarni to\'ldiring: ' + msg.join(', ') };
+        }
+
         function updateAddListingSummaries() {
             const d = window.newListingDraft || {};
             const el = (id, text) => { const e = document.getElementById(id); if (e) e.textContent = text || 'Belgilanmagan'; };
@@ -4825,6 +5068,29 @@
             el('add-listing-juftga-summary', (d.partner_age_min || d.partner_age_max) ? `${d.partner_age_min || '?'}-${d.partner_age_max || '?'} yosh` : null);
             const bioEl = document.getElementById('add-listing-bio-summary');
             if (bioEl) { bioEl.textContent = (d.bio || '').trim() ? (d.bio.slice(0, 40) + (d.bio.length > 40 ? '…' : '')) : 'Belgilanmagan'; bioEl.classList.toggle('italic', !d.bio); }
+            document.querySelectorAll('.add-listing-section-btn').forEach(function(btn) {
+                var section = btn.getAttribute('data-section');
+                var filled = section && isAddListingSectionFilled(section, d);
+                if (filled) {
+                    btn.classList.add('border-primary', 'bg-primary/5');
+                    btn.classList.remove('border-white/10');
+                    var icon = btn.querySelector('.add-listing-section-icon');
+                    if (icon) { icon.classList.add('bg-primary/10', 'text-primary', 'border-primary/30'); icon.classList.remove('bg-white/5', 'text-white/60', 'border-white/10'); }
+                    var sum = btn.querySelector('p[id^="add-listing-"][id$="-summary"]');
+                    if (sum) { sum.classList.add('text-primary/80'); sum.classList.remove('text-white/50'); }
+                    var chevron = btn.querySelector('.material-symbols-outlined:last-of-type');
+                    if (chevron) { chevron.classList.add('text-primary'); chevron.classList.remove('text-white/30'); }
+                } else {
+                    btn.classList.remove('border-primary', 'bg-primary/5');
+                    btn.classList.add('border-white/10');
+                    var icon = btn.querySelector('.add-listing-section-icon');
+                    if (icon) { icon.classList.remove('bg-primary/10', 'text-primary', 'border-primary/30'); icon.classList.add('bg-white/5', 'text-white/60', 'border-white/10'); }
+                    var sum = btn.querySelector('p[id^="add-listing-"][id$="-summary"]');
+                    if (sum) { sum.classList.remove('text-primary/80'); sum.classList.add('text-white/50'); }
+                    var chevron = btn.querySelector('.material-symbols-outlined:last-of-type');
+                    if (chevron) { chevron.classList.remove('text-primary'); chevron.classList.add('text-white/30'); }
+                }
+            });
         }
 
 
@@ -4918,9 +5184,13 @@
         async function loadProfileListings() {
             const listEl = document.getElementById('profile-listings-list');
             if (!listEl) return;
+            listEl.innerHTML = '<p class="text-white/50 text-center py-4 text-sm">Yuklanmoqda...</p>';
             try {
                 const r = await fetch('/profile/api/listings', { method: 'GET', headers: { 'X-Requested-With': 'XMLHttpRequest' }, credentials: 'same-origin' });
-                if (!r.ok) return;
+                if (!r.ok) {
+                    listEl.innerHTML = '<p class="text-white/50 text-center py-4 text-sm">E\'lonlar yuklanmadi. Sahifani yangilab ko\'ring.</p>';
+                    return;
+                }
                 const data = await r.json();
                 const profiles = data.profiles || data.listings || [];
                 listEl.innerHTML = '';
@@ -4955,7 +5225,10 @@
                     `;
                     listEl.appendChild(div);
                 });
-            } catch (e) { console.warn('Profile listings load error', e); }
+            } catch (e) {
+                console.warn('Profile listings load error', e);
+                listEl.innerHTML = '<p class="text-white/50 text-center py-4 text-sm">E\'lonlar yuklanmadi. Sahifani yangilab ko\'ring.</p>';
+            }
         }
 
         window.toggleListingPublish = async function(listingId, publish) {
@@ -4997,8 +5270,9 @@
 
         window.saveDraftListing = async function() {
             const d = window.newListingDraft || {};
-            if (!(d.name || '').trim() || !d.gender) {
-                alert('Kamida ism va jinsni to\'ldiring');
+            var v = validateAddListingFull(d);
+            if (!v.ok) {
+                alert(v.message);
                 return;
             }
             const btn = document.getElementById('add-listing-draft-btn');
@@ -5007,31 +5281,54 @@
                 const listingId = window.currentEditingListingId;
                 const url = listingId ? `/profile/api/listings/${listingId}` : '/profile/api/listings';
                 const method = listingId ? 'PUT' : 'POST';
+                const controller = new AbortController();
+                const timeoutId = setTimeout(function() { controller.abort(); }, 20000);
                 const r = await fetch(url, {
                     method: method,
                     headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
                     credentials: 'same-origin',
-                    body: JSON.stringify({ ...d, is_published: false })
+                    body: JSON.stringify(buildListingPayload(d, false)),
+                    signal: controller.signal
                 });
-                const data = await r.json();
+                clearTimeout(timeoutId);
+                var data = {};
+                var contentType = r.headers.get('Content-Type') || '';
+                if (contentType.indexOf('application/json') !== -1) {
+                    try { data = await r.json(); } catch (je) { data = { error: 'Javob o\'qishda xatolik' }; }
+                } else {
+                    data = { error: 'Server noto\'g\'ri javob qaytardi.' };
+                }
                 if (r.ok && data.success) {
                     if (typeof window.showNotification === 'function') window.showNotification('✅ Qoralama saqlandi');
-                    window.currentEditingListingId = data.listing_id || listingId;
+                    window.currentEditingListingId = data.listing_id || data.id || listingId;
                     document.getElementById('add-listing-delete-section')?.classList.remove('hidden');
                 } else {
-                    alert(data.message || data.error || 'Xatolik');
+                    alert(data.message || data.error || 'Qoralama saqlanmadi.');
                 }
             } catch (e) {
-                alert('Xatolik yuz berdi');
+                if (e && e.name === 'AbortError') {
+                    alert('Server javob bermadi. Qaytadan urinib ko\'ring.');
+                } else {
+                    alert('Xatolik yuz berdi');
+                }
             } finally {
                 if (btn) { btn.disabled = false; btn.innerHTML = '<span class="material-symbols-outlined text-[20px] align-middle mr-2">save</span>Qoralama saqlash'; }
             }
         };
 
+        function buildListingPayload(d, isPublished) {
+            var keys = ['name','gender','birth_year','country','region','nationality','marital_status','height','weight','aqida','prays','fasts','quran_reading','mazhab','religious_level','education','profession','is_working','salary','partner_age_min','partner_age_max','partner_region','partner_religious_level','partner_marital_status','bio'];
+            var payload = { is_published: !!isPublished };
+            keys.forEach(function(k) { if (d[k] !== undefined && d[k] !== null && d[k] !== '') payload[k] = d[k]; });
+            if (d.is_working === true || d.is_working === false) payload.is_working = d.is_working;
+            return payload;
+        }
+
         window.publishNewListing = async function() {
             const d = window.newListingDraft || {};
-            if (!(d.name || '').trim() || !d.gender) {
-                alert('Kamida ism va jinsni to\'ldiring');
+            var v = validateAddListingFull(d);
+            if (!v.ok) {
+                alert(v.message);
                 return;
             }
             const btn = document.getElementById('add-listing-publish-btn');
@@ -5040,13 +5337,23 @@
                 const listingId = window.currentEditingListingId;
                 const url = listingId ? `/profile/api/listings/${listingId}` : '/profile/api/listings';
                 const method = listingId ? 'PUT' : 'POST';
+                const controller = new AbortController();
+                const timeoutId = setTimeout(function() { controller.abort(); }, 20000);
                 const r = await fetch(url, {
                     method: method,
                     headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
                     credentials: 'same-origin',
-                    body: JSON.stringify({ ...d, is_published: true })
+                    body: JSON.stringify(buildListingPayload(d, true)),
+                    signal: controller.signal
                 });
-                const data = await r.json();
+                clearTimeout(timeoutId);
+                var data = {};
+                var contentType = r.headers.get('Content-Type') || '';
+                if (contentType.indexOf('application/json') !== -1) {
+                    try { data = await r.json(); } catch (je) { data = { error: 'Javob o\'qishda xatolik' }; }
+                } else {
+                    data = { error: 'Server noto\'g\'ri javob qaytardi. Qaytadan urinib ko\'ring.' };
+                }
                 if (r.ok && data.success) {
                     if (typeof window.showNotification === 'function') window.showNotification('✅ E\'lon qilindi!');
                     window.newListingDraft = {};
@@ -5054,10 +5361,14 @@
                     window.showPage('profile');
                     loadProfileListings();
                 } else {
-                    alert(data.message || data.error || 'Xatolik');
+                    alert(data.message || data.error || 'E\'lon saqlanmadi. Qaytadan urinib ko\'ring.');
                 }
             } catch (e) {
-                alert('Xatolik yuz berdi');
+                if (e && e.name === 'AbortError') {
+                    alert('Server javob bermadi. Internetingizni tekshiring va qaytadan urinib ko\'ring.');
+                } else {
+                    alert('Xatolik: ' + (e && e.message ? e.message : 'E\'lon yuborilmadi. Qaytadan urinib ko\'ring.'));
+                }
             } finally {
                 if (btn) { btn.disabled = false; btn.innerHTML = '<span class="material-symbols-outlined text-[20px] align-middle mr-2">publish</span>E\'lon qilish'; }
             }
@@ -6128,6 +6439,25 @@
             const requestsSortBtn = document.getElementById('requests-sort-btn');
             if (requestsSortBtn) requestsSortBtn.addEventListener('click', () => { sortSheetContext = 'requests'; openFilterSheet('filter-sort-sheet'); });
 
+            // To'lov cheki rasm preview (tarif modal)
+            const receiptInp = document.getElementById('tariff-payment-receipt');
+            if (receiptInp) {
+                receiptInp.addEventListener('change', function() {
+                    var file = this.files && this.files[0];
+                    if (!file) return;
+                    if (file.size > 5 * 1024 * 1024) { alert('Rasm 5MB dan oshmasin'); this.value = ''; return; }
+                    if (!file.type.startsWith('image/')) { alert('Faqat rasm yuklang'); this.value = ''; return; }
+                    window._tariffPaymentReceiptFile = file;
+                    document.getElementById('tariff-payment-receipt-label').textContent = file.name;
+                    var preview = document.getElementById('tariff-payment-receipt-preview');
+                    var img = document.getElementById('tariff-payment-preview-img');
+                    if (preview && img) {
+                        img.src = URL.createObjectURL(file);
+                        preview.classList.remove('hidden');
+                    }
+                });
+            }
+
             // Chat xabarlari saralash tugmasi
             const chatSortBtn = document.getElementById('chat-messages-sort-btn');
             if (chatSortBtn) {
@@ -6173,14 +6503,20 @@
                 overlay.addEventListener('click', closeFilterSheet);
             }
 
-            // Joylashuv: mamlakat qidiruv va bosganda shaharlar
-            const LOCATION_CITIES = {
-                "O'zbekiston": ["Toshkent shahar", "Toshkent viloyati", "Samarqand", "Buxoro", "Andijon", "Farg'ona", "Namangan", "Qashqadaryo", "Surxondaryo", "Xorazm", "Navoiy", "Jizzax", "Sirdaryo", "Qoraqalpog'iston"],
-                "Qirg'iziston": ["Bishkek", "O'sh", "Jalal-Abad", "Qorako'l", "Naryn", "Batlken", "Talas"],
-                "Rossiya": ["Moskva", "Sankt-Peterburg", "Qozon", "Novosibirsk", "Yekaterinburg", "Samara", "Rostov"],
-                "Qozog'iston": ["Olmaota", "Ostona", "Shymkent", "Qarag'anda", "Aqtobe", "Pavlodar", "Semey"],
-                "Tojikiston": ["Dushanbe", "Xujand", "Qurghonteppa", "Kulob", "Istaravshan", "Panjakent"]
-            };
+            // Joylashuv: ro'yxatni LOCATION_COUNTRIES_REGIONS dan yig'ish, keyin qidiruv va shaharlar
+            const filterLocationListEl = document.getElementById('filter-location-list');
+            if (filterLocationListEl && typeof LOCATION_COUNTRIES_REGIONS !== 'undefined') {
+                const countryFlags = { "O'zbekiston":"🇺🇿","Qozog'iston":"🇰🇿","Qirg'iziston":"🇰🇬","Tojikiston":"🇹🇯","Turkmaniston":"🇹🇲","Rossiya":"🇷🇺","Turkiya":"🇹🇷","Ozarbayjon":"🇦🇿","Gruziya":"🇬🇪","Armaniston":"🇦🇲","Afg'oniston":"🇦🇫","Pokiston":"🇵🇰","Hindiston":"🇮🇳","Bangladesh":"🇧🇩","Malayziya":"🇲🇾","Indoneziya":"🇮🇩","Tailand":"🇹🇭","Vyetnam":"🇻🇳","Filippin":"🇵🇭","Singapur":"🇸🇬","Saudiya Arabistoni":"🇸🇦","BAA":"🇦🇪","Quvayt":"🇰🇼","Qatar":"🇶🇦","Iroq":"🇮🇶","Eron":"🇮🇷","Misr":"🇪🇬","Germaniya":"🇩🇪","Fransiya":"🇫🇷","Buyuk Britaniya":"🇬🇧","Italiya":"🇮🇹","Ispaniya":"🇪🇸","Polsha":"🇵🇱","Ukraina":"🇺🇦","AQSH":"🇺🇸","Kanada":"🇨🇦","Xitoy":"🇨🇳","Yaponiya":"🇯🇵","Janubiy Koreya":"🇰🇷","Avstraliya":"🇦🇺" };
+                filterLocationListEl.innerHTML = Object.keys(LOCATION_COUNTRIES_REGIONS).map(function(c) {
+                    const flag = countryFlags[c] || '🌐';
+                    const isFirst = c === "O'zbekiston";
+                    return '<div class="location-country-block bg-white/[0.03] border border-white/[0.05] rounded-3xl overflow-hidden" data-country-name="' + c.replace(/"/g, '&quot;') + '">' +
+                        '<button type="button" class="location-country-header w-full flex items-center justify-between p-5 ' + (isFirst ? 'border-b border-white/[0.04]' : '') + ' text-left active:bg-white/[0.05] transition-colors">' +
+                        '<div class="flex items-center gap-3"><span class="text-2xl">' + flag + '</span><span class="font-bold text-white/80">' + c + '</span></div>' +
+                        '<span class="material-symbols-outlined text-white/20 location-chevron">chevron_right</span></button>' +
+                        '<div class="location-cities hidden px-5 py-4 space-y-4 bg-white/[0.01]"></div></div>';
+                }).join('');
+            }
             const locationSearch = document.getElementById('filter-location-search');
             if (locationSearch) {
                 locationSearch.addEventListener('input', function() {
@@ -6203,7 +6539,7 @@
                         if (chevron) { chevron.classList.remove('text-white/20'); chevron.classList.add('text-primary'); chevron.style.transform = 'rotate(90deg)'; }
                         if (citiesEl.children.length === 0) {
                             const countryName = block.getAttribute('data-country-name');
-                            const cities = LOCATION_CITIES[countryName] || [];
+                            const cities = LOCATION_COUNTRIES_REGIONS[countryName] || [];
                             cities.forEach(city => {
                                 const label = document.createElement('label');
                                 label.className = 'flex items-center justify-between group cursor-pointer';
