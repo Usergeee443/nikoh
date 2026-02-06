@@ -63,6 +63,7 @@ def get_user_data():
         profile_data = user.profile.to_dict()
         profile_data['partner_age_min'] = user.profile.partner_age_min
         profile_data['partner_age_max'] = user.profile.partner_age_max
+        profile_data['partner_country'] = getattr(user.profile, 'partner_country', None)
         profile_data['partner_region'] = user.profile.partner_region
         profile_data['partner_religious_level'] = user.profile.partner_religious_level
         profile_data['partner_marital_status'] = user.profile.partner_marital_status

@@ -23,6 +23,8 @@ class Profile(db.Model):
     # 5.2 Jismoniy ma'lumotlar
     height = db.Column(db.Integer)  # Bo'y (sm)
     weight = db.Column(db.Integer)  # Vazn (kg)
+    smoking = db.Column(db.String(20))  # Ha / Yo'q / Tashlagan
+    sport_days = db.Column(db.Integer)  # Haftada necha kun sport (0-7)
 
     # 5.3 Diniy ma'lumotlar (aqida, namoz, qur'on o'qish, mazhab)
     aqida = db.Column(db.String(50))  # Ahli Sunna, Ash'ariya, Moturidiya, Boshqa
@@ -41,7 +43,9 @@ class Profile(db.Model):
     # 5.5 Juftga qo'yiladigan talablar
     partner_age_min = db.Column(db.Integer)
     partner_age_max = db.Column(db.Integer)
-    partner_region = db.Column(db.String(100))
+    partner_country = db.Column(db.String(100))  # Juftga davlat (legacy, bitta)
+    partner_region = db.Column(db.String(100))   # Juftga viloyat/sahar (legacy)
+    partner_locations = db.Column(db.Text)  # JSON: [{"c":"Davlat","r":["shahar"]} yoki {"c":"Davlat","all":true}]
     partner_religious_level = db.Column(db.String(20))
     partner_marital_status = db.Column(db.String(20))
 
@@ -66,16 +70,46 @@ class Profile(db.Model):
     @property
     def is_complete(self):
         """Profil to'liq to'ldirilganmi? (so'rov yuborish va e'lon joylash uchun)"""
+        loc_ok = self._partner_locations_ok()
         required_fields = [
             self.name, self.gender, self.birth_year, self.region,
             self.nationality, self.marital_status, self.height, self.weight,
             self.prays, self.fasts, self.religious_level,
             self.education, self.profession, self.is_working is not None,
             self.partner_age_min, self.partner_age_max,
-            self.partner_region, self.partner_religious_level,
-            self.partner_marital_status
+            loc_ok,
+            self.partner_religious_level, self.partner_marital_status
         ]
         return all(required_fields)
+
+    def _partner_locations_ok(self):
+        """Juftga joylashuv to'ldirilganmi: partner_locations yoki legacy partner_country+partner_region"""
+        locs = getattr(self, 'partner_locations', None)
+        if locs:
+            try:
+                import json
+                arr = json.loads(locs) if isinstance(locs, str) else locs
+                if isinstance(arr, list) and len(arr) > 0:
+                    return True
+            except Exception:
+                pass
+        return bool(getattr(self, 'partner_country', None) and self.partner_region)
+
+    def _get_partner_locations_list(self):
+        """API uchun juftga joylashuv ro'yxati: [{"c":"Davlat","r":[...]} yoki {"c":"...","all":true}]"""
+        locs = getattr(self, 'partner_locations', None)
+        if locs:
+            try:
+                import json
+                arr = json.loads(locs) if isinstance(locs, str) else locs
+                if isinstance(arr, list) and len(arr) > 0:
+                    return arr
+            except Exception:
+                pass
+        pc = getattr(self, 'partner_country', None)
+        if pc and self.partner_region:
+            return [{'c': pc, 'r': [self.partner_region]}]
+        return []
 
     @property
     def age(self):
@@ -151,6 +185,8 @@ class Profile(db.Model):
             'marital_status': self.marital_status,
             'height': self.height,
             'weight': self.weight,
+            'smoking': getattr(self, 'smoking', None),
+            'sport_days': getattr(self, 'sport_days', None),
             'aqida': self.aqida,
             'prays': self.prays,
             'fasts': self.fasts,
@@ -168,7 +204,9 @@ class Profile(db.Model):
             'completion_percentage': self.completion_percentage,
             'partner_age_min': self.partner_age_min,
             'partner_age_max': self.partner_age_max,
+            'partner_country': getattr(self, 'partner_country', None),
             'partner_region': self.partner_region,
+            'partner_locations': self._get_partner_locations_list(),
             'partner_religious_level': self.partner_religious_level,
             'partner_marital_status': self.partner_marital_status,
             'photo_url': None,  # Will be generated on frontend using gradient

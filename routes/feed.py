@@ -76,6 +76,8 @@ def get_listings():
     request_has_salary = request.args.get('has_salary', type=str)  # 'true' = faqat maosh kiritganlar
     request_salary_min = request.args.get('salary_min', type=int)
     request_salary_max = request.args.get('salary_max', type=int)
+    request_smoking = request.args.get('smoking', type=str)
+    request_sport_days_min = request.args.get('sport_days_min', type=int)
 
     # Jins: to'g'ridan-to'g'ri filter (exists() so'rov olib tashlandi)
     if request_gender in ('Erkak', 'Ayol'):
@@ -123,6 +125,10 @@ def get_listings():
         query = query.filter(Profile.weight >= request_weight_min)
     if request_weight_max is not None and request_weight_max > 0:
         query = query.filter(Profile.weight <= request_weight_max)
+    if request_smoking and request_smoking.strip():
+        query = query.filter(Profile.smoking == request_smoking.strip())
+    if request_sport_days_min is not None and request_sport_days_min > 0:
+        query = query.filter(Profile.sport_days >= request_sport_days_min)
     if request_has_salary == 'true':
         query = query.filter(Profile.salary.isnot(None), Profile.salary != '')
     # Salary min/max: DB darajasida aniq solishtirish qiyin (string).
@@ -280,6 +286,15 @@ def get_listing_detail(user_id):
         # Agar so'rov qabul qilingan bo'lsa, chat_id ni qo'shamiz
         if existing_request.status == 'accepted' and existing_request.chat:
             profile_data['chat_id'] = existing_request.chat.id
+
+    # Shu foydalanuvchining boshqa aktiv e'lonlari
+    other_profiles = Profile.query.filter(
+        Profile.user_id == user.id,
+        Profile.is_active == True,
+        Profile.id != profile.id
+    ).all()
+    if other_profiles:
+        profile_data['other_listings'] = [_listing_dict(p, is_top=False, is_favorite=False) for p in other_profiles]
 
     return jsonify(profile_data)
 

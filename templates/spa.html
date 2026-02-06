@@ -1486,9 +1486,9 @@
                 </div>
                 <div class="space-y-4">
                     <h3 class="px-1 text-[10px] font-black uppercase tracking-[0.2em] text-white/40 mb-2">Shaxsiy ma'lumotlar</h3>
-                    <button type="button" onclick="openProfileEditSheet('diniy')" class="w-full glass-card rounded-2xl p-5 flex items-center justify-between group active:scale-[0.98] transition-all text-left">
+                    <button type="button" data-section="diniy" onclick="openProfileEditSheet('diniy')" class="profile-edit-section-btn w-full glass-card rounded-2xl p-5 flex items-center justify-between group active:scale-[0.98] transition-all text-left border border-white/10">
                         <div class="flex items-center gap-4">
-                            <div class="size-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary border border-primary/20">
+                            <div class="profile-edit-section-icon size-12 rounded-2xl bg-white/5 flex items-center justify-center text-white/60 border border-white/10">
                                 <span class="material-symbols-outlined text-[26px]">mosque</span>
                             </div>
                             <div>
@@ -1496,11 +1496,11 @@
                                 <p id="profile-edit-diniy-summary" class="text-sm text-white/50">Belgilanmagan</p>
                             </div>
                         </div>
-                        <span class="material-symbols-outlined text-white/30 group-hover:text-primary transition-colors">chevron_right</span>
+                        <span class="material-symbols-outlined text-white/30 group-hover:text-primary transition-colors profile-edit-chevron">chevron_right</span>
                     </button>
-                    <button type="button" onclick="openProfileEditSheet('joylashuv')" class="w-full glass-card rounded-2xl p-5 flex items-center justify-between group active:scale-[0.98] transition-all text-left">
+                    <button type="button" data-section="joylashuv" onclick="openProfileEditSheet('joylashuv')" class="profile-edit-section-btn w-full glass-card rounded-2xl p-5 flex items-center justify-between group active:scale-[0.98] transition-all text-left border border-white/10">
                         <div class="flex items-center gap-4">
-                            <div class="size-12 rounded-2xl bg-white/5 flex items-center justify-center text-white/60 border border-white/10">
+                            <div class="profile-edit-section-icon size-12 rounded-2xl bg-white/5 flex items-center justify-center text-white/60 border border-white/10">
                                 <span class="material-symbols-outlined text-[26px]">location_on</span>
                             </div>
                             <div>
@@ -1508,11 +1508,11 @@
                                 <p id="profile-edit-joylashuv-summary" class="text-sm text-white/50">Belgilanmagan</p>
                             </div>
                         </div>
-                        <span class="material-symbols-outlined text-white/30 group-hover:text-primary transition-colors">chevron_right</span>
+                        <span class="material-symbols-outlined text-white/30 group-hover:text-primary transition-colors profile-edit-chevron">chevron_right</span>
                     </button>
-                    <button type="button" onclick="openProfileEditSheet('oilaviy')" class="w-full glass-card rounded-2xl p-5 flex items-center justify-between group active:scale-[0.98] transition-all text-left">
+                    <button type="button" data-section="oilaviy" onclick="openProfileEditSheet('oilaviy')" class="profile-edit-section-btn w-full glass-card rounded-2xl p-5 flex items-center justify-between group active:scale-[0.98] transition-all text-left border border-white/10">
                         <div class="flex items-center gap-4">
-                            <div class="size-12 rounded-2xl bg-white/5 flex items-center justify-center text-white/60 border border-white/10">
+                            <div class="profile-edit-section-icon size-12 rounded-2xl bg-white/5 flex items-center justify-center text-white/60 border border-white/10">
                                 <span class="material-symbols-outlined text-[26px]">favorite</span>
                             </div>
                             <div>
@@ -1520,12 +1520,12 @@
                                 <p id="profile-edit-oilaviy-summary" class="text-sm text-white/50">Belgilanmagan</p>
                             </div>
                         </div>
-                        <span class="material-symbols-outlined text-white/30 group-hover:text-primary transition-colors">chevron_right</span>
+                        <span class="material-symbols-outlined text-white/30 group-hover:text-primary transition-colors profile-edit-chevron">chevron_right</span>
                     </button>
                     <h3 class="pt-6 px-1 text-[10px] font-black uppercase tracking-[0.2em] text-white/40 mb-2">Qo'shimcha tafsilotlar</h3>
-                    <button type="button" onclick="openProfileEditSheet('jismoniy')" class="w-full glass-card rounded-2xl p-5 flex items-center justify-between group active:scale-[0.98] transition-all text-left">
+                    <button type="button" data-section="jismoniy" onclick="openProfileEditSheet('jismoniy')" class="profile-edit-section-btn w-full glass-card rounded-2xl p-5 flex items-center justify-between group active:scale-[0.98] transition-all text-left border border-white/10">
                         <div class="flex items-center gap-4">
-                            <div class="size-12 rounded-2xl bg-white/5 flex items-center justify-center text-white/60 border border-white/10">
+                            <div class="profile-edit-section-icon size-12 rounded-2xl bg-white/5 flex items-center justify-center text-white/60 border border-white/10">
                                 <span class="material-symbols-outlined text-[26px]">straighten</span>
                             </div>
                             <div>
@@ -1533,11 +1533,11 @@
                                 <p id="profile-edit-jismoniy-summary" class="text-sm text-white/50">Belgilanmagan</p>
                             </div>
                         </div>
-                        <span class="material-symbols-outlined text-white/30 group-hover:text-primary transition-colors">chevron_right</span>
+                        <span class="material-symbols-outlined text-white/30 group-hover:text-primary transition-colors profile-edit-chevron">chevron_right</span>
                     </button>
-                    <button type="button" onclick="openProfileEditSheet('talim')" class="w-full glass-card rounded-2xl p-5 flex items-center justify-between group active:scale-[0.98] transition-all text-left">
+                    <button type="button" data-section="talim" onclick="openProfileEditSheet('talim')" class="profile-edit-section-btn w-full glass-card rounded-2xl p-5 flex items-center justify-between group active:scale-[0.98] transition-all text-left border border-white/10">
                         <div class="flex items-center gap-4">
-                            <div class="size-12 rounded-2xl bg-white/5 flex items-center justify-center text-white/60 border border-white/10">
+                            <div class="profile-edit-section-icon size-12 rounded-2xl bg-white/5 flex items-center justify-center text-white/60 border border-white/10">
                                 <span class="material-symbols-outlined text-[26px]">school</span>
                             </div>
                             <div>
@@ -1545,11 +1545,11 @@
                                 <p id="profile-edit-talim-summary" class="text-sm text-white/50">Belgilanmagan</p>
                             </div>
                         </div>
-                        <span class="material-symbols-outlined text-white/30 group-hover:text-primary transition-colors">chevron_right</span>
+                        <span class="material-symbols-outlined text-white/30 group-hover:text-primary transition-colors profile-edit-chevron">chevron_right</span>
                     </button>
-                    <button type="button" onclick="openProfileEditSheet('ish')" class="w-full glass-card rounded-2xl p-5 flex items-center justify-between group active:scale-[0.98] transition-all text-left">
+                    <button type="button" data-section="ish" onclick="openProfileEditSheet('ish')" class="profile-edit-section-btn w-full glass-card rounded-2xl p-5 flex items-center justify-between group active:scale-[0.98] transition-all text-left border border-white/10">
                         <div class="flex items-center gap-4">
-                            <div class="size-12 rounded-2xl bg-white/5 flex items-center justify-center text-white/60 border border-white/10">
+                            <div class="profile-edit-section-icon size-12 rounded-2xl bg-white/5 flex items-center justify-center text-white/60 border border-white/10">
                                 <span class="material-symbols-outlined text-[26px]">work</span>
                             </div>
                             <div>
@@ -1557,11 +1557,11 @@
                                 <p id="profile-edit-ish-summary" class="text-sm text-white/50">Belgilanmagan</p>
                             </div>
                         </div>
-                        <span class="material-symbols-outlined text-white/30 group-hover:text-primary transition-colors">chevron_right</span>
+                        <span class="material-symbols-outlined text-white/30 group-hover:text-primary transition-colors profile-edit-chevron">chevron_right</span>
                     </button>
-                    <button type="button" onclick="openProfileEditSheet('juftga')" class="w-full glass-card rounded-2xl p-5 flex items-center justify-between group active:scale-[0.98] transition-all text-left">
+                    <button type="button" data-section="juftga" onclick="openProfileEditSheet('juftga')" class="profile-edit-section-btn w-full glass-card rounded-2xl p-5 flex items-center justify-between group active:scale-[0.98] transition-all text-left border border-white/10">
                         <div class="flex items-center gap-4">
-                            <div class="size-12 rounded-2xl bg-white/5 flex items-center justify-center text-white/60 border border-white/10">
+                            <div class="profile-edit-section-icon size-12 rounded-2xl bg-white/5 flex items-center justify-center text-white/60 border border-white/10">
                                 <span class="material-symbols-outlined text-[26px]">favorite</span>
                             </div>
                             <div>
@@ -1569,19 +1569,19 @@
                                 <p id="profile-edit-juftga-summary" class="text-sm text-white/50">Belgilanmagan</p>
                             </div>
                         </div>
-                        <span class="material-symbols-outlined text-white/30 group-hover:text-primary transition-colors">chevron_right</span>
+                        <span class="material-symbols-outlined text-white/30 group-hover:text-primary transition-colors profile-edit-chevron">chevron_right</span>
                     </button>
-                    <button type="button" onclick="openProfileEditSheet('bio')" class="w-full glass-card rounded-2xl p-5 flex items-center justify-between group active:scale-[0.98] transition-all text-left border border-dashed border-primary/20 bg-primary/5">
+                    <button type="button" data-section="bio" onclick="openProfileEditSheet('bio')" class="profile-edit-section-btn w-full glass-card rounded-2xl p-5 flex items-center justify-between group active:scale-[0.98] transition-all text-left border border-white/10">
                         <div class="flex items-center gap-4">
-                            <div class="size-12 rounded-2xl bg-primary/20 flex items-center justify-center text-primary">
+                            <div class="profile-edit-section-icon size-12 rounded-2xl bg-white/5 flex items-center justify-center text-white/60 border border-white/10">
                                 <span class="material-symbols-outlined text-[26px]">history_edu</span>
                             </div>
                             <div>
                                 <p class="font-bold text-base text-white">O'zim haqimda</p>
-                                <p id="profile-edit-bio-summary" class="text-sm text-primary/60 italic">Belgilanmagan</p>
+                                <p id="profile-edit-bio-summary" class="text-sm text-white/50 italic">Belgilanmagan</p>
                             </div>
                         </div>
-                        <span class="material-symbols-outlined text-primary">add_circle</span>
+                        <span class="material-symbols-outlined text-white/30 group-hover:text-primary transition-colors profile-edit-chevron">chevron_right</span>
                     </button>
                 </div>
             </main>
@@ -2603,6 +2603,7 @@
                     await loadFavoritesData();
                     break;
                 case 'profile':
+                    await initUserData();
                     if (pageDataLoaded.profile) { updateProfileUI(); return; }
                     await loadProfileData();
                     break;
@@ -3101,6 +3102,52 @@
         let feedCurrentPage = 1;
         let feedIsLoading = false;
         let feedHasMore = true;
+        let feedCacheByGender = { Ayol: null, Erkak: null };
+
+        function getFeedCacheKey() {
+            return (feedSort || 'new') + (typeof buildFeedFilterParams === 'function' ? buildFeedFilterParams() : '');
+        }
+
+        function applyFeedFromCache(cache) {
+            if (!cache || !cache.listings) return;
+            const container = document.getElementById('feed-listings');
+            const skeleton = document.getElementById('feed-skeleton');
+            if (skeleton) { skeleton.style.display = 'none'; if (skeleton.parentNode) skeleton.remove(); }
+            if (!container) return;
+            container.innerHTML = '';
+            if (cache.listings.length === 0) {
+                container.innerHTML = '<div class="text-center py-8 text-white/60">E\'lonlar topilmadi</div>';
+            } else {
+                cache.listings.forEach(listing => container.appendChild(createFeedListingCard(listing)));
+            }
+            feedHasMore = !!cache.has_next;
+            feedCurrentPage = 1;
+            pageDataLoaded.feed = true;
+            const lm = document.getElementById('feed-load-more');
+            if (lm) lm.classList.toggle('hidden', !feedHasMore);
+        }
+
+        function invalidateFeedCache() {
+            feedCacheByGender = { Ayol: null, Erkak: null };
+        }
+
+        function preloadOtherGenderFeed() {
+            const other = feedGender === 'Ayol' ? 'Erkak' : 'Ayol';
+            if (feedCacheByGender[other] && feedCacheByGender[other].filterKey === getFeedCacheKey()) return;
+            const filterParams = buildFeedFilterParams();
+            const url = '/feed/api/listings?page=1&per_page=20&top_only=false&gender=' + encodeURIComponent(other) + '&sort=' + encodeURIComponent(feedSort || 'new') + filterParams;
+            fetch(url, { method: 'GET', headers: feedHeaders, credentials: 'same-origin' })
+                .then(r => { if (r.ok) return r.json(); return null; })
+                .then(data => {
+                    if (data && data.listings) {
+                        var key = getFeedCacheKey();
+                        if (!feedCacheByGender[other] || feedCacheByGender[other].filterKey !== key) {
+                            feedCacheByGender[other] = { listings: data.listings.slice(), has_next: !!data.has_next, filterKey: key };
+                        }
+                    }
+                })
+                .catch(() => {});
+        }
 
         async function loadFeedData() {
             if (!userData) await initUserData();
@@ -3184,6 +3231,7 @@
                     feedHasMore = data.has_next;
                     feedCurrentPage = 1;
                     pageDataLoaded.feed = true;
+                    feedCacheByGender[feedGender] = { listings: (data.listings || []).slice(), has_next: !!data.has_next, filterKey: getFeedCacheKey() };
                     const lm = document.getElementById('feed-load-more');
                     if (lm) lm.classList.toggle('hidden', !feedHasMore);
                 }
@@ -3195,6 +3243,7 @@
                     feedHasMore = data.has_next;
                     feedCurrentPage = 1;
                     pageDataLoaded.feed = true;
+                    feedCacheByGender[feedGender] = { listings: (data.listings || []).slice(), has_next: !!data.has_next, filterKey: getFeedCacheKey() };
                     const lm = document.getElementById('feed-load-more');
                     if (lm) lm.classList.toggle('hidden', !feedHasMore);
                 }
@@ -3224,6 +3273,7 @@
                     if (container) container.innerHTML = '<div class="text-center py-8 text-red-400">Xatolik yuz berdi</div>';
                 }
                 feedIsLoading = false;
+                setTimeout(function() { if (typeof preloadOtherGenderFeed === 'function') preloadOtherGenderFeed(); }, 0);
                 return;
             }
 
@@ -3469,14 +3519,18 @@
                             <div class="grid grid-cols-2 gap-4">
                                 <div><p class="text-[10px] text-white/40 font-bold uppercase tracking-wider mb-1">Bo'yi</p><p class="text-[14px] text-white font-semibold">${profile.height || '-'} sm</p></div>
                                 <div><p class="text-[10px] text-white/40 font-bold uppercase tracking-wider mb-1">Vazni</p><p class="text-[14px] text-white font-semibold">${profile.weight || '-'} kg</p></div>
-                                </div>
-                                </div>
+                                ${profile.smoking ? `<div><p class="text-[10px] text-white/40 font-bold uppercase tracking-wider mb-1">Sigaret</p><p class="text-[14px] text-white font-semibold">${profile.smoking}</p></div>` : ''}
+                                ${profile.sport_days != null && profile.sport_days >= 1 ? `<div><p class="text-[10px] text-white/40 font-bold uppercase tracking-wider mb-1">Sport</p><p class="text-[14px] text-white font-semibold">${profile.sport_days === 7 ? 'Har kuni' : 'Haftada ' + profile.sport_days + ' kun'}</p></div>` : ''}
+                            </div>
+                        </div>
                         <div class="glass-card rounded-2xl p-4">
                             <div class="flex items-center gap-2 mb-4 border-b border-white/5 pb-2">
                                 <span class="material-symbols-outlined text-primary text-[20px]">person_celebrate</span>
                                 <h3 class="text-[12px] font-black uppercase tracking-widest text-white/80">Shaxsiy holati</h3>
                             </div>
                             <div class="grid grid-cols-2 gap-y-4 gap-x-4">
+                                <div><p class="text-[10px] text-white/40 font-bold uppercase tracking-wider mb-1">Davlat</p><p class="text-[14px] text-white font-semibold">${profile.country || '-'}</p></div>
+                                <div><p class="text-[10px] text-white/40 font-bold uppercase tracking-wider mb-1">Viloyat</p><p class="text-[14px] text-white font-semibold">${profile.region || '-'}</p></div>
                                 <div><p class="text-[10px] text-white/40 font-bold uppercase tracking-wider mb-1">Millati</p><p class="text-[14px] text-white font-semibold">${profile.nationality || 'O\'zbek'}</p></div>
                                 <div><p class="text-[10px] text-white/40 font-bold uppercase tracking-wider mb-1">Oilaviy holati</p><p class="text-[14px] text-white font-semibold">${profile.marital_status || 'Bo\'ydoq'}</p></div>
                             </div>
@@ -3489,25 +3543,67 @@
                             <div class="grid grid-cols-2 gap-y-4 gap-x-4">
                                 <div><p class="text-[10px] text-white/40 font-bold uppercase tracking-wider mb-1">Ta'lim</p><p class="text-[14px] text-white font-semibold">${profile.education || '-'}</p></div>
                                 <div><p class="text-[10px] text-white/40 font-bold uppercase tracking-wider mb-1">Kasbi</p><p class="text-[14px] text-white font-semibold">${profile.profession || '-'}</p></div>
-                                ${profile.salary ? `<div><p class="text-[10px] text-white/40 font-bold uppercase tracking-wider mb-1">Maosh</p><p class="text-[14px] text-white font-semibold">${profile.salary}</p></div>` : ''}
-                                </div>
-                                </div>
+                                <div><p class="text-[10px] text-white/40 font-bold uppercase tracking-wider mb-1">Maosh</p><p class="text-[14px] text-white font-semibold">${profile.salary || '-'}</p></div>
+                                <div><p class="text-[10px] text-white/40 font-bold uppercase tracking-wider mb-1">Ishlaydi</p><p class="text-[14px] text-white font-semibold">${profile.is_working === true || profile.is_working === 'true' ? 'Ha' : (profile.is_working === false || profile.is_working === 'false' ? 'Yo\'q' : '-')}</p></div>
+                            </div>
+                        </div>
                         <div class="glass-card rounded-2xl p-4">
                             <div class="flex items-center gap-2 mb-4 border-b border-white/5 pb-2">
                                 <span class="material-symbols-outlined text-primary text-[20px]">auto_awesome</span>
                                 <h3 class="text-[12px] font-black uppercase tracking-widest text-white/80">Diniy ma'lumotlar</h3>
-                                </div>
+                            </div>
                             <div class="grid grid-cols-2 gap-y-4 gap-x-4">
+                                <div><p class="text-[10px] text-white/40 font-bold uppercase tracking-wider mb-1">Aqida</p><p class="text-[14px] text-white font-semibold">${profile.aqida || '-'}</p></div>
                                 <div><p class="text-[10px] text-white/40 font-bold uppercase tracking-wider mb-1">Namoz</p><p class="text-[14px] text-white font-semibold">${profile.prays || '-'}</p></div>
                                 <div><p class="text-[10px] text-white/40 font-bold uppercase tracking-wider mb-1">Ro'za</p><p class="text-[14px] text-white font-semibold">${profile.fasts || '-'}</p></div>
-                                <div class="col-span-2"><p class="text-[10px] text-white/40 font-bold uppercase tracking-wider mb-1">Diniy daraja</p><p class="text-[14px] text-white font-semibold">${profile.religious_level || '-'}</p></div>
+                                <div><p class="text-[10px] text-white/40 font-bold uppercase tracking-wider mb-1">Qur'on o'qish</p><p class="text-[14px] text-white font-semibold">${profile.quran_reading || '-'}</p></div>
+                                <div><p class="text-[10px] text-white/40 font-bold uppercase tracking-wider mb-1">Mazhab</p><p class="text-[14px] text-white font-semibold">${profile.mazhab || '-'}</p></div>
+                                <div><p class="text-[10px] text-white/40 font-bold uppercase tracking-wider mb-1">Diniy daraja</p><p class="text-[14px] text-white font-semibold">${profile.religious_level || '-'}</p></div>
                             </div>
                         </div>
+                        ${(profile.partner_age_min != null || profile.partner_age_max != null || (profile.partner_locations && profile.partner_locations.length) || profile.partner_country || profile.partner_region || profile.partner_religious_level || profile.partner_marital_status) ? `
+                        <div class="glass-card rounded-2xl p-4">
+                            <div class="flex items-center gap-2 mb-4 border-b border-white/5 pb-2">
+                                <span class="material-symbols-outlined text-primary text-[20px]">handshake</span>
+                                <h3 class="text-[12px] font-black uppercase tracking-widest text-white/80">Juftga talablari</h3>
+                            </div>
+                            <div class="grid grid-cols-2 gap-y-4 gap-x-4">
+                                ${profile.partner_age_min != null || profile.partner_age_max != null ? `<div><p class="text-[10px] text-white/40 font-bold uppercase tracking-wider mb-1">Yosh oralig'i</p><p class="text-[14px] text-white font-semibold">${profile.partner_age_min ?? '-'}-${profile.partner_age_max ?? '-'} yosh</p></div>` : ''}
+                                ${(profile.partner_locations && profile.partner_locations.length) ? `<div class="col-span-2"><p class="text-[10px] text-white/40 font-bold uppercase tracking-wider mb-1">Joylashuv</p><p class="text-[14px] text-white font-semibold">${profile.partner_locations.some(function(x){ return x.all_countries; }) ? 'Barcha davlatlar' : profile.partner_locations.map(function(x){ return x.all ? (x.c || x.country) + ': butun mamlakat' : (x.c || x.country) + ': ' + (x.r || []).join(', '); }).join('; ')}</p></div>` : (profile.partner_country || profile.partner_region) ? `<div><p class="text-[10px] text-white/40 font-bold uppercase tracking-wider mb-1">Joylashuv</p><p class="text-[14px] text-white font-semibold">${profile.partner_country || ''}${profile.partner_region ? ': ' + profile.partner_region : ''}</p></div>` : ''}
+                                ${profile.partner_religious_level ? `<div><p class="text-[10px] text-white/40 font-bold uppercase tracking-wider mb-1">Diniy daraja</p><p class="text-[14px] text-white font-semibold">${profile.partner_religious_level}</p></div>` : ''}
+                                ${profile.partner_marital_status ? `<div><p class="text-[10px] text-white/40 font-bold uppercase tracking-wider mb-1">Oilaviy holati</p><p class="text-[14px] text-white font-semibold">${profile.partner_marital_status}</p></div>` : ''}
+                            </div>
+                        </div>
+                        ` : ''}
                         ${bioEsc ? `<div class="glass-card rounded-2xl p-5"><h3 class="text-[13px] font-black uppercase tracking-widest text-primary mb-3">O'zim haqimda</h3><p class="text-[14px] leading-relaxed text-white/80 font-medium">${bioEsc}</p></div>` : ''}
+                        <div id="feed-profile-other-listings"></div>
                         <div id="feed-profile-action">${actionHtml}</div>
                         </div>
                 </main>
             `;
+        }
+
+        function renderOtherListingsSection(otherListings, userId) {
+            if (!otherListings || !otherListings.length) return '';
+            const gradients = ['linear-gradient(135deg, #667eea 0%, #764ba2 100%)','linear-gradient(135deg, #f093fb 0%, #f5576c 100%)','linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)','linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)','linear-gradient(135deg, #fa709a 0%, #fee140 100%)','linear-gradient(135deg, #30cfd0 0%, #330867 100%)'];
+            const cards = otherListings.map(function(listing) {
+                const gIdx = (listing.id || 0) % gradients.length;
+                return `<div onclick="showFeedProfile(${userId}, ${listing.id})" class="flex-shrink-0 w-[180px] glass-card rounded-2xl overflow-hidden cursor-pointer active:scale-95 transition-transform border border-white/10">
+                    <div class="h-24 w-full" style="background: ${gradients[gIdx]}"></div>
+                    <div class="p-3">
+                        <p class="text-[13px] font-bold text-white truncate">${listing.name || 'Noma\'lum'}, ${listing.age || '?'}</p>
+                        <p class="text-[11px] text-white/50 truncate">${listing.region || ''}</p>
+                        <p class="text-[10px] text-white/40 mt-1">${listing.profession || ''} ${listing.marital_status ? '· ' + listing.marital_status : ''}</p>
+                    </div>
+                </div>`;
+            }).join('');
+            return `<div class="glass-card rounded-2xl p-4">
+                <div class="flex items-center gap-2 mb-3 border-b border-white/5 pb-2">
+                    <span class="material-symbols-outlined text-primary text-[20px]">group</span>
+                    <h3 class="text-[12px] font-black uppercase tracking-widest text-white/80">Boshqa e'lonlari (${otherListings.length})</h3>
+                </div>
+                <div class="flex gap-3 overflow-x-auto ios-scroll-hide pb-1">${cards}</div>
+            </div>`;
         }
 
         function showFeedProfileFromListing(listing) {
@@ -3525,8 +3621,6 @@
                 .then(r => r.ok ? r.json() : null)
                 .then(profile => {
                     if (!profile) return;
-                    const actionEl = document.getElementById('feed-profile-action');
-                    if (!actionEl) return;
                     let actionHtml;
                     if (profile.request_sent && profile.request_status === 'accepted' && profile.chat_id) {
                         actionHtml = `<button onclick="window.closeFeedModal(); window.showChatView(${profile.chat_id})" class="mt-0 w-full h-14 bg-gradient-to-r from-primary to-green-500 rounded-2xl flex items-center justify-center gap-2 text-black font-extrabold text-[15px] tracking-widest uppercase neon-glow active:scale-95 transition-all">CHATGA O'TISH 💬</button>`;
@@ -3540,7 +3634,11 @@
                         const profileId = profile.id || '';
                         actionHtml = `<button onclick="window.sendFeedRequest(${userId}, ${profileId})" class="mt-0 w-full h-14 bg-gradient-to-r from-primary to-green-500 rounded-2xl flex items-center justify-center gap-2 text-black font-extrabold text-[15px] tracking-widest uppercase neon-glow active:scale-95 transition-all">SO'ROV YUBORISH 💌</button>`;
                     }
-                    actionEl.innerHTML = actionHtml;
+                    content.innerHTML = renderFeedModalContent(profile, userId, actionHtml);
+                    const otherEl = document.getElementById('feed-profile-other-listings');
+                    if (otherEl && profile.other_listings && profile.other_listings.length) {
+                        otherEl.innerHTML = renderOtherListingsSection(profile.other_listings, userId);
+                    }
                 })
                 .catch(() => {
                     const actionEl = document.getElementById('feed-profile-action');
@@ -3567,6 +3665,11 @@
                     profile.request_sent && profile.request_status === 'rejected' ? '<div class="mt-0 glass-card p-4 rounded-2xl text-center text-white/60">So\'rov rad etilgan</div>' :
                     `<button onclick="window.sendFeedRequest(${userId}, ${pid})" class="mt-0 w-full h-14 bg-primary text-black rounded-2xl py-4 font-bold">SO'ROV YUBORISH</button>`;
                 content.innerHTML = renderFeedModalContent(profile, userId, actionHtml);
+                const otherEl = document.getElementById('feed-profile-other-listings');
+                if (otherEl && profile.other_listings && profile.other_listings.length) {
+                    otherEl.innerHTML = renderOtherListingsSection(profile.other_listings, userId);
+                }
+                modal.scrollTop = 0;
             } catch (e) {
                 content.innerHTML = '<div class="text-center py-8 text-red-400">Xatolik</div>';
             }
@@ -3582,6 +3685,7 @@
         };
 
         window.sendFeedRequest = async function(receiverId, profileId) {
+            await initUserData();
             const profileComplete = userData && userData.user && userData.user.profile_complete;
             if (!profileComplete || !hasActiveTariff) {
                 document.getElementById('require-full-profile-modal').classList.remove('hidden');
@@ -4731,6 +4835,20 @@
             updateProfileEditSummaries();
         }
 
+        function isProfileSectionFilled(section, p) {
+            switch (section) {
+                case 'diniy': return !!(p.prays && p.fasts && p.religious_level);
+                case 'joylashuv': return !!(p.country && p.region && p.nationality);
+                case 'oilaviy': return !!(p.marital_status && (p.marital_status || '').trim());
+                case 'jismoniy': return p.height != null && p.height !== '' && p.weight != null && p.weight !== '';
+                case 'talim': return !!(p.education && (p.education || '').trim());
+                case 'ish': return !!(p.profession && (p.profession || '').trim() && (p.is_working === true || p.is_working === 'true' || p.is_working === false || p.is_working === 'false'));
+                case 'juftga': return !!(p.partner_age_min != null && p.partner_age_max != null && (function(){ const locs = p.partner_locations; if (Array.isArray(locs) && locs.length > 0) return true; return !!(p.partner_country && p.partner_region); })() && p.partner_religious_level && p.partner_marital_status);
+                case 'bio': return !!((p.bio || '').trim());
+                default: return false;
+            }
+        }
+
         function updateProfileEditSummaries() {
             const p = userData?.profile || {};
             const el = (id, text) => { const e = document.getElementById(id); if (e) e.textContent = text || '—'; };
@@ -4741,17 +4859,43 @@
             el('profile-edit-diniy-summary', [p.aqida, p.prays, p.quran_reading, p.mazhab, p.religious_level].filter(Boolean).join(', ') || 'Belgilanmagan');
             el('profile-edit-joylashuv-summary', [p.country, p.region, p.nationality].filter(Boolean).join(', ') || 'Belgilanmagan');
             el('profile-edit-oilaviy-summary', p.marital_status || 'Belgilanmagan');
-            el('profile-edit-jismoniy-summary', [p.height && p.height + ' sm', p.weight && p.weight + ' kg'].filter(Boolean).join(', ') || 'Belgilanmagan');
+            el('profile-edit-jismoniy-summary', [p.height && (p.height + ' sm'), p.weight && (p.weight + ' kg'), p.smoking, (p.sport_days != null && p.sport_days >= 1) ? (p.sport_days === 7 ? 'Sport: har kuni' : 'Sport: ' + p.sport_days + ' kun') : null].filter(Boolean).join(', ') || 'Belgilanmagan');
             el('profile-edit-talim-summary', p.education || 'Belgilanmagan');
             el('profile-edit-ish-summary', (p.profession ? (p.profession + (p.is_working ? ', Ishlaman' : '') + (p.salary ? ' · ' + p.salary : '')) : null) || 'Belgilanmagan');
             const juftgaParts = [];
             if (p.partner_age_min != null || p.partner_age_max != null) juftgaParts.push((p.partner_age_min ?? '?') + '-' + (p.partner_age_max ?? '?') + ' yosh');
-            if (p.partner_region) juftgaParts.push(p.partner_region);
+            const locs = p.partner_locations;
+            if (Array.isArray(locs) && locs.length) {
+                juftgaParts.push(locs.map(function(x){ return x.all ? (x.c || x.country) + ': butun' : (x.c || x.country) + ': ' + (x.r || []).length + ' joy'; }).join('; '));
+            } else if (p.partner_country || p.partner_region) juftgaParts.push((p.partner_country || '') + (p.partner_region ? ': ' + p.partner_region : ''));
             if (p.partner_religious_level) juftgaParts.push(p.partner_religious_level);
             if (p.partner_marital_status) juftgaParts.push(p.partner_marital_status);
             el('profile-edit-juftga-summary', juftgaParts.length ? juftgaParts.join(', ') : 'Belgilanmagan');
             const bioEl = document.getElementById('profile-edit-bio-summary');
             if (bioEl) { bioEl.textContent = (p.bio || '').trim() ? (p.bio.slice(0, 40) + (p.bio.length > 40 ? '…' : '')) : 'Belgilanmagan'; bioEl.classList.toggle('italic', !p.bio); }
+            document.querySelectorAll('.profile-edit-section-btn').forEach(function(btn) {
+                var section = btn.getAttribute('data-section');
+                var filled = section && isProfileSectionFilled(section, p);
+                if (filled) {
+                    btn.classList.add('border-primary', 'bg-primary/5');
+                    btn.classList.remove('border-white/10');
+                    var icon = btn.querySelector('.profile-edit-section-icon');
+                    if (icon) { icon.classList.add('bg-primary/10', 'text-primary', 'border-primary/30'); icon.classList.remove('bg-white/5', 'text-white/60', 'border-white/10'); }
+                    var sum = btn.querySelector('p[id^="profile-edit-"][id$="-summary"]');
+                    if (sum) { sum.classList.add('text-primary/80'); sum.classList.remove('text-white/50'); }
+                    var chevron = btn.querySelector('.profile-edit-chevron');
+                    if (chevron) { chevron.classList.add('text-primary'); chevron.classList.remove('text-white/30'); }
+                } else {
+                    btn.classList.remove('border-primary', 'bg-primary/5');
+                    btn.classList.add('border-white/10');
+                    var icon = btn.querySelector('.profile-edit-section-icon');
+                    if (icon) { icon.classList.remove('bg-primary/10', 'text-primary', 'border-primary/30'); icon.classList.add('bg-white/5', 'text-white/60', 'border-white/10'); }
+                    var sum = btn.querySelector('p[id^="profile-edit-"][id$="-summary"]');
+                    if (sum) { sum.classList.remove('text-primary/80'); sum.classList.add('text-white/50'); }
+                    var chevron = btn.querySelector('.profile-edit-chevron');
+                    if (chevron) { chevron.classList.remove('text-primary'); chevron.classList.add('text-white/30'); }
+                }
+            });
         }
 
         let _sheetDataSource = null;
@@ -4838,31 +4982,70 @@
                 }
             } else if (section === 'diniy') {
                 body.innerHTML = `
-                    <p class="text-[11px] font-bold text-white/60 mb-2">Aqidasi</p>
-                    <div class="space-y-2">
-                        ${['Ahli Sunna','Ash\'ariya','Moturidiya','Boshqa'].map(v => `<label class="flex items-center justify-between p-4 rounded-2xl border cursor-pointer transition-all ${(p.aqida === v) ? 'border-primary bg-primary/10' : 'border-white/10 bg-white/5'}"><span>${v}</span><input type="radio" name="aqida" value="${v}" ${(p.aqida === v) ? 'checked' : ''} class="hidden"></label>`).join('')}
+                    <p class="text-[11px] font-black text-white/40 uppercase tracking-[0.2em] mb-3 ml-1">Aqidasi (filterdagidek)</p>
+                    <div class="flex flex-wrap gap-2 mb-4">
+                        ${['Ahli Sunna','Ash\'ariya','Moturidiya','Boshqa'].map(v => `<button type="button" class="chip ${(p.aqida === v) ? 'chip-selected' : 'chip-unselected'}" data-name="aqida" data-value="${v.replace(/'/g,'\\\'')}">${v}</button>`).join('')}
                     </div>
-                    <p class="text-[11px] font-bold text-white/60 mb-2 mt-4">Namoz</p>
-                    <div class="space-y-2">
-                        ${['5 vaqt to\'liq','Faqat juma','O\'qimaydi','Boshlash niyatida'].map(v => `<label class="flex items-center justify-between p-4 rounded-2xl border cursor-pointer transition-all ${(p.prays === v) ? 'border-primary bg-primary/10' : 'border-white/10 bg-white/5'}"><span>${v}</span><input type="radio" name="prays" value="${v}" ${(p.prays === v) ? 'checked' : ''} class="hidden"></label>`).join('')}
+                    <input type="hidden" name="aqida" value="${(p.aqida || '').replace(/"/g,'&quot;')}">
+                    <p class="text-[11px] font-black text-white/40 uppercase tracking-[0.2em] mb-3 ml-1">Namoz</p>
+                    <div class="space-y-2 mb-4">
+                        ${['5 vaqt to\'liq','Faqat juma','O\'qimaydi','Boshlash niyatida'].map(v => `<button type="button" class="radio-item w-full flex items-center justify-between p-4 rounded-2xl bg-white/[0.03] border transition-all ${(p.prays === v) ? 'radio-item-selected border-primary/40' : 'border-white/[0.05]'}" data-name="prays" data-value="${v.replace(/'/g,'\\\'')}"><span class="text-sm font-semibold ${(p.prays === v) ? 'text-white' : 'text-white/60'}">${v}</span><div class="size-5 rounded-full border-2 flex items-center justify-center ${(p.prays === v) ? 'border-primary' : 'border-white/20'}">${(p.prays === v) ? '<div class="size-2.5 bg-primary rounded-full"></div>' : ''}</div></button>`).join('')}
                     </div>
-                    <p class="text-[11px] font-bold text-white/60 mb-2 mt-4">Qur'on o'qish</p>
-                    <div class="space-y-2">
-                        ${['Bilmaydi','O\'qishni biladi','Ravon o\'qiydi','Hofizi Qur\'on'].map(v => `<label class="flex items-center justify-between p-4 rounded-2xl border cursor-pointer transition-all ${(p.quran_reading === v) ? 'border-primary bg-primary/10' : 'border-white/10 bg-white/5'}"><span>${v}</span><input type="radio" name="quran_reading" value="${v}" ${(p.quran_reading === v) ? 'checked' : ''} class="hidden"></label>`).join('')}
+                    <input type="hidden" name="prays" value="${(p.prays || '').replace(/"/g,'&quot;')}">
+                    <p class="text-[11px] font-black text-white/40 uppercase tracking-[0.2em] mb-3 ml-1">Qur'on o'qish</p>
+                    <div class="flex flex-wrap gap-2 mb-4">
+                        ${['Bilmaydi','O\'qishni biladi','Ravon o\'qiydi','Hofizi Qur\'on'].map(v => `<button type="button" class="chip ${(p.quran_reading === v) ? 'chip-selected' : 'chip-unselected'}" data-name="quran_reading" data-value="${v.replace(/'/g,'\\\'')}">${v}</button>`).join('')}
                     </div>
-                    <p class="text-[11px] font-bold text-white/60 mb-2 mt-4">Mazhabi</p>
-                    <div class="space-y-2">
-                        ${['Hanafi','Shafi\'i','Maliki','Hanbali'].map(v => `<label class="flex items-center justify-between p-4 rounded-2xl border cursor-pointer transition-all ${(p.mazhab === v) ? 'border-primary bg-primary/10' : 'border-white/10 bg-white/5'}"><span>${v}</span><input type="radio" name="mazhab" value="${v}" ${(p.mazhab === v) ? 'checked' : ''} class="hidden"></label>`).join('')}
+                    <input type="hidden" name="quran_reading" value="${(p.quran_reading || '').replace(/"/g,'&quot;')}">
+                    <p class="text-[11px] font-black text-white/40 uppercase tracking-[0.2em] mb-3 ml-1">Mazhabi</p>
+                    <div class="grid grid-cols-2 gap-3 mb-4">
+                        ${['Hanafi','Shafi\'i','Maliki','Hanbali'].map(v => `<button type="button" class="radio-item p-4 rounded-2xl bg-white/[0.03] border transition-all text-center ${(p.mazhab === v) ? 'border-primary/40' : 'border-white/[0.05]'}" data-name="mazhab" data-value="${v}"><span class="text-sm font-bold ${(p.mazhab === v) ? 'text-white' : 'text-white/60'}">${v}</span></button>`).join('')}
                     </div>
-                    <p class="text-[11px] font-bold text-white/60 mb-2 mt-4">Ro'za</p>
-                    <div class="space-y-2">
-                        ${['Ha','Yo\'q'].map(v => `<label class="flex items-center justify-between p-4 rounded-2xl border cursor-pointer transition-all ${(p.fasts === v) ? 'border-primary bg-primary/10' : 'border-white/10 bg-white/5'}"><span>${v}</span><input type="radio" name="fasts" value="${v}" ${(p.fasts === v) ? 'checked' : ''} class="hidden"></label>`).join('')}
+                    <input type="hidden" name="mazhab" value="${(p.mazhab || '').replace(/"/g,'&quot;')}">
+                    <p class="text-[11px] font-black text-white/40 uppercase tracking-[0.2em] mb-3 ml-1">Ro'za</p>
+                    <div class="flex gap-2 mb-4">
+                        ${['Ha','Yo\'q'].map(v => `<button type="button" class="chip flex-1 ${(p.fasts === v) ? 'chip-selected' : 'chip-unselected'}" data-name="fasts" data-value="${v}">${v}</button>`).join('')}
                     </div>
-                    <p class="text-[11px] font-bold text-white/60 mb-2 mt-4">Diniy daraja</p>
-                    <div class="space-y-2">
-                        ${['Jiddiy','O\'rtacha','Yengil'].map(v => `<label class="flex items-center justify-between p-4 rounded-2xl border cursor-pointer transition-all ${(p.religious_level === v) ? 'border-primary bg-primary/10' : 'border-white/10 bg-white/5'}"><span>${v}</span><input type="radio" name="religious_level" value="${v}" ${(p.religious_level === v) ? 'checked' : ''} class="hidden"></label>`).join('')}
+                    <input type="hidden" name="fasts" value="${(p.fasts || '').replace(/"/g,'&quot;')}">
+                    <p class="text-[11px] font-black text-white/40 uppercase tracking-[0.2em] mb-3 ml-1">Diniy daraja</p>
+                    <div class="flex flex-wrap gap-2">
+                        ${['Jiddiy','O\'rtacha','Yengil'].map(v => `<button type="button" class="chip ${(p.religious_level === v) ? 'chip-selected' : 'chip-unselected'}" data-name="religious_level" data-value="${v}">${v}</button>`).join('')}
                     </div>
+                    <input type="hidden" name="religious_level" value="${(p.religious_level || '').replace(/"/g,'&quot;')}">
                 `;
+                body.querySelectorAll('.chip[data-name]').forEach(function(btn) {
+                    btn.addEventListener('click', function() {
+                        var name = this.getAttribute('data-name');
+                        var val = this.getAttribute('data-value');
+                        var group = body.querySelectorAll('.chip[data-name="' + name + '"]');
+                        group.forEach(function(b) { b.classList.remove('chip-selected'); b.classList.add('chip-unselected'); });
+                        this.classList.remove('chip-unselected'); this.classList.add('chip-selected');
+                        var inp = body.querySelector('input[name="' + name + '"]');
+                        if (inp) inp.value = val;
+                    });
+                });
+                body.querySelectorAll('.radio-item[data-name]').forEach(function(btn) {
+                    btn.addEventListener('click', function() {
+                        var name = this.getAttribute('data-name');
+                        var val = this.getAttribute('data-value');
+                        body.querySelectorAll('.radio-item[data-name="' + name + '"]').forEach(function(b) {
+                            b.classList.remove('radio-item-selected', 'border-primary/40');
+                            b.classList.add('border-white/[0.05]');
+                            var sp = b.querySelector('span');
+                            if (sp) { sp.classList.add('text-white/60'); sp.classList.remove('text-white'); }
+                            var circle = b.querySelector('.size-5');
+                            if (circle) { circle.classList.remove('border-primary'); circle.classList.add('border-white/20'); circle.innerHTML = ''; }
+                        });
+                        this.classList.add('radio-item-selected', 'border-primary/40');
+                        this.classList.remove('border-white/[0.05]');
+                        var sp = this.querySelector('span');
+                        if (sp) { sp.classList.remove('text-white/60'); sp.classList.add('text-white'); }
+                        var circle = this.querySelector('.size-5');
+                        if (circle) { circle.classList.add('border-primary'); circle.classList.remove('border-white/20'); var d = document.createElement('div'); d.className = 'size-2.5 bg-primary rounded-full'; circle.appendChild(d); }
+                        var inp = body.querySelector('input[name="' + name + '"]');
+                        if (inp) inp.value = val;
+                    });
+                });
             } else if (section === 'joylashuv') {
                 const joyCountry = p.country || "O'zbekiston";
                 const joyRegions = LOCATION_COUNTRIES_REGIONS[joyCountry] || [];
@@ -4889,41 +5072,223 @@
                     </div>
                 `;
             } else if (section === 'jismoniy') {
+                const hVal = p.height != null && p.height >= 140 && p.height <= 210 ? parseInt(p.height, 10) : 170;
+                const wVal = p.weight != null && p.weight >= 40 && p.weight <= 130 ? parseInt(p.weight, 10) : 70;
                 body.innerHTML = `
-                    <label class="block text-[11px] font-bold text-white/60 mb-2">Bo'y (sm)</label>
-                    <select name="height" class="w-full glass-card rounded-2xl px-4 py-3 text-white border border-white/10 bg-white/5 mb-4">${Array.from({length: 81}, (_, i) => 140 + i).map(h => `<option value="${h}" ${(p.height === h) ? 'selected' : ''}>${h} sm</option>`).join('')}</select>
-                    <label class="block text-[11px] font-bold text-white/60 mb-2">Vazn (kg)</label>
-                    <select name="weight" class="w-full glass-card rounded-2xl px-4 py-3 text-white border border-white/10 bg-white/5">${Array.from({length: 111}, (_, i) => 40 + i).map(w => `<option value="${w}" ${(p.weight === w) ? 'selected' : ''}>${w} kg</option>`).join('')}</select>
-                `;
-            } else if (section === 'talim') {
-                body.innerHTML = `
-                    <div class="space-y-2">
-                        ${['Oliy','O\'rta maxsus','O\'rta'].map(v => `<label class="flex items-center justify-between p-4 rounded-2xl border cursor-pointer transition-all ${(p.education === v) ? 'border-primary bg-primary/10' : 'border-white/10 bg-white/5'}"><span>${v}</span><input type="radio" name="education" value="${v}" ${(p.education === v) ? 'checked' : ''} class="hidden"></label>`).join('')}
+                    <p class="text-[11px] font-bold text-white/60 mb-3">Filterdagidek aylantirib tanlang</p>
+                    <div class="flex items-start justify-center gap-3 w-full">
+                        <div class="ios-dial-wrapper flex-1">
+                            <span class="ios-dial-title">BO'Y</span>
+                            <div class="ios-dial" id="profile-edit-dial-height" data-min="140" data-max="210">
+                                <div class="ios-dial-fade-top"></div>
+                                <div class="ios-dial-ticks"><div class="ios-dial-tick"></div><div class="ios-dial-tick"></div><div class="ios-dial-tick glow"></div><div class="ios-dial-tick glow"></div><div class="ios-dial-tick"></div><div class="ios-dial-tick"></div></div>
+                                <div class="ios-dial-track"><div class="ios-dial-items"></div></div>
+                                <div class="ios-dial-fade-bottom"></div>
+                            </div>
+                            <span class="ios-dial-label">sm</span>
+                        </div>
+                        <div class="ios-dial-wrapper flex-1">
+                            <span class="ios-dial-title">VAZN</span>
+                            <div class="ios-dial" id="profile-edit-dial-weight" data-min="40" data-max="130">
+                                <div class="ios-dial-fade-top"></div>
+                                <div class="ios-dial-ticks"><div class="ios-dial-tick"></div><div class="ios-dial-tick"></div><div class="ios-dial-tick glow"></div><div class="ios-dial-tick glow"></div><div class="ios-dial-tick"></div><div class="ios-dial-tick"></div></div>
+                                <div class="ios-dial-track"><div class="ios-dial-items"></div></div>
+                                <div class="ios-dial-fade-bottom"></div>
+                            </div>
+                            <span class="ios-dial-label">kg</span>
+                        </div>
                     </div>
+                    <input type="hidden" name="height" id="profile-edit-height-input" value="${hVal}">
+                    <input type="hidden" name="weight" id="profile-edit-weight-input" value="${wVal}">
+                    <p class="text-[11px] font-black text-white/40 uppercase tracking-[0.2em] mb-2 mt-6 ml-1">Sigaret chekadimi? (filterdagidek)</p>
+                    <div class="grid grid-cols-3 gap-3 mb-4">
+                        ${['Ha','Yo\'q','Tashlagan'].map(v => `<button type="button" class="profile-edit-smoking-btn py-3 rounded-2xl text-sm font-bold uppercase tracking-wide transition-all ${(p.smoking === v) ? 'bg-primary text-black' : 'bg-white/[0.05] border border-white/[0.08] text-white/60'}" data-value="${v}">${v}</button>`).join('')}
+                    </div>
+                    <input type="hidden" name="smoking" id="profile-edit-smoking-input" value="${(p.smoking || '').replace(/"/g,'&quot;')}">
+                    <p class="text-[11px] font-black text-white/40 uppercase tracking-[0.2em] mb-2 mt-4 ml-1">Sport bilan shug'ullanish</p>
+                    <div class="p-4 rounded-2xl bg-white/[0.03] border border-white/[0.06] space-y-3">
+                        <div class="flex justify-between items-center">
+                            <span class="text-[10px] font-bold text-white/40 uppercase tracking-widest">Haftada necha kun?</span>
+                            <span id="profile-edit-sport-label" class="text-xs font-bold text-primary">${(p.sport_days != null && p.sport_days >= 1 && p.sport_days <= 7) ? ['','Haftada 1 kun','Haftada 2 kun','Haftada 3 kun','Haftada 4 kun','Haftada 5 kun','Haftada 6 kun','Har kuni'][p.sport_days] : 'Tanlang'}</span>
+                        </div>
+                        <div class="flex gap-1.5 h-2" id="profile-edit-sport-bars">
+                            ${[1,2,3,4,5,6,7].map(d => `<button type="button" class="profile-edit-sport-bar flex-1 rounded-full transition-all ${(p.sport_days != null && d <= p.sport_days) ? 'bg-primary' : 'bg-white/10'}" data-day="${d}"></button>`).join('')}
+                        </div>
+                    </div>
+                    <input type="hidden" name="sport_days" id="profile-edit-sport-days-input" value="${p.sport_days != null ? p.sport_days : ''}">
                 `;
-            } else if (section === 'ish') {
+                body.querySelectorAll('.profile-edit-smoking-btn').forEach(function(btn) {
+                    btn.addEventListener('click', function() {
+                        var v = this.getAttribute('data-value');
+                        body.querySelectorAll('.profile-edit-smoking-btn').forEach(function(b){ b.classList.remove('bg-primary','text-black'); b.classList.add('bg-white/[0.05]','border','border-white/[0.08]','text-white/60'); });
+                        this.classList.remove('bg-white/[0.05]','border','border-white/[0.08]','text-white/60'); this.classList.add('bg-primary','text-black');
+                        var inp = document.getElementById('profile-edit-smoking-input'); if (inp) inp.value = v;
+                    });
+                });
+                body.querySelectorAll('.profile-edit-sport-bar').forEach(function(bar) {
+                    bar.addEventListener('click', function() {
+                        var day = parseInt(this.getAttribute('data-day'), 10);
+                        body.querySelectorAll('.profile-edit-sport-bar').forEach(function(b) {
+                            var d = parseInt(b.getAttribute('data-day'), 10);
+                            b.classList.toggle('bg-primary', d <= day);
+                            b.classList.toggle('bg-white/10', d > day);
+                        });
+                        var labels = ['','Haftada 1 kun','Haftada 2 kun','Haftada 3 kun','Haftada 4 kun','Haftada 5 kun','Haftada 6 kun','Har kuni'];
+                        var labelEl = document.getElementById('profile-edit-sport-label');
+                        if (labelEl) labelEl.textContent = labels[day] || '';
+                        var inp = document.getElementById('profile-edit-sport-days-input');
+                        if (inp) inp.value = day;
+                    });
+                });
+                setTimeout(function() {
+                    if (typeof initIosDial === 'function') {
+                        initIosDial('profile-edit-dial-height', 140, 210, hVal);
+                        initIosDial('profile-edit-dial-weight', 40, 130, wVal);
+                    }
+                }, 50);
+            } else if (section === 'talim') {
+                const eduOpts = [['Oliy','Oliy ma\'lumotli'],['O\'rta maxsus','O\'rta-maxsus'],['O\'rta','O\'rta']];
                 body.innerHTML = `
-                    <label class="block text-[11px] font-bold text-white/60 mb-2">Kasb</label>
-                    <input type="text" name="profession" value="${(p.profession || '').replace(/"/g, '&quot;')}" placeholder="Masalan: Dasturchi" class="w-full glass-card rounded-2xl px-4 py-3 text-white border border-white/10 bg-white/5 mb-4">
-                    <label class="block text-[11px] font-bold text-white/60 mb-2">Maosh (ixtiyoriy)</label>
-                    <input type="text" name="salary" value="${(p.salary || '').replace(/"/g, '&quot;')}" placeholder="Masalan: 500$, 3-5 mln" class="w-full glass-card rounded-2xl px-4 py-3 text-white border border-white/10 bg-white/5 mb-4">
-                    <p class="text-[11px] font-bold text-white/60 mb-2">Ishlaysizmi?</p>
+                    <p class="text-[11px] font-black text-white/40 uppercase tracking-[0.2em] mb-3 ml-1">Ta'lim darajasi (filterdagidek)</p>
+                    <div class="space-y-2">
+                        ${eduOpts.map(function(arr) {
+                            var v = arr[0], label = arr[1];
+                            var sel = (p.education === v || p.education === label);
+                            return '<button type="button" class="profile-edit-education-opt w-full flex items-center justify-between p-4 rounded-2xl bg-white/[0.03] border transition-all ' + (sel ? 'border-primary/40' : 'border-white/[0.05]') + '" data-value="' + v.replace(/'/g,'\\\'') + '"><span class="text-sm font-semibold ' + (sel ? 'text-white' : 'text-white/60') + '">' + label + '</span><div class="size-5 rounded-full flex items-center justify-center ' + (sel ? 'bg-primary' : 'border-2 border-white/10') + '">' + (sel ? '<span class="material-symbols-outlined text-black text-[14px] font-bold">check</span>' : '') + '</div></button>';
+                        }).join('')}
+                    </div>
+                    <input type="hidden" name="education" value="${(p.education || '').replace(/"/g,'&quot;')}">
+                `;
+                body.querySelectorAll('.profile-edit-education-opt').forEach(function(btn) {
+                    btn.addEventListener('click', function() {
+                        var val = this.getAttribute('data-value');
+                        body.querySelectorAll('.profile-edit-education-opt').forEach(function(b) {
+                            b.classList.remove('border-primary/40');
+                            b.classList.add('border-white/[0.05]');
+                            var sp = b.querySelector('span'); if (sp) sp.classList.add('text-white/60'), sp.classList.remove('text-white');
+                            var box = b.querySelector('.size-5'); if (box) { box.classList.remove('bg-primary'); box.classList.add('border-2', 'border-white/10'); box.innerHTML = ''; }
+                        });
+                        this.classList.add('border-primary/40');
+                        this.classList.remove('border-white/[0.05]');
+                        var sp = this.querySelector('span'); if (sp) sp.classList.remove('text-white/60'), sp.classList.add('text-white');
+                        var box = this.querySelector('.size-5'); if (box) { box.classList.add('bg-primary'); box.classList.remove('border-2', 'border-white/10'); box.innerHTML = '<span class="material-symbols-outlined text-black text-[14px] font-bold">check</span>'; }
+                        var inp = body.querySelector('input[name="education"]');
+                        if (inp) inp.value = val;
+                    });
+                });
+            } else if (section === 'ish') {
+                const professions = ['Tadbirkor','Shifokor','IT muhandis','O\'qituvchi','Dizayner','Huquqshunos','Muhandis','Sotuvchi','Boshqa'];
+                const currentProf = (p.profession || '').trim();
+                const profMatch = professions.find(function(x) { return x === currentProf || (x === 'Boshqa' && !professions.slice(0,-1).includes(currentProf) && currentProf); });
+                const salaryStr = (p.salary || '').replace(/\$/g,'').replace(/\s/g,'');
+                const salaryNum = parseInt(salaryStr, 10) || 0;
+                const salVal = Math.min(5000, Math.max(0, salaryNum));
+                body.innerHTML = `
+                    <p class="text-[11px] font-bold text-white/60 mb-2">Kasb (filterdagidek)</p>
+                    <div class="flex flex-wrap gap-2 mb-4" id="profile-edit-professions">
+                        ${professions.map(pr => `<button type="button" class="profile-edit-profession px-4 py-2.5 rounded-full text-sm font-bold transition-all ${(currentProf === pr || (pr === 'Boshqa' && currentProf && !professions.slice(0,-1).includes(currentProf)) ? 'bg-primary text-black' : 'bg-white/[0.05] border border-white/[0.1] text-white/70')}" data-value="${pr.replace(/"/g,'&quot;')}">${pr}</button>`).join('')}
+                    </div>
+                    <input type="hidden" name="profession" id="profile-edit-profession-input" value="${(currentProf || '').replace(/"/g,'&quot;')}">
+                    <div id="profile-edit-boshqa-profession-wrap" class="mb-4 ${currentProf && currentProf !== 'Boshqa' && !professions.slice(0,-1).includes(currentProf) ? '' : 'hidden'}">
+                        <label class="block text-[11px] font-bold text-white/60 mb-2">Boshqa kasb</label>
+                        <input type="text" id="profile-edit-boshqa-profession-text" placeholder="Yozing..." class="w-full glass-card rounded-2xl px-4 py-3 text-white border border-white/10 bg-white/5" value="${currentProf && !professions.slice(0,-1).includes(currentProf) ? (currentProf.replace(/"/g,'&quot;')) : ''}">
+                    </div>
+                    <p class="text-[11px] font-bold text-white/60 mb-2 mt-4">Oylik daromad (slider orqali)</p>
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-[10px] text-white/40">0</span>
+                        <span id="profile-edit-salary-label" class="text-sm font-black text-primary bg-primary/10 border border-primary/30 px-3 py-1.5 rounded-xl">${salVal ? '$'+salVal : 'Ko\'rsatmaslik'}</span>
+                        <span class="text-[10px] text-white/40">$5000+</span>
+                    </div>
+                    <div class="relative pt-2 pb-4" id="profile-edit-salary-slider-container">
+                        <div class="relative h-2 bg-white/10 rounded-full">
+                            <div id="profile-edit-salary-range" class="absolute h-2 bg-primary rounded-full left-0" style="width: ${(salVal/5000*100)}%"></div>
+                            <div id="profile-edit-salary-thumb" class="salary-slider-thumb absolute" style="left: ${(salVal/5000*100)}%" data-type="single"></div>
+                        </div>
+                    </div>
+                    <input type="hidden" name="salary" id="profile-edit-salary-input" value="${salVal ? (salVal + '$') : ''}">
+                    <p class="text-[11px] font-bold text-white/60 mb-2 mt-4">Ishlaysizmi?</p>
                     <div class="flex gap-3">
                         <label class="flex-1 flex items-center justify-between p-4 rounded-2xl border cursor-pointer transition-all ${p.is_working === true ? 'border-primary bg-primary/10' : 'border-white/10 bg-white/5'}"><span>Ha</span><input type="radio" name="is_working" value="true" ${p.is_working === true ? 'checked' : ''} class="hidden"></label>
                         <label class="flex-1 flex items-center justify-between p-4 rounded-2xl border cursor-pointer transition-all ${p.is_working === false ? 'border-primary bg-primary/10' : 'border-white/10 bg-white/5'}"><span>Yo'q</span><input type="radio" name="is_working" value="false" ${p.is_working === false ? 'checked' : ''} class="hidden"></label>
                     </div>
                 `;
+                document.querySelectorAll('#profile-edit-professions .profile-edit-profession').forEach(function(btn) {
+                    btn.addEventListener('click', function() {
+                        var v = this.getAttribute('data-value');
+                        document.querySelectorAll('#profile-edit-professions .profile-edit-profession').forEach(function(b){ b.classList.remove('bg-primary','text-black'); b.classList.add('bg-white/[0.05]','border','border-white/[0.1]','text-white/70'); });
+                        this.classList.remove('bg-white/[0.05]','border','border-white/[0.1]','text-white/70'); this.classList.add('bg-primary','text-black');
+                        document.getElementById('profile-edit-profession-input').value = v;
+                        var wrap = document.getElementById('profile-edit-boshqa-profession-wrap');
+                        if (wrap) wrap.classList.toggle('hidden', v !== 'Boshqa');
+                    });
+                });
+                var boshqaText = document.getElementById('profile-edit-boshqa-profession-text');
+                if (boshqaText) boshqaText.addEventListener('input', function() { document.getElementById('profile-edit-profession-input').value = this.value || 'Boshqa'; });
+                (function initProfileSalarySlider() {
+                    var container = document.getElementById('profile-edit-salary-slider-container');
+                    var track = container && container.querySelector('.bg-white\\/10');
+                    var thumb = document.getElementById('profile-edit-salary-thumb');
+                    var range = document.getElementById('profile-edit-salary-range');
+                    var input = document.getElementById('profile-edit-salary-input');
+                    var label = document.getElementById('profile-edit-salary-label');
+                    if (!track || !thumb || !input) return;
+                    var val = Math.min(5000, Math.max(0, parseInt(input.value, 10) || 0));
+                    function percentToVal(pct) { return Math.round((pct / 100) * 5000 / 100) * 100; }
+                    function update() {
+                        var pct = (val / 5000) * 100;
+                        thumb.style.left = pct + '%';
+                        if (range) range.style.width = pct + '%';
+                        input.value = val ? (val + '$') : '';
+                        if (label) label.textContent = val ? '$' + val : 'Ko\'rsatmaslik';
+                    }
+                    function onMove(e) {
+                        var rect = track.getBoundingClientRect();
+                        var clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                        var pct = Math.max(0, Math.min(100, ((clientX - rect.left) / rect.width) * 100));
+                        val = percentToVal(pct);
+                        update();
+                        if (typeof hapticFeedback === 'function') hapticFeedback('light');
+                    }
+                    function onEnd() { isDrag = false; }
+                    var isDrag = false;
+                    thumb.addEventListener('mousedown', function(e) { e.preventDefault(); isDrag = true; });
+                    thumb.addEventListener('touchstart', function(e) { isDrag = true; }, { passive: false });
+                    document.addEventListener('mousemove', function(e) { if (isDrag) onMove(e); });
+                    document.addEventListener('touchmove', function(e) { if (isDrag) onMove(e); }, { passive: false });
+                    document.addEventListener('mouseup', onEnd);
+                    document.addEventListener('touchend', onEnd);
+                    update();
+                })();
             } else if (section === 'juftga') {
                 const ageOpts = Array.from({length: 50}, (_, i) => 18 + i);
-                const juftgaRegionOpts = (p.country && LOCATION_COUNTRIES_REGIONS[p.country]) || regionOpts || [];
+                const partnerLocs = Array.isArray(p.partner_locations) ? p.partner_locations : (p.partner_country && p.partner_region ? [{ c: p.partner_country, r: [p.partner_region] }] : []);
+                const allCountriesChecked = partnerLocs.some(function(x) { return x.all_countries === true; });
+                window._juftgaPartnerLocations = allCountriesChecked ? [] : partnerLocs;
+                const countryFlags = { "O'zbekiston":"🇺🇿","Qozog'iston":"🇰🇿","Qirg'iziston":"🇰🇬","Tojikiston":"🇹🇯","Turkmaniston":"🇹🇲","Rossiya":"🇷🇺","Turkiya":"🇹🇷","Ozarbayjon":"🇦🇿","Gruziya":"🇬🇪","Armaniston":"🇦🇲","Afg'oniston":"🇦🇫","Pokiston":"🇵🇰","Hindiston":"🇮🇳","Bangladesh":"🇧🇩","Malayziya":"🇲🇾","Indoneziya":"🇮🇩","Tailand":"🇹🇭","Vyetnam":"🇻🇳","Filippin":"🇵🇭","Singapur":"🇸🇬","Saudiya Arabistoni":"🇸🇦","BAA":"🇦🇪","Quvayt":"🇰🇼","Qatar":"🇶🇦","Iroq":"🇮🇶","Eron":"🇮🇷","Misr":"🇪🇬","Germaniya":"🇩🇪","Fransiya":"🇫🇷","Buyuk Britaniya":"🇬🇧","Italiya":"🇮🇹","Ispaniya":"🇪🇸","Polsha":"🇵🇱","Ukraina":"🇺🇦","AQSH":"🇺🇸","Kanada":"🇨🇦","Xitoy":"🇨🇳","Yaponiya":"🇯🇵","Janubiy Koreya":"🇰🇷","Avstraliya":"🇦🇺" };
+                const locationListHtml = countryList.map(function(c) {
+                    const flag = countryFlags[c] || '🌐';
+                    const isFirst = c === "O'zbekiston";
+                    return '<div class="juftga-location-country-block bg-white/[0.03] border border-white/[0.05] rounded-2xl overflow-hidden" data-country-name="' + c.replace(/"/g, '&quot;') + '">' +
+                        '<button type="button" class="juftga-location-header w-full flex items-center justify-between p-4 ' + (isFirst ? 'border-b border-white/[0.04]' : '') + ' text-left active:bg-white/[0.05] transition-colors">' +
+                        '<div class="flex items-center gap-3"><span class="text-xl">' + flag + '</span><span class="font-bold text-white/80 text-sm">' + c + '</span></div>' +
+                        '<span class="material-symbols-outlined text-white/20 juftga-location-chevron text-[20px]">chevron_right</span></button>' +
+                        '<div class="juftga-location-cities hidden px-4 py-3 space-y-3 bg-white/[0.01]"></div></div>';
+                }).join('');
                 body.innerHTML = `
                     <label class="block text-[11px] font-bold text-white/60 mb-2">Yosh oralig'i (min)</label>
                     <select name="partner_age_min" class="w-full glass-card rounded-2xl px-4 py-3 text-white border border-white/10 bg-white/5 mb-4">${ageOpts.map(a => `<option value="${a}" ${(p.partner_age_min == a) ? 'selected' : ''}>${a} yosh</option>`).join('')}</select>
                     <label class="block text-[11px] font-bold text-white/60 mb-2">Yosh oralig'i (max)</label>
                     <select name="partner_age_max" class="w-full glass-card rounded-2xl px-4 py-3 text-white border border-white/10 bg-white/5 mb-4">${ageOpts.map(a => `<option value="${a}" ${(p.partner_age_max == a) ? 'selected' : ''}>${a} yosh</option>`).join('')}</select>
-                    <label class="block text-[11px] font-bold text-white/60 mb-2">Hudud</label>
-                    <select name="partner_region" class="w-full glass-card rounded-2xl px-4 py-3 text-white border border-white/10 bg-white/5 mb-4">${juftgaRegionOpts.map(r => `<option value="${r}" ${(p.partner_region === r) ? 'selected' : ''}>${r}</option>`).join('')}</select>
-                    <label class="block text-[11px] font-bold text-white/60 mb-2">Diniy daraja</label>
+                    <label class="block text-[11px] font-bold text-white/60 mb-2 mt-4">Joylashuv (bir nechta tanlash mumkin)</label>
+                    <label id="juftga-all-countries-wrap" class="flex items-center justify-between p-4 rounded-2xl border cursor-pointer transition-all mb-3 ${allCountriesChecked ? 'border-primary bg-primary/10' : 'border-white/10 bg-white/5'}">
+                        <span class="font-medium text-white/90">Barcha davlatlar (joylashuv farqi yo'q)</span>
+                        <input type="checkbox" id="juftga-all-countries-cb" class="custom-checkbox" ${allCountriesChecked ? ' checked' : ''}>
+                    </label>
+                    <div id="juftga-location-list-wrap" class="${allCountriesChecked ? 'hidden' : ''}">
+                    <input id="juftga-location-search" type="text" placeholder="Mamlakatni qidirish..." class="w-full glass-card rounded-2xl px-4 py-3 text-white border border-white/10 bg-white/5 mb-3 text-sm">
+                    <div id="juftga-location-list" class="space-y-2 max-h-[220px] overflow-y-auto ios-scroll-hide">${locationListHtml}</div>
+                    </div>
+                    <label class="block text-[11px] font-bold text-white/60 mb-2 mt-4">Diniy daraja</label>
                     <div class="space-y-2 mb-4">
                         ${['Jiddiy','O\'rtacha','Yengil'].map(v => `<label class="flex items-center justify-between p-4 rounded-2xl border cursor-pointer transition-all ${(p.partner_religious_level === v) ? 'border-primary bg-primary/10' : 'border-white/10 bg-white/5'}"><span>${v}</span><input type="radio" name="partner_religious_level" value="${v}" ${(p.partner_religious_level === v) ? 'checked' : ''} class="hidden"></label>`).join('')}
                     </div>
@@ -4932,6 +5297,77 @@
                         ${['Bo\'ydoq','Oilali','Ajrashgan'].map(v => `<label class="flex items-center justify-between p-4 rounded-2xl border cursor-pointer transition-all ${(p.partner_marital_status === v) ? 'border-primary bg-primary/10' : 'border-white/10 bg-white/5'}"><span>${v}</span><input type="radio" name="partner_marital_status" value="${v}" ${(p.partner_marital_status === v) ? 'checked' : ''} class="hidden"></label>`).join('')}
                     </div>
                 `;
+                const allCountriesCb = document.getElementById('juftga-all-countries-cb');
+                const allCountriesWrap = document.getElementById('juftga-all-countries-wrap');
+                const locationListWrap = document.getElementById('juftga-location-list-wrap');
+                if (allCountriesCb && locationListWrap) {
+                    allCountriesCb.addEventListener('change', function() {
+                        if (this.checked) {
+                            locationListWrap.classList.add('hidden');
+                            if (allCountriesWrap) { allCountriesWrap.classList.add('border-primary', 'bg-primary/10'); allCountriesWrap.classList.remove('border-white/10', 'bg-white/5'); }
+                        } else {
+                            locationListWrap.classList.remove('hidden');
+                            if (allCountriesWrap) { allCountriesWrap.classList.remove('border-primary', 'bg-primary/10'); allCountriesWrap.classList.add('border-white/10', 'bg-white/5'); }
+                        }
+                    });
+                    if (allCountriesWrap) allCountriesWrap.addEventListener('click', function() {
+                        setTimeout(function() {
+                            if (allCountriesCb.checked) {
+                                locationListWrap.classList.add('hidden');
+                                allCountriesWrap.classList.add('border-primary', 'bg-primary/10'); allCountriesWrap.classList.remove('border-white/10', 'bg-white/5');
+                            } else {
+                                locationListWrap.classList.remove('hidden');
+                                allCountriesWrap.classList.remove('border-primary', 'bg-primary/10'); allCountriesWrap.classList.add('border-white/10', 'bg-white/5');
+                            }
+                        }, 0);
+                    });
+                }
+                const juftgaSearch = document.getElementById('juftga-location-search');
+                if (juftgaSearch) juftgaSearch.addEventListener('input', function() {
+                    const q = (this.value || '').trim().toLowerCase();
+                    document.querySelectorAll('#juftga-location-list .juftga-location-country-block').forEach(block => {
+                        const name = (block.getAttribute('data-country-name') || '').toLowerCase();
+                        block.style.display = (q === '' || name.includes(q)) ? '' : 'none';
+                    });
+                });
+                document.querySelectorAll('#juftga-location-list .juftga-location-header').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const block = this.closest('.juftga-location-country-block');
+                        const citiesEl = block && block.querySelector('.juftga-location-cities');
+                        const chevron = this.querySelector('.juftga-location-chevron');
+                        if (!citiesEl) return;
+                        const isHidden = citiesEl.classList.contains('hidden');
+                        if (isHidden) {
+                            citiesEl.classList.remove('hidden');
+                            if (chevron) { chevron.classList.remove('text-white/20'); chevron.classList.add('text-primary'); chevron.style.transform = 'rotate(90deg)'; }
+                            if (citiesEl.children.length === 0) {
+                                const countryName = block.getAttribute('data-country-name');
+                                const cities = LOCATION_COUNTRIES_REGIONS[countryName] || [];
+                                const locEntry = (window._juftgaPartnerLocations || []).find(function(x) { return (x.c || x.country) === countryName; });
+                                const wholeChecked = locEntry && (locEntry.all === true || locEntry.whole === true);
+                                const selectedRegions = (locEntry && locEntry.r) ? (locEntry.r || []) : [];
+                                const wholeWrap = document.createElement('label');
+                                wholeWrap.className = 'flex items-center justify-between group cursor-pointer';
+                                wholeWrap.innerHTML = '<span class="text-sm font-medium text-white/80">Butun mamlakat</span><input type="checkbox" class="juftga-whole-country-cb custom-checkbox" data-country="' + countryName.replace(/"/g, '&quot;') + '"' + (wholeChecked ? ' checked' : '') + '>';
+                                citiesEl.appendChild(wholeWrap);
+                                cities.forEach(function(city) {
+                                    const label = document.createElement('label');
+                                    label.className = 'flex items-center justify-between group cursor-pointer';
+                                    const checked = wholeChecked || selectedRegions.indexOf(city) !== -1;
+                                    label.innerHTML = '<span class="text-sm font-medium text-white/80 group-active:text-white">' + city + '</span><input type="checkbox" class="juftga-location-city-cb custom-checkbox" value="' + city.replace(/"/g, '&quot;') + '" data-country="' + countryName.replace(/"/g, '&quot;') + '"' + (checked ? ' checked' : '') + '>';
+                                    citiesEl.appendChild(label);
+                                });
+                                var wholeCb = wholeWrap.querySelector('.juftga-whole-country-cb');
+                                if (wholeCb) wholeCb.addEventListener('change', function() {
+                                    block.querySelectorAll('.juftga-location-city-cb').forEach(function(cb) { cb.checked = wholeCb.checked; });
+                                });
+                            }
+                        } else {
+                            citiesEl.classList.add('hidden');
+                            if (chevron) { chevron.classList.add('text-white/20'); chevron.classList.remove('text-primary'); chevron.style.transform = ''; }
+                        }
+                    });
+                });
             } else if (section === 'bio') {
                 body.innerHTML = `
                     <label class="block text-[11px] font-bold text-white/60 mb-2">O'zingiz haqingizda (qisqacha)</label>
@@ -4985,16 +5421,53 @@
             closeProfileEditSheet();
         };
 
+        function buildPartnerLocationsFromSheet() {
+            const allCb = document.getElementById('juftga-all-countries-cb');
+            if (allCb && allCb.checked) return [{ all_countries: true }];
+            const list = document.getElementById('juftga-location-list');
+            if (!list) return [];
+            const out = [];
+            list.querySelectorAll('.juftga-location-country-block').forEach(block => {
+                const country = block.getAttribute('data-country-name');
+                if (!country) return;
+                const wholeCb = block.querySelector('.juftga-whole-country-cb');
+                if (wholeCb && wholeCb.checked) {
+                    out.push({ c: country, all: true });
+                    return;
+                }
+                const checked = block.querySelectorAll('.juftga-location-city-cb:checked');
+                const regions = Array.from(checked).map(cb => cb.value).filter(Boolean);
+                if (regions.length) out.push({ c: country, r: regions });
+            });
+            return out;
+        }
+
         async function saveProfileEditSheet() {
             if (!currentProfileEditSection) return;
             const body = document.getElementById('profile-edit-sheet-body');
             if (!body) return;
+            if (currentProfileEditSection === 'jismoniy') {
+                var hi = document.getElementById('profile-edit-height-input');
+                var wi = document.getElementById('profile-edit-weight-input');
+                if (hi && typeof getIosDialValue === 'function') { var v = getIosDialValue('profile-edit-dial-height'); if (v != null) hi.value = v; }
+                if (wi && typeof getIosDialValue === 'function') { var v = getIosDialValue('profile-edit-dial-weight'); if (v != null) wi.value = v; }
+            }
+            if (currentProfileEditSection === 'ish') {
+                var profInput = document.getElementById('profile-edit-profession-input');
+                var boshqaText = document.getElementById('profile-edit-boshqa-profession-text');
+                if (profInput && boshqaText && profInput.value === 'Boshqa') profInput.value = (boshqaText.value || '').trim() || 'Boshqa';
+            }
             const formData = new FormData();
             body.querySelectorAll('input, select, textarea').forEach(el => {
                 if (el.name && (el.type !== 'radio' || el.checked)) formData.append(el.name, el.value);
             });
+            if (currentProfileEditSection === 'juftga') {
+                const ploc = buildPartnerLocationsFromSheet();
+                formData.set('partner_locations', JSON.stringify(ploc));
+            }
             if (_sheetDataSource) {
                 formData.forEach((val, key) => { _sheetDataSource[key] = val; });
+                if (currentProfileEditSection === 'juftga') _sheetDataSource.partner_locations = JSON.stringify(buildPartnerLocationsFromSheet());
                 _sheetDataSource = null;
                 updateAddListingSummaries();
                 closeProfileEditSheet();
@@ -5030,7 +5503,7 @@
                 case 'jismoniy': return d.height != null && d.height !== '' && d.weight != null && d.weight !== '';
                 case 'talim': return !!(d.education && (d.education || '').trim());
                 case 'ish': return !!(d.profession && (d.profession || '').trim() && (d.is_working === true || d.is_working === 'true' || d.is_working === false || d.is_working === 'false'));
-                case 'juftga': return !!(d.partner_age_min != null && d.partner_age_max != null && d.partner_region && d.partner_religious_level && d.partner_marital_status);
+                case 'juftga': return !!(d.partner_age_min != null && d.partner_age_max != null && (function(){ try { const locs = typeof d.partner_locations === 'string' ? JSON.parse(d.partner_locations) : d.partner_locations; if (Array.isArray(locs) && locs.length > 0) return true; } catch(e){} return !!(d.partner_country && d.partner_region); })() && d.partner_religious_level && d.partner_marital_status);
                 case 'bio': return !!((d.bio || '').trim());
                 default: return false;
             }
@@ -5046,7 +5519,10 @@
             if (!(d.education || '').trim()) msg.push('Ta\'lim');
             if (!(d.profession || '').trim()) msg.push('Ish & Kasb');
             if (d.is_working !== true && d.is_working !== 'true' && d.is_working !== false && d.is_working !== 'false') msg.push('Ish & Kasb (ishlaymanmi)');
-            if (d.partner_age_min == null || d.partner_age_max == null || !(d.partner_region || '').trim() || !(d.partner_religious_level || '').trim() || !(d.partner_marital_status || '').trim()) msg.push('Juftga talablari');
+            var juftgaLocOk = false;
+            try { var jl = typeof d.partner_locations === 'string' ? JSON.parse(d.partner_locations) : d.partner_locations; juftgaLocOk = Array.isArray(jl) && jl.length > 0; } catch(e) {}
+            if (!juftgaLocOk && !(d.partner_country || '').trim()) juftgaLocOk = false; else if (!juftgaLocOk) juftgaLocOk = !!(d.partner_country && d.partner_region);
+            if (d.partner_age_min == null || d.partner_age_max == null || !juftgaLocOk || !(d.partner_religious_level || '').trim() || !(d.partner_marital_status || '').trim()) msg.push('Juftga talablari');
             if (!(d.bio || '').trim()) msg.push('O\'zim haqimda');
             if (msg.length === 0) return { ok: true };
             return { ok: false, message: 'Quyidagi bo\'limlarni to\'ldiring: ' + msg.join(', ') };
@@ -5062,10 +5538,16 @@
             el('add-listing-diniy-summary', d.prays ? `${d.prays}, ${d.mazhab || ''}`.replace(/,\s*$/g, '') : null);
             el('add-listing-joylashuv-summary', [d.country, d.region, d.nationality].filter(Boolean).join(', ') || 'Belgilanmagan');
             el('add-listing-oilaviy-summary', d.marital_status || null);
-            el('add-listing-jismoniy-summary', (d.height || d.weight) ? `${d.height || '?'} sm, ${d.weight || '?'} kg` : null);
+            el('add-listing-jismoniy-summary', [d.height && (d.height + ' sm'), d.weight && (d.weight + ' kg'), d.smoking, (d.sport_days != null && d.sport_days >= 1) ? ('Sport: ' + d.sport_days + ' kun') : null].filter(Boolean).join(', ') || null);
             el('add-listing-talim-summary', d.education || null);
             el('add-listing-ish-summary', (d.profession ? (d.profession + (d.is_working === 'true' ? ', Ishlaman' : '') + (d.salary ? ' · ' + d.salary : '')) : null) || 'Belgilanmagan');
-            el('add-listing-juftga-summary', (d.partner_age_min || d.partner_age_max) ? `${d.partner_age_min || '?'}-${d.partner_age_max || '?'} yosh` : null);
+            var juftgaLocSummary = null;
+            try {
+                var jl = typeof d.partner_locations === 'string' ? JSON.parse(d.partner_locations) : d.partner_locations;
+                if (Array.isArray(jl) && jl.length) juftgaLocSummary = jl.map(function(x){ return x.all ? (x.c || x.country) + ': butun' : (x.c || x.country) + ': ' + (x.r || []).length + ' joy'; }).join('; ');
+            } catch(e) {}
+            if (!juftgaLocSummary && (d.partner_country || d.partner_region)) juftgaLocSummary = (d.partner_country || '') + (d.partner_region ? ': ' + d.partner_region : '');
+            el('add-listing-juftga-summary', [d.partner_age_min != null || d.partner_age_max != null ? (d.partner_age_min ?? '?') + '-' + (d.partner_age_max ?? '?') + ' yosh' : null, juftgaLocSummary].filter(Boolean).join(', ') || null);
             const bioEl = document.getElementById('add-listing-bio-summary');
             if (bioEl) { bioEl.textContent = (d.bio || '').trim() ? (d.bio.slice(0, 40) + (d.bio.length > 40 ? '…' : '')) : 'Belgilanmagan'; bioEl.classList.toggle('italic', !d.bio); }
             document.querySelectorAll('.add-listing-section-btn').forEach(function(btn) {
@@ -5317,7 +5799,7 @@
         };
 
         function buildListingPayload(d, isPublished) {
-            var keys = ['name','gender','birth_year','country','region','nationality','marital_status','height','weight','aqida','prays','fasts','quran_reading','mazhab','religious_level','education','profession','is_working','salary','partner_age_min','partner_age_max','partner_region','partner_religious_level','partner_marital_status','bio'];
+            var keys = ['name','gender','birth_year','country','region','nationality','marital_status','height','weight','smoking','sport_days','aqida','prays','fasts','quran_reading','mazhab','religious_level','education','profession','is_working','salary','partner_age_min','partner_age_max','partner_country','partner_region','partner_locations','partner_religious_level','partner_marital_status','bio'];
             var payload = { is_published: !!isPublished };
             keys.forEach(function(k) { if (d[k] !== undefined && d[k] !== null && d[k] !== '') payload[k] = d[k]; });
             if (d.is_working === true || d.is_working === false) payload.is_working = d.is_working;
@@ -5416,6 +5898,7 @@
         
         // E'lon yaratish funksiyasi
         window.createAd = async function() {
+            await initUserData();
             const profileComplete = userData && userData.user && userData.user.profile_complete;
             if (!profileComplete || !hasActiveTariff) {
                 document.getElementById('require-full-profile-modal').classList.remove('hidden');
@@ -5460,6 +5943,7 @@
         document.addEventListener('change', async (e) => {
             if (e.target.id === 'profile-toggle') {
                 const toggle = e.target;
+                await initUserData();
                 const profileComplete = userData && userData.user && userData.user.profile_complete;
                 if (toggle.checked && (!profileComplete || !hasActiveTariff)) {
                     document.getElementById('require-full-profile-modal').classList.remove('hidden');
@@ -5522,6 +6006,21 @@
             if (sheetId === 'filter-sort-sheet') updateSortSheetUI(sortSheetContext === 'requests' ? requestsSort : feedSort);
             if (sheetId === 'filter-physical-sheet') {
                 initScrollDials();
+                document.querySelectorAll('#filter-physical-sheet .filter-smoking-btn').forEach(b => {
+                    const v = b.getAttribute('data-value');
+                    const active = (feedFilterSmoking || 'Yo\'q') === v;
+                    b.classList.toggle('bg-primary', active); b.classList.toggle('text-black', active);
+                    b.classList.toggle('bg-white/[0.05]', !active); b.classList.toggle('border', !active); b.classList.toggle('border-white/[0.08]', !active); b.classList.toggle('text-white/60', !active);
+                });
+                const sportDay = feedFilterSportDays != null ? feedFilterSportDays : 3;
+                document.querySelectorAll('#filter-physical-sheet .filter-sport-bar').forEach(b => {
+                    const d = parseInt(b.dataset.day);
+                    b.classList.toggle('bg-primary', d <= sportDay);
+                    b.classList.toggle('bg-white/10', d > sportDay);
+                });
+                const sportLabels = ['', 'Haftada 1 kun', 'Haftada 2 kun', 'Haftada 3 kun', 'Haftada 4 kun', 'Haftada 5 kun', 'Haftada 6 kun', 'Har kuni'];
+                var sportLabelEl = document.getElementById('filter-sport-label');
+                if (sportLabelEl) sportLabelEl.textContent = sportLabels[sportDay] || '';
             }
             if (sheetId === 'filter-work-sheet') {
                 initSalarySlider();
@@ -5613,16 +6112,26 @@
                 feedFilterQuran = selQuran ? (selQuran.getAttribute('data-value') || null) : feedFilterQuran;
                 feedFilterMazhab = mEl ? (mEl.getAttribute('data-value') || null) : feedFilterMazhab;
             } else if (sheet === 'filter-physical-sheet') {
-                const ageVal = getIosDialValue('ios-dial-age');
-                const heightVal = getIosDialValue('ios-dial-height');
-                const weightVal = getIosDialValue('ios-dial-weight');
-                if (ageVal != null) { feedFilterAgeMin = Math.max(18, ageVal - 3); feedFilterAgeMax = Math.min(70, ageVal + 3); }
-                if (heightVal != null) { feedFilterHeightMin = Math.max(140, heightVal - 5); feedFilterHeightMax = Math.min(210, heightVal + 5); }
-                if (weightVal != null) { feedFilterWeightMin = Math.max(40, weightVal - 8); feedFilterWeightMax = Math.min(130, weightVal + 8); }
+                const ageMin = getIosDialValue('ios-dial-age-min');
+                const ageMax = getIosDialValue('ios-dial-age-max');
+                const heightMin = getIosDialValue('ios-dial-height-min');
+                const heightMax = getIosDialValue('ios-dial-height-max');
+                const weightMin = getIosDialValue('ios-dial-weight-min');
+                const weightMax = getIosDialValue('ios-dial-weight-max');
+                if (ageMin != null) feedFilterAgeMin = ageMin;
+                if (ageMax != null) feedFilterAgeMax = ageMax;
+                if (heightMin != null) feedFilterHeightMin = heightMin;
+                if (heightMax != null) feedFilterHeightMax = heightMax;
+                if (weightMin != null) feedFilterWeightMin = weightMin;
+                if (weightMax != null) feedFilterWeightMax = weightMax;
+                const smokingBtn = document.querySelector('#filter-physical-sheet .filter-smoking-btn.bg-primary');
+                if (smokingBtn) feedFilterSmoking = smokingBtn.getAttribute('data-value') || null;
+                const sportBars = document.querySelectorAll('#filter-physical-sheet .filter-sport-bar.bg-primary');
+                feedFilterSportDays = sportBars ? sportBars.length : null;
                 const parts = [];
-                if (ageVal) parts.push(ageVal + ' yosh');
-                if (heightVal) parts.push(heightVal + ' sm');
-                if (weightVal) parts.push(weightVal + ' kg');
+                if (feedFilterAgeMin != null || feedFilterAgeMax != null) parts.push((feedFilterAgeMin ?? '?') + '-' + (feedFilterAgeMax ?? '?') + ' yosh');
+                if (feedFilterHeightMin != null || feedFilterHeightMax != null) parts.push((feedFilterHeightMin ?? '?') + '-' + (feedFilterHeightMax ?? '?') + ' sm');
+                if (feedFilterWeightMin != null || feedFilterWeightMax != null) parts.push((feedFilterWeightMin ?? '?') + '-' + (feedFilterWeightMax ?? '?') + ' kg');
                 const sumEl = document.getElementById('filter-physical-summary');
                 if (sumEl) sumEl.textContent = parts.length ? parts.join(', ') : 'Yosh, bo\'y, vazn';
             } else if (sheet === 'filter-education-sheet') {
@@ -5638,6 +6147,7 @@
                 feedFilterHasSalary = (feedFilterSalaryMin > 0 || feedFilterSalaryMax > 0) ? 'true' : null;
             }
             if (sheet && sheet.startsWith('filter-') && sheet.endsWith('-sheet')) {
+                if (typeof invalidateFeedCache === 'function') invalidateFeedCache();
                 pageDataLoaded.feed = false;
                 loadFeedData();
                 updateFilterButtonState();
@@ -5843,14 +6353,18 @@
         }
 
         function initScrollDials() {
-            const filterDefaults = {
-                age: feedFilterAgeMin || feedFilterAgeMax || 26,
-                height: feedFilterHeightMin || feedFilterHeightMax || 178,
-                weight: feedFilterWeightMin || feedFilterWeightMax || 72
-            };
-            initIosDial('ios-dial-age', 18, 70, filterDefaults.age);
-            initIosDial('ios-dial-height', 140, 210, filterDefaults.height);
-            initIosDial('ios-dial-weight', 40, 130, filterDefaults.weight);
+            const ageMin = feedFilterAgeMin != null ? feedFilterAgeMin : 22;
+            const ageMax = feedFilterAgeMax != null ? feedFilterAgeMax : 28;
+            const heightMin = feedFilterHeightMin != null ? feedFilterHeightMin : 165;
+            const heightMax = feedFilterHeightMax != null ? feedFilterHeightMax : 190;
+            const weightMin = feedFilterWeightMin != null ? feedFilterWeightMin : 60;
+            const weightMax = feedFilterWeightMax != null ? feedFilterWeightMax : 90;
+            initIosDial('ios-dial-age-min', 18, 70, Math.min(ageMin, ageMax));
+            initIosDial('ios-dial-age-max', 18, 70, Math.max(ageMin, ageMax));
+            initIosDial('ios-dial-height-min', 140, 210, Math.min(heightMin, heightMax));
+            initIosDial('ios-dial-height-max', 140, 210, Math.max(heightMin, heightMax));
+            initIosDial('ios-dial-weight-min', 40, 130, Math.min(weightMin, weightMax));
+            initIosDial('ios-dial-weight-max', 40, 130, Math.max(weightMin, weightMax));
             
             // Smoking filter click handler
             document.querySelectorAll('.filter-smoking-btn').forEach(btn => {
@@ -6072,8 +6586,9 @@
 
         // Filter funksiyalari
         function initFilterHandlers() {
-            // Chip selection (chip-selected, chip-unselected)
+            // Chip selection (chip-selected, chip-unselected) — profil/yangi e'lon sheetida ishlamasin (o'z handleri bor)
             document.addEventListener('click', (e) => {
+                if (e.target.closest('#profile-edit-sheet')) return;
                 if (e.target.closest('.chip')) {
                     const chip = e.target.closest('.chip');
                     const container = chip.closest('section') || chip.closest('div');
@@ -6095,8 +6610,9 @@
                 }
             });
 
-            // Radio item selection
+            // Radio item selection — profil/yangi e'lon sheetida ishlamasin
             document.addEventListener('click', (e) => {
+                if (e.target.closest('#profile-edit-sheet')) return;
                 if (e.target.closest('.radio-item')) {
                     const radioItem = e.target.closest('.radio-item');
                     const container = radioItem.closest('section') || radioItem.closest('div');
@@ -6308,6 +6824,8 @@
         let feedFilterWeightMax = null;
         let feedFilterSalaryMin = null;
         let feedFilterSalaryMax = null;
+        let feedFilterSmoking = null;
+        let feedFilterSportDays = null;
 
         function clearAllFilters() {
             feedFilterRegions = [];
@@ -6330,6 +6848,8 @@
             feedFilterWeightMax = null;
             feedFilterSalaryMin = null;
             feedFilterSalaryMax = null;
+            feedFilterSmoking = null;
+            feedFilterSportDays = null;
             pageDataLoaded.feed = false;
             const sumEl = document.getElementById('filter-physical-summary');
             if (sumEl) sumEl.textContent = 'Yosh, bo\'y, vazn';
@@ -6353,6 +6873,8 @@
             if (feedFilterHeightMax != null && feedFilterHeightMax > 0) s += '&height_max=' + feedFilterHeightMax;
             if (feedFilterWeightMin != null && feedFilterWeightMin > 0) s += '&weight_min=' + feedFilterWeightMin;
             if (feedFilterWeightMax != null && feedFilterWeightMax > 0) s += '&weight_max=' + feedFilterWeightMax;
+            if (feedFilterSmoking) s += '&smoking=' + encodeURIComponent(feedFilterSmoking);
+            if (feedFilterSportDays != null && feedFilterSportDays > 0) s += '&sport_days_min=' + feedFilterSportDays;
             if (feedFilterHasSalary === 'true') s += '&has_salary=true';
             if (feedFilterSalaryMin != null && feedFilterSalaryMin > 0) s += '&salary_min=' + feedFilterSalaryMin;
             if (feedFilterSalaryMax != null && feedFilterSalaryMax > 0) s += '&salary_max=' + feedFilterSalaryMax;
@@ -6365,6 +6887,7 @@
                 feedFilterEducation || feedFilterProfession || (feedFilterAgeMin != null && feedFilterAgeMin > 0) || (feedFilterAgeMax != null && feedFilterAgeMax > 0) ||
                 (feedFilterHeightMin != null && feedFilterHeightMin > 0) || (feedFilterHeightMax != null && feedFilterHeightMax > 0) ||
                 (feedFilterWeightMin != null && feedFilterWeightMin > 0) || (feedFilterWeightMax != null && feedFilterWeightMax > 0) ||
+                feedFilterSmoking || (feedFilterSportDays != null && feedFilterSportDays > 0) ||
                 feedFilterHasSalary === 'true' || (feedFilterSalaryMin != null && feedFilterSalaryMin > 0) || (feedFilterSalaryMax != null && feedFilterSalaryMax > 0);
         }
 
@@ -6381,18 +6904,28 @@
         function updateFeedGenderUI() {
             const kuyov = document.getElementById('feed-kuyov-btn');
             const kelin = document.getElementById('feed-kelin-btn');
-            // Kuyov tugmasi faol = Kelin (Ayol) ko'rsatiladi; Kelin tugmasi faol = Kuyov (Erkak) ko'rsatiladi
-            if (kuyov) kuyov.className = 'feed-gender-btn h-9 px-3 rounded-full text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5 transition-all active:scale-95 ' + (feedGender === 'Ayol' ? 'feed-gender-kuyov' : 'feed-gender-inactive');
-            if (kelin) kelin.className = 'feed-gender-btn h-9 px-3 rounded-full text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5 transition-all active:scale-95 ' + (feedGender === 'Erkak' ? 'feed-gender-kelin' : 'feed-gender-inactive');
+            // Kelin tugmasi faol = Ayol (kelinlar) ko'rsatiladi; Kuyov tugmasi faol = Erkak (kuyovlar) ko'rsatiladi
+            if (kelin) kelin.className = 'feed-gender-btn h-9 px-3 rounded-full text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5 transition-all active:scale-95 ' + (feedGender === 'Ayol' ? 'feed-gender-kelin' : 'feed-gender-inactive');
+            if (kuyov) kuyov.className = 'feed-gender-btn h-9 px-3 rounded-full text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5 transition-all active:scale-95 ' + (feedGender === 'Erkak' ? 'feed-gender-kuyov' : 'feed-gender-inactive');
         }
         function updateFavoritesGenderUI() {
             const kuyov = document.getElementById('favorites-kuyov-btn');
             const kelin = document.getElementById('favorites-kelin-btn');
-            if (kuyov) kuyov.className = 'feed-gender-btn h-9 px-3 rounded-full text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5 transition-all active:scale-95 ' + (feedGender === 'Ayol' ? 'feed-gender-kuyov' : 'feed-gender-inactive');
-            if (kelin) kelin.className = 'feed-gender-btn h-9 px-3 rounded-full text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5 transition-all active:scale-95 ' + (feedGender === 'Erkak' ? 'feed-gender-kelin' : 'feed-gender-inactive');
+            if (kelin) kelin.className = 'feed-gender-btn h-9 px-3 rounded-full text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5 transition-all active:scale-95 ' + (feedGender === 'Ayol' ? 'feed-gender-kelin' : 'feed-gender-inactive');
+            if (kuyov) kuyov.className = 'feed-gender-btn h-9 px-3 rounded-full text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5 transition-all active:scale-95 ' + (feedGender === 'Erkak' ? 'feed-gender-kuyov' : 'feed-gender-inactive');
         }
         function setFeedGender(gender) {
             if (feedGender === gender) return;
+            var cache = feedCacheByGender[gender];
+            var key = getFeedCacheKey();
+            if (cache && cache.filterKey === key && cache.listings) {
+                feedGender = gender;
+                updateFeedGenderUI();
+                updateFavoritesGenderUI();
+                applyFeedFromCache(cache);
+                if (pageDataLoaded.favorites) renderFavoritesListWithFilter();
+                return;
+            }
             feedGender = gender;
             updateFeedGenderUI();
             updateFavoritesGenderUI();
@@ -6417,21 +6950,21 @@
             }
             const kuyovBtn = document.getElementById('feed-kuyov-btn');
             const kelinBtn = document.getElementById('feed-kelin-btn');
-            if (kuyovBtn) kuyovBtn.addEventListener('click', (e) => { e.preventDefault(); setFeedGender('Ayol'); });   // Kuyov = Kelin (ayollar)
-            if (kelinBtn) kelinBtn.addEventListener('click', (e) => { e.preventDefault(); setFeedGender('Erkak'); });   // Kelin = Kuyov (erkaklar)
+            if (kelinBtn) kelinBtn.addEventListener('click', (e) => { e.preventDefault(); setFeedGender('Ayol'); });   // Kelin = Ayol (kelinlar) ko'rsatiladi
+            if (kuyovBtn) kuyovBtn.addEventListener('click', (e) => { e.preventDefault(); setFeedGender('Erkak'); });   // Kuyov = Erkak (kuyovlar) ko'rsatiladi
             // Asosiy sahifada tugmalar ishlashi uchun event delegation (ustki elementlar blok qilsa ham)
             document.getElementById('page-feed')?.addEventListener('click', function(e) {
                 const t = e.target.closest('#feed-kuyov-btn, #feed-kelin-btn');
                 if (!t) return;
                 e.preventDefault();
-                if (t.id === 'feed-kuyov-btn') setFeedGender('Ayol');
-                else if (t.id === 'feed-kelin-btn') setFeedGender('Erkak');
+                if (t.id === 'feed-kelin-btn') setFeedGender('Ayol');
+                else if (t.id === 'feed-kuyov-btn') setFeedGender('Erkak');
             });
             updateFeedGenderUI();
             const favKuyov = document.getElementById('favorites-kuyov-btn');
             const favKelin = document.getElementById('favorites-kelin-btn');
-            if (favKuyov) favKuyov.addEventListener('click', () => setFeedGender('Ayol'));
-            if (favKelin) favKelin.addEventListener('click', () => setFeedGender('Erkak'));
+            if (favKelin) favKelin.addEventListener('click', () => setFeedGender('Ayol'));
+            if (favKuyov) favKuyov.addEventListener('click', () => setFeedGender('Erkak'));
             const favSort = document.getElementById('favorites-sort-btn');
             const favFilter = document.getElementById('favorites-filter-btn');
             if (favSort) favSort.addEventListener('click', () => { sortSheetContext = 'feed'; openFilterSheet('filter-sort-sheet'); });
@@ -7120,64 +7653,71 @@
                 <button onclick="closeFilterSheet()" class="text-black bg-primary text-[11px] font-black uppercase tracking-widest px-6 py-3 rounded-xl active:scale-95 transition-transform shadow-[0_8px_20px_rgba(64,255,0,0.2)]">Tayyor</button>
             </div>
             <div class="flex-1 overflow-y-auto px-4 pb-10 ios-scroll-hide">
-                <!-- 3 ta iOS-style dial -->
-                <div class="flex items-start justify-center gap-3 w-full pt-2">
-                    <!-- YOSH -->
-                    <div class="ios-dial-wrapper">
-                        <span class="ios-dial-title">YOSH</span>
-                        <div class="ios-dial" id="ios-dial-age" data-min="18" data-max="70">
+                <p class="text-[10px] text-white/40 uppercase tracking-widest mb-3">Bundan — bungacha (min va max)</p>
+                <!-- YOSH Min / Max -->
+                <div class="flex items-start justify-center gap-2 w-full mb-4">
+                    <div class="ios-dial-wrapper flex-1">
+                        <span class="ios-dial-title">YOSH MIN</span>
+                        <div class="ios-dial" id="ios-dial-age-min" data-min="18" data-max="70">
                             <div class="ios-dial-fade-top"></div>
-                            <div class="ios-dial-ticks">
-                                <div class="ios-dial-tick"></div>
-                                <div class="ios-dial-tick"></div>
-                                <div class="ios-dial-tick glow"></div>
-                                <div class="ios-dial-tick glow"></div>
-                                <div class="ios-dial-tick"></div>
-                                <div class="ios-dial-tick"></div>
-                            </div>
-                            <div class="ios-dial-track">
-                                <div class="ios-dial-items"></div>
-                            </div>
+                            <div class="ios-dial-ticks"><div class="ios-dial-tick"></div><div class="ios-dial-tick"></div><div class="ios-dial-tick glow"></div><div class="ios-dial-tick glow"></div><div class="ios-dial-tick"></div><div class="ios-dial-tick"></div></div>
+                            <div class="ios-dial-track"><div class="ios-dial-items"></div></div>
                             <div class="ios-dial-fade-bottom"></div>
                         </div>
                         <span class="ios-dial-label">yosh</span>
                     </div>
-                    <!-- BO'Y -->
-                    <div class="ios-dial-wrapper">
-                        <span class="ios-dial-title">BO'Y</span>
-                        <div class="ios-dial" id="ios-dial-height" data-min="140" data-max="210">
+                    <div class="ios-dial-wrapper flex-1">
+                        <span class="ios-dial-title">YOSH MAX</span>
+                        <div class="ios-dial" id="ios-dial-age-max" data-min="18" data-max="70">
                             <div class="ios-dial-fade-top"></div>
-                            <div class="ios-dial-ticks">
-                                <div class="ios-dial-tick"></div>
-                                <div class="ios-dial-tick"></div>
-                                <div class="ios-dial-tick glow"></div>
-                                <div class="ios-dial-tick glow"></div>
-                                <div class="ios-dial-tick"></div>
-                                <div class="ios-dial-tick"></div>
-                            </div>
-                            <div class="ios-dial-track">
-                                <div class="ios-dial-items"></div>
-                            </div>
+                            <div class="ios-dial-ticks"><div class="ios-dial-tick"></div><div class="ios-dial-tick"></div><div class="ios-dial-tick glow"></div><div class="ios-dial-tick glow"></div><div class="ios-dial-tick"></div><div class="ios-dial-tick"></div></div>
+                            <div class="ios-dial-track"><div class="ios-dial-items"></div></div>
+                            <div class="ios-dial-fade-bottom"></div>
+                        </div>
+                        <span class="ios-dial-label">yosh</span>
+                    </div>
+                </div>
+                <!-- BO'Y Min / Max -->
+                <div class="flex items-start justify-center gap-2 w-full mb-4">
+                    <div class="ios-dial-wrapper flex-1">
+                        <span class="ios-dial-title">BO'Y MIN</span>
+                        <div class="ios-dial" id="ios-dial-height-min" data-min="140" data-max="210">
+                            <div class="ios-dial-fade-top"></div>
+                            <div class="ios-dial-ticks"><div class="ios-dial-tick"></div><div class="ios-dial-tick"></div><div class="ios-dial-tick glow"></div><div class="ios-dial-tick glow"></div><div class="ios-dial-tick"></div><div class="ios-dial-tick"></div></div>
+                            <div class="ios-dial-track"><div class="ios-dial-items"></div></div>
                             <div class="ios-dial-fade-bottom"></div>
                         </div>
                         <span class="ios-dial-label">sm</span>
                     </div>
-                    <!-- VAZN -->
-                    <div class="ios-dial-wrapper">
-                        <span class="ios-dial-title">VAZN</span>
-                        <div class="ios-dial" id="ios-dial-weight" data-min="40" data-max="130">
+                    <div class="ios-dial-wrapper flex-1">
+                        <span class="ios-dial-title">BO'Y MAX</span>
+                        <div class="ios-dial" id="ios-dial-height-max" data-min="140" data-max="210">
                             <div class="ios-dial-fade-top"></div>
-                            <div class="ios-dial-ticks">
-                                <div class="ios-dial-tick"></div>
-                                <div class="ios-dial-tick"></div>
-                                <div class="ios-dial-tick glow"></div>
-                                <div class="ios-dial-tick glow"></div>
-                                <div class="ios-dial-tick"></div>
-                                <div class="ios-dial-tick"></div>
-                            </div>
-                            <div class="ios-dial-track">
-                                <div class="ios-dial-items"></div>
-                            </div>
+                            <div class="ios-dial-ticks"><div class="ios-dial-tick"></div><div class="ios-dial-tick"></div><div class="ios-dial-tick glow"></div><div class="ios-dial-tick glow"></div><div class="ios-dial-tick"></div><div class="ios-dial-tick"></div></div>
+                            <div class="ios-dial-track"><div class="ios-dial-items"></div></div>
+                            <div class="ios-dial-fade-bottom"></div>
+                        </div>
+                        <span class="ios-dial-label">sm</span>
+                    </div>
+                </div>
+                <!-- VAZN Min / Max -->
+                <div class="flex items-start justify-center gap-2 w-full mb-4">
+                    <div class="ios-dial-wrapper flex-1">
+                        <span class="ios-dial-title">VAZN MIN</span>
+                        <div class="ios-dial" id="ios-dial-weight-min" data-min="40" data-max="130">
+                            <div class="ios-dial-fade-top"></div>
+                            <div class="ios-dial-ticks"><div class="ios-dial-tick"></div><div class="ios-dial-tick"></div><div class="ios-dial-tick glow"></div><div class="ios-dial-tick glow"></div><div class="ios-dial-tick"></div><div class="ios-dial-tick"></div></div>
+                            <div class="ios-dial-track"><div class="ios-dial-items"></div></div>
+                            <div class="ios-dial-fade-bottom"></div>
+                        </div>
+                        <span class="ios-dial-label">kg</span>
+                    </div>
+                    <div class="ios-dial-wrapper flex-1">
+                        <span class="ios-dial-title">VAZN MAX</span>
+                        <div class="ios-dial" id="ios-dial-weight-max" data-min="40" data-max="130">
+                            <div class="ios-dial-fade-top"></div>
+                            <div class="ios-dial-ticks"><div class="ios-dial-tick"></div><div class="ios-dial-tick"></div><div class="ios-dial-tick glow"></div><div class="ios-dial-tick glow"></div><div class="ios-dial-tick"></div><div class="ios-dial-tick"></div></div>
+                            <div class="ios-dial-track"><div class="ios-dial-items"></div></div>
                             <div class="ios-dial-fade-bottom"></div>
                         </div>
                         <span class="ios-dial-label">kg</span>

@@ -100,7 +100,12 @@ def onboarding_step5():
         profile = user.profile
         profile.partner_age_min = int(request.form.get('partner_age_min'))
         profile.partner_age_max = int(request.form.get('partner_age_max'))
-        profile.partner_region = request.form.get('partner_region')
+        ploc = request.form.get('partner_locations')
+        if ploc is not None and ploc.strip():
+            profile.partner_locations = ploc.strip()[:4000] or None
+        else:
+            profile.partner_country = request.form.get('partner_country') or profile.partner_country
+            profile.partner_region = request.form.get('partner_region')
         profile.partner_religious_level = request.form.get('partner_religious_level')
         profile.partner_marital_status = request.form.get('partner_marital_status')
 
@@ -185,6 +190,13 @@ def edit():
             weight = request.form.get('weight')
             if weight:
                 profile.weight = int(weight)
+            profile.smoking = (request.form.get('smoking') or '').strip()[:20] or profile.smoking
+            sd = request.form.get('sport_days')
+            if sd is not None and sd != '':
+                try:
+                    profile.sport_days = int(sd) if 0 <= int(sd) <= 7 else profile.sport_days
+                except ValueError:
+                    pass
             
             profile.aqida = request.form.get('aqida') or profile.aqida
             profile.prays = request.form.get('prays') or profile.prays
@@ -210,7 +222,12 @@ def edit():
             if partner_age_max:
                 profile.partner_age_max = int(partner_age_max)
             
-            profile.partner_region = request.form.get('partner_region') or profile.partner_region
+            ploc = request.form.get('partner_locations')
+            if ploc is not None and ploc.strip():
+                profile.partner_locations = ploc.strip()[:4000] or None
+            else:
+                profile.partner_country = request.form.get('partner_country') or profile.partner_country
+                profile.partner_region = request.form.get('partner_region') or profile.partner_region
             profile.partner_religious_level = request.form.get('partner_religious_level') or profile.partner_religious_level
             profile.partner_marital_status = request.form.get('partner_marital_status') or profile.partner_marital_status
 
@@ -304,6 +321,54 @@ def _parse_int(v):
         return None
 
 
+def _normalize_partner_locations(v):
+    """partner_locations ni JSON string yoki list dan to'g'ri TEXT uchun string qilib qaytaradi."""
+    if v is None:
+        return None
+    if isinstance(v, str):
+        v = v.strip()
+        if not v:
+            return None
+        try:
+            import json
+            arr = json.loads(v)
+        except Exception:
+            return None
+    elif isinstance(v, list):
+        arr = v
+    else:
+        return None
+    if not arr:
+        return None
+    out = []
+    for item in arr:
+        if not isinstance(item, dict):
+            continue
+        if item.get('all_countries'):
+            out.append({'all_countries': True})
+            break
+        c = item.get('c') or item.get('country')
+        if not c or not isinstance(c, str):
+            continue
+        c = (c or '')[:100]
+        if item.get('all'):
+            out.append({'c': c, 'all': True})
+        else:
+            r = item.get('r') or item.get('regions') or item.get('region')
+            if isinstance(r, list):
+                regions = [str(x)[:100] for x in r if x][:50]
+            elif r:
+                regions = [str(r)[:100]]
+            else:
+                continue
+            if regions:
+                out.append({'c': c, 'r': regions})
+    if not out:
+        return None
+    import json
+    return json.dumps(out, ensure_ascii=False)[:4000]
+
+
 @profile_bp.route('/api/listings', methods=['POST'])
 @login_required
 def create_listing():
@@ -340,6 +405,8 @@ def create_listing():
             marital_status=(data.get('marital_status') or '')[:20] or None,
             height=_parse_int(data.get('height')),
             weight=_parse_int(data.get('weight')),
+            smoking=(data.get('smoking') or '')[:20] or None,
+            sport_days=(lambda s: s if s is not None and 0 <= s <= 7 else None)(_parse_int(data.get('sport_days'))),
             aqida=(data.get('aqida') or '')[:50] or None,
             prays=(data.get('prays') or '')[:20] or None,
             fasts=(data.get('fasts') or '')[:10] or None,
@@ -352,14 +419,21 @@ def create_listing():
             salary=(data.get('salary') or '').strip()[:100] or None,
             partner_age_min=_parse_int(data.get('partner_age_min')),
             partner_age_max=_parse_int(data.get('partner_age_max')),
+            partner_country=(data.get('partner_country') or '')[:100] or None,
             partner_region=(data.get('partner_region') or '')[:100] or None,
+            partner_locations=_normalize_partner_locations(data.get('partner_locations')),
             partner_religious_level=(data.get('partner_religious_level') or '')[:20] or None,
             partner_marital_status=(data.get('partner_marital_status') or '')[:20] or None,
             bio=(data.get('bio') or '').strip() or None
         )
         # is_published ni faqat ustun mavjud bo'lsa o'rnatish
         try:
-            profile.is_published = _parse_bool(data.get('is_published')) if data.get('is_published') is not None else False
+            is_pub = _parse_bool(data.get('is_published')) if data.get('is_published') is not None else False
+            profile.is_published = is_pub
+            # is_published = True bo'lganda is_active ham True qilish (feed da ko'rsatish uchun)
+            if is_pub:
+                profile.is_active = True
+                profile.activated_at = datetime.utcnow()
         except:
             pass
         db.session.add(profile)
@@ -411,6 +485,11 @@ def update_listing(listing_id):
     profile.marital_status = (data.get('marital_status') or '')[:20] or profile.marital_status
     profile.height = _parse_int(data.get('height')) or profile.height
     profile.weight = _parse_int(data.get('weight')) or profile.weight
+    if data.get('smoking') is not None:
+        profile.smoking = (data.get('smoking') or '')[:20] or None
+    if data.get('sport_days') is not None:
+        v = _parse_int(data.get('sport_days'))
+        profile.sport_days = v if v is not None and 0 <= v <= 7 else profile.sport_days
     profile.aqida = (data.get('aqida') or '')[:50] or profile.aqida
     profile.prays = (data.get('prays') or '')[:20] or profile.prays
     profile.fasts = (data.get('fasts') or '')[:10] or profile.fasts
@@ -424,12 +503,22 @@ def update_listing(listing_id):
     profile.salary = (data.get('salary') or '').strip()[:100] or profile.salary
     profile.partner_age_min = _parse_int(data.get('partner_age_min')) or profile.partner_age_min
     profile.partner_age_max = _parse_int(data.get('partner_age_max')) or profile.partner_age_max
+    profile.partner_country = (data.get('partner_country') or '')[:100] or profile.partner_country
     profile.partner_region = (data.get('partner_region') or '')[:100] or profile.partner_region
+    if data.get('partner_locations') is not None:
+        profile.partner_locations = _normalize_partner_locations(data.get('partner_locations'))
     profile.partner_religious_level = (data.get('partner_religious_level') or '')[:20] or profile.partner_religious_level
     profile.partner_marital_status = (data.get('partner_marital_status') or '')[:20] or profile.partner_marital_status
     profile.bio = (data.get('bio') or '').strip() or profile.bio
     if data.get('is_published') is not None:
         profile.is_published = _parse_bool(data.get('is_published'))
+        # is_published = True bo'lganda is_active ham True qilish (feed da ko'rsatish uchun)
+        if profile.is_published:
+            profile.is_active = True
+            if not profile.activated_at:
+                profile.activated_at = datetime.utcnow()
+        else:
+            profile.is_active = False
     
     try:
         db.session.commit()
@@ -472,10 +561,17 @@ def toggle_listing_publish(listing_id):
     publish = _parse_bool(data.get('publish'))
     
     profile.is_published = publish if publish is not None else not profile.is_published
+    # is_published = True bo'lganda is_active ham True qilish (feed da ko'rsatish uchun)
+    if profile.is_published:
+        profile.is_active = True
+        if not profile.activated_at:
+            profile.activated_at = datetime.utcnow()
+    else:
+        profile.is_active = False
     
     try:
         db.session.commit()
-        return jsonify({'success': True, 'is_published': profile.is_published, 'message': 'E\'lon yoqildi' if profile.is_published else 'E\'lon o\'chirildi'})
+        return jsonify({'success': True, 'is_published': profile.is_published, 'is_active': profile.is_active, 'message': 'E\'lon yoqildi' if profile.is_published else 'E\'lon o\'chirildi'})
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': str(e)}), 500

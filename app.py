@@ -24,6 +24,42 @@ init_db(app)
 def run_migrations():
     from database import db
     with app.app_context():
+        # 0. partner_country ustunini qo'shish (juftga talablari uchun)
+        try:
+            result = db.session.execute(db.text("SHOW COLUMNS FROM profiles LIKE 'partner_country'"))
+            if not result.fetchone():
+                print("📝 partner_country ustuni qo'shilmoqda...")
+                db.session.execute(db.text("ALTER TABLE profiles ADD COLUMN partner_country VARCHAR(100)"))
+                db.session.commit()
+                print("✅ partner_country ustuni qo'shildi")
+        except Exception as e:
+            db.session.rollback()
+            if 'Duplicate' not in str(e) and 'already exists' not in str(e).lower():
+                print(f"⚠️ Migratsiya (partner_country): {e}")
+        # 0.2 smoking, sport_days (jismoniy)
+        try:
+            for col, typ in [('smoking', 'VARCHAR(20)'), ('sport_days', 'INT')]:
+                result = db.session.execute(db.text(f"SHOW COLUMNS FROM profiles LIKE '{col}'"))
+                if not result.fetchone():
+                    db.session.execute(db.text(f"ALTER TABLE profiles ADD COLUMN {col} {typ}"))
+                    db.session.commit()
+                    print(f"✅ {col} ustuni qo'shildi")
+        except Exception as e:
+            db.session.rollback()
+            if 'Duplicate' not in str(e) and 'already exists' not in str(e).lower():
+                print(f"⚠️ Migratsiya (smoking/sport_days): {e}")
+        # 0.1 partner_locations (JSON, ko'p joy tanlash)
+        try:
+            result = db.session.execute(db.text("SHOW COLUMNS FROM profiles LIKE 'partner_locations'"))
+            if not result.fetchone():
+                print("📝 partner_locations ustuni qo'shilmoqda...")
+                db.session.execute(db.text("ALTER TABLE profiles ADD COLUMN partner_locations TEXT"))
+                db.session.commit()
+                print("✅ partner_locations ustuni qo'shildi")
+        except Exception as e:
+            db.session.rollback()
+            if 'Duplicate' not in str(e) and 'already exists' not in str(e).lower():
+                print(f"⚠️ Migratsiya (partner_locations): {e}")
         # 1. is_published ustunini qo'shish
         try:
             result = db.session.execute(db.text("SHOW COLUMNS FROM profiles LIKE 'is_published'"))
@@ -84,6 +120,21 @@ def run_migrations():
             db.session.rollback()
             if "Can't DROP" not in str(e) and "check that" not in str(e).lower() and "Duplicate" not in str(e):
                 print(f"⚠️ Migratsiya (user_id unique): {e}")
+
+        # 3. is_published=True bo'lgan qo'shimcha e'lonlarni is_active=True qilish
+        try:
+            updated = db.session.execute(db.text(
+                "UPDATE profiles SET is_active = 1, activated_at = NOW() "
+                "WHERE is_published = 1 AND (is_active = 0 OR is_active IS NULL)"
+            ))
+            if updated.rowcount > 0:
+                db.session.commit()
+                print(f"✅ {updated.rowcount} ta e'lon is_active=True qilindi")
+            else:
+                db.session.rollback()
+        except Exception as e:
+            db.session.rollback()
+            print(f"⚠️ Migratsiya (is_active sync): {e}")
 
 run_migrations()
 
