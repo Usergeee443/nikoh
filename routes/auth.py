@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, sessio
 from models import User, Profile
 from database import db
 from datetime import datetime
+from sqlalchemy import func
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -47,30 +48,47 @@ def index():
 
 @auth_bp.route('/api/user-data')
 def get_user_data():
-    """Foydalanuvchi ma'lumotlarini olish (SPA uchun)"""
+    """Foydalanuvchi ma'lumotlarini olish (SPA uchun) — eager load, kamroq DB so'rov."""
     user_id = session.get('user_id')
 
     if not user_id:
         return jsonify({'error': 'Avtorizatsiya kerak'}), 401
 
     user = User.query.get(user_id)
-
     if not user:
         return jsonify({'error': 'Foydalanuvchi topilmadi'}), 404
 
+    # Profil, tarif va sent_requests count ni alohida so'rovlarda (property chaqirishdan qochish)
+    from models.tariff import UserTariff
+    from models import MatchRequest
+
+    now = datetime.utcnow()
+    profile = Profile.query.filter_by(user_id=user_id).order_by(
+        Profile.is_primary.desc(), Profile.id
+    ).first()
+
+    active_tariff = UserTariff.query.filter(
+        UserTariff.user_id == user_id,
+        UserTariff.is_active == True,
+        UserTariff.expires_at > now
+    ).first()
+
+    sent_requests_count = db.session.query(func.count(MatchRequest.id)).filter(
+        MatchRequest.sender_id == user_id
+    ).scalar() or 0
+
     profile_data = None
-    if user.profile:
-        profile_data = user.profile.to_dict()
-        profile_data['partner_age_min'] = user.profile.partner_age_min
-        profile_data['partner_age_max'] = user.profile.partner_age_max
-        profile_data['partner_country'] = getattr(user.profile, 'partner_country', None)
-        profile_data['partner_region'] = user.profile.partner_region
-        profile_data['partner_religious_level'] = user.profile.partner_religious_level
-        profile_data['partner_marital_status'] = user.profile.partner_marital_status
+    if profile:
+        profile_data = profile.to_dict()
+        profile_data['partner_age_min'] = profile.partner_age_min
+        profile_data['partner_age_max'] = profile.partner_age_max
+        profile_data['partner_country'] = getattr(profile, 'partner_country', None)
+        profile_data['partner_region'] = profile.partner_region
+        profile_data['partner_religious_level'] = profile.partner_religious_level
+        profile_data['partner_marital_status'] = profile.partner_marital_status
 
     tariff_data = None
-    if user.has_active_tariff:
-        active_tariff = user.active_tariff
+    if active_tariff:
         tariff_data = {
             'has_active_tariff': True,
             'tariff': {
@@ -85,17 +103,18 @@ def get_user_data():
     else:
         tariff_data = {'has_active_tariff': False, 'tariff': None}
 
-    # Sent requests count
-    sent_requests_count = user.sent_requests.count() if hasattr(user, 'sent_requests') else 0
-    
+    profile_basic_complete = profile.basic_complete if profile else False
+    profile_complete = profile.is_complete if profile else False
+    profile_active = profile.is_active if profile else False
+
     return jsonify({
         'user': {
             'id': user.id,
             'telegram_id': user.telegram_id,
-            'profile_basic_complete': user.profile_basic_completed,
-            'profile_complete': user.profile_completed,
-            'profile_active': user.profile.is_active if user.profile else False,
-            'has_active_tariff': user.has_active_tariff,
+            'profile_basic_complete': profile_basic_complete,
+            'profile_complete': profile_complete,
+            'profile_active': profile_active,
+            'has_active_tariff': active_tariff is not None,
             'sent_requests_count': sent_requests_count
         },
         'profile': profile_data,

@@ -1,4 +1,5 @@
 from flask import Flask
+from flask_compress import Compress
 from config import config
 from database import init_db
 from routes import register_blueprints
@@ -13,6 +14,9 @@ app = Flask(__name__)
 # Konfiguratsiya
 env = os.getenv('FLASK_ENV', 'development')
 app.config.from_object(config[env])
+
+# Gzip/Brotli siqish — JSON va HTML uchun tarmoq hajmini kamaytiradi
+Compress(app)
 
 # Session uchun secret key
 app.secret_key = app.config['SECRET_KEY']

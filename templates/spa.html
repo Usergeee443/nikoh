@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>NIKOH - Halol tanishuv</title>
+    <!-- Preconnect: CDN va API uchun ulanishni tezlashtirish -->
+    <link rel="preconnect" href="https://cdn.tailwindcss.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
@@ -2512,8 +2516,10 @@
                 return;
             }
             
-            // Initialize user data and load page
-            initUserData().then(() => {
+            // User-data va (feed bo'lsa) feed ni parallel yuklash — tezroq birinchi ekran
+            const initPromises = [initUserData()];
+            if (currentPage === 'feed') initPromises.push(loadFeedListings(1));
+            Promise.all(initPromises).then(() => {
                 // Obuna holatini tekshirish (har 10 soniyada)
                 setInterval(async () => {
                     try {
@@ -2553,6 +2559,7 @@
                 // Update UI with user data
                 if (currentPage === 'feed') {
                     updateFeedTariffInfo();
+                    if (typeof updateFeedGenderUI === 'function') updateFeedGenderUI();
                 } else if (currentPage === 'profile') {
                     updateProfileUI();
                 }
@@ -2563,14 +2570,13 @@
                     openOnboarding('welcome');
                 } else {
                     onboardingDone = true;
-                // Load page data
-                loadPageData(currentPage);
-                // Asosiy sahifa e'lonlarini tez ko'rsatish uchun backgroundda prefetch
-                if (currentPage !== 'feed') {
-                    setTimeout(function() {
-                        if (typeof loadFeedListings === 'function' && !pageDataLoaded.feed) loadFeedListings(1);
-                    }, 350);
-                }
+                    // Feed allaqachon parallel yuklangan; boshqa sahifalar uchun loadPageData
+                    if (currentPage !== 'feed') {
+                        loadPageData(currentPage);
+                        setTimeout(function() {
+                            if (typeof loadFeedListings === 'function' && !pageDataLoaded.feed) loadFeedListings(1);
+                        }, 350);
+                    }
                 }
             }).catch(err => {
                 console.error('Initialization error:', err);
@@ -3214,11 +3220,14 @@
             // Birinchi sahifa: 1 ta va 20 ta parallel yuklash — qaysi birinchi kelsa tez ko'rsatamiz
             if (page === 1) {
                 const filterParams = buildFeedFilterParams();
-                const urlBase = `/feed/api/listings?page=1&top_only=${topOnly}&gender=${encodeURIComponent(feedGender)}&sort=${encodeURIComponent(feedSort)}${filterParams}`;
+                // userData bo'lmasa gender yuborilmaydi — backend session orqali aniqlaydi va filter_gender qaytaradi
+                const genderParam = (userData && userData.user && userData.user.gender) ? '&gender=' + encodeURIComponent(feedGender) : '';
+                const urlBase = `/feed/api/listings?page=1&top_only=${topOnly}${genderParam}&sort=${encodeURIComponent(feedSort)}${filterParams}`;
                 let fullReceived = false;
                 function applyFull(data) {
                     if (!data || !data.listings || fullReceived) return;
                     fullReceived = true;
+                    if (data.filter_gender) { feedGender = data.filter_gender; if (typeof updateFeedGenderUI === 'function') updateFeedGenderUI(); }
                     const c = document.getElementById('feed-listings');
                     if (skeleton) { skeleton.style.display = 'none'; if (skeleton.parentNode) skeleton.remove(); }
                     if (!c) return;
@@ -3237,6 +3246,7 @@
                 }
                 function applyQuick(data) {
                     if (fullReceived || !data || !data.listings || data.listings.length === 0) return;
+                    if (data.filter_gender) { feedGender = data.filter_gender; if (typeof updateFeedGenderUI === 'function') updateFeedGenderUI(); }
                     if (skeleton) { skeleton.style.display = 'none'; if (skeleton.parentNode) skeleton.remove(); }
                     if (container) container.innerHTML = '';
                     data.listings.forEach(listing => container.appendChild(createFeedListingCard(listing)));

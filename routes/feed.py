@@ -205,14 +205,20 @@ def get_listings():
     favorite_user_ids = set()
     if not quick_first_paint and profiles:
         from models.tariff import UserTariff as UT
+        page_user_ids = [p.user_id for p in profiles]
         rows = db.session.query(UT.user_id).filter(
             UT.is_active == True,
             UT.is_top == True,
-            UT.user_id.in_([p.user_id for p in profiles]),
+            UT.user_id.in_(page_user_ids),
             db.or_(UT.top_expires_at.is_(None), UT.top_expires_at > now)
         ).distinct().all()
         top_user_ids = {r[0] for r in rows}
-        favorite_user_ids = {fav.favorite_user_id for fav in Favorite.query.filter_by(user_id=current_user.id).all()}
+        # Faqat sahifadagi profil user_id lari uchun sevimlilarni tekshirish (kamroq qator)
+        fav_rows = db.session.query(Favorite.favorite_user_id).filter(
+            Favorite.user_id == current_user.id,
+            Favorite.favorite_user_id.in_(page_user_ids)
+        ).all()
+        favorite_user_ids = {r[0] for r in fav_rows}
 
     listings = [
         _listing_dict(
@@ -230,7 +236,8 @@ def get_listings():
         'total': pagination.total,
         'pages': pagination.pages,
         'has_next': pagination.has_next,
-        'has_prev': pagination.has_prev
+        'has_prev': pagination.has_prev,
+        'filter_gender': filter_gender,
     })
 
 
