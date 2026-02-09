@@ -14,7 +14,7 @@
     
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
     
     <!-- Tailwind Config -->
     <script id="tailwind-config">
@@ -376,21 +376,47 @@
             .gold-gradient {
                 background: linear-gradient(135deg, #FFD700 0%, #FFA500 50%, #FF8C00 100%);
             }
+            #app-container { position: relative; min-height: 100vh; }
             .page-container {
-                display: none;
-                animation: fadeIn 0.1s ease-in;
+                position: absolute;
+                top: 0; left: 0; right: 0;
+                min-height: 100%;
+                opacity: 0;
+                visibility: hidden;
+                transform: scale(0.96);
+                pointer-events: none;
+                transition: opacity 0.1s ease-out, transform 0.2s ease-out, visibility 0s linear 0.1s;
             }
             .page-container.active {
-                display: block;
+                opacity: 1;
+                visibility: visible;
+                transform: scale(1);
+                pointer-events: auto;
+                transition-delay: 0s;
+            }
+            .page-container.page-leave {
+                opacity: 0;
+                transform: scale(0.99);
+                transition-duration: 0.1s;
+                transition-delay: 0s;
             }
             /* Chat view sahifasida navbar'ni yashirish */
             #page-chat-view.active ~ nav,
             body:has(#page-chat-view.active) nav {
                 display: none !important;
             }
-            @keyframes fadeIn {
-                from { opacity: 0; transform: translateY(4px); }
-                to { opacity: 1; transform: translateY(0); }
+            /* Tugma/card bosilish effekti — tez va yoqimli */
+            .page-container button,
+            .page-container a[href],
+            .page-container [role="button"],
+            .page-container [onclick] {
+                -webkit-tap-highlight-color: transparent;
+                transition: transform 0.1s ease-out, opacity 0.1s ease-out;
+            }
+            .page-container button:active,
+            .page-container a:active,
+            .page-container [role="button"]:active {
+                transform: scale(0.97);
             }
             /* Onboarding styles */
             .onboarding-dot {
@@ -467,9 +493,23 @@
     </style>
     
     <style>
+        html { height: 100%; overflow-x: hidden; }
         body {
-            min-height: max(884px, 100dvh);
+            min-height: 100dvh;
+            height: 100%;
             overflow-x: hidden;
+            overflow-y: auto;
+            overscroll-behavior-y: contain;
+            -webkit-overflow-scrolling: touch;
+        }
+        body.feed-modal-open {
+            overflow: hidden !important;
+            position: fixed !important;
+            left: 0;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            width: 100%;
         }
         main {
             padding-bottom: 120px;
@@ -523,6 +563,14 @@
                 </a>
             </div>
         </nav>
+
+        <!-- Yuklanish oynasi ishlatilmaydi: user cache bilan darhol ishlaydi, orqada yangi ma'lumot yuklanadi -->
+        <div id="app-loading-overlay" class="fixed inset-0 z-[100] bg-background-dark hidden flex-col items-center justify-center">
+            <div class="flex flex-col items-center gap-4">
+                <div class="size-12 border-2 border-primary/40 border-t-primary rounded-full animate-spin"></div>
+                <p class="text-white/70 text-sm font-bold">Yuklanmoqda...</p>
+            </div>
+        </div>
 
         <!-- ONBOARDING OVERLAY -->
         <div id="onboarding-overlay" class="fixed inset-0 z-50 bg-background-dark flex flex-col max-w-md mx-auto w-full hidden">
@@ -990,6 +1038,9 @@
                                 <span class="material-symbols-outlined text-black text-[18px] font-bold">diamond</span>
                             </div>
                             <h1 class="text-lg logo-text uppercase font-extrabold tracking-wider">Nikoh</h1>
+                            <button type="button" id="feed-refresh-btn" class="size-9 rounded-full glass-card flex items-center justify-center text-white/70 hover:text-primary active:scale-95 transition-all" title="Yangilash">
+                                <span class="material-symbols-outlined text-[20px]">refresh</span>
+                            </button>
                         </div>
                         <div class="flex items-center gap-2">
                             <button type="button" id="feed-kuyov-btn" class="feed-gender-btn h-9 px-3 rounded-full text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5 transition-all active:scale-95" title="Kuyovlar">
@@ -1039,11 +1090,23 @@
                 </div>
             </main>
 
-            <!-- Profil batafsil (alohida sahifa ko'rinishida modal) -->
-            <div id="feed-profile-modal" class="hidden fixed inset-0 z-50 bg-background-dark overflow-y-auto">
-                <div class="max-w-md mx-auto w-full min-h-full bg-background-dark" id="feed-profile-modal-inner">
-                    <div id="feed-profile-content"></div>
+            <!-- Profil batafsil: header va footer qimirlamaydi, faqat kontent scroll -->
+            <div id="feed-profile-modal" class="hidden fixed inset-0 z-50 flex flex-col bg-background-dark" style="height: 100dvh; width: 100vw; max-width: 100%; left: 0; right: 0; top: 0; bottom: 0;">
+                <header id="feed-profile-modal-header" class="shrink-0 z-10 bg-background-dark border-b border-white/5 flex items-center px-5 py-4 safe-area-pt">
+                    <div class="max-w-md mx-auto w-full flex items-center justify-between">
+                        <button type="button" onclick="window.closeFeedModal()" class="size-10 flex items-center justify-center text-white/80 active:scale-95 transition-transform">
+                            <span class="material-symbols-outlined text-[28px]">chevron_left</span>
+                        </button>
+                        <h1 class="text-lg font-extrabold tracking-tight text-white">Profil</h1>
+                        <div id="feed-profile-modal-header-right" class="size-10 flex items-center justify-center"></div>
+                    </div>
+                </header>
+                <div id="feed-profile-modal-scroll" class="flex-1 min-h-0 overflow-y-auto overflow-x-hidden overscroll-behavior-contain" style="-webkit-overflow-scrolling: touch;">
+                    <div class="max-w-md mx-auto w-full bg-background-dark" id="feed-profile-modal-inner">
+                        <div id="feed-profile-content"></div>
+                    </div>
                 </div>
+                <div id="feed-profile-modal-footer" class="hidden shrink-0 p-4 pt-2 bg-background-dark border-t border-white/5 safe-area-pb"></div>
             </div>
         </div>
 
@@ -1171,7 +1234,7 @@
                             <div class="size-7 bg-primary rounded-lg flex items-center justify-center neon-glow">
                                 <span class="material-symbols-outlined text-black text-[18px] font-bold">diamond</span>
                             </div>
-                            <h1 class="text-lg logo-text uppercase font-extrabold tracking-wider">Nikoh</h1>
+                            <h1 class="text-lg logo-text uppercase font-extrabold tracking-wider">Sevimli</h1>
                         </div>
                         <div class="flex items-center gap-2">
                             <button type="button" id="favorites-kuyov-btn" class="feed-gender-btn h-9 px-3 rounded-full text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5 transition-all active:scale-95" title="Kuyovlar">
@@ -1286,185 +1349,132 @@
 
         <!-- PROFILE PAGE -->
         <div id="page-profile" class="page-container">
-            <div class="px-6 pt-14 pb-6">
+            <!-- Skeleton: profil yuklanayotganda -->
+            <div id="profile-skeleton" class="px-6 pt-10 pb-4 hidden">
                 <div class="max-w-md mx-auto flex flex-col items-center">
-                    <div class="relative mb-4">
-                        <div class="size-28 rounded-full p-1.5 glass-card neon-glow border-primary/20">
-                            <div id="profile-avatar" class="w-full h-full rounded-full overflow-hidden border border-white/10 bg-gradient-to-br from-primary/20 to-green-500/20 flex items-center justify-center text-4xl font-bold">
+                    <div class="size-24 rounded-full bg-white/10 animate-pulse mb-3"></div>
+                    <div class="h-6 w-40 bg-white/10 rounded animate-pulse mb-2"></div>
+                    <div class="h-4 w-24 bg-white/10 rounded animate-pulse"></div>
+                </div>
+                <div class="max-w-md mx-auto px-5 mt-6 space-y-3">
+                    <div class="h-14 rounded-2xl bg-white/10 animate-pulse"></div>
+                    <div class="h-12 rounded-2xl bg-white/10 animate-pulse"></div>
+                </div>
+            </div>
+            <div id="profile-content" class="contents">
+            <div class="px-6 pt-10 pb-3">
+                <div class="max-w-md mx-auto flex flex-col items-center">
+                    <div class="relative mb-3">
+                        <div class="size-24 rounded-full p-1.5 glass-card border-primary/20 overflow-hidden">
+                            <div id="profile-avatar" class="w-full h-full rounded-full overflow-hidden border border-white/10 bg-gradient-to-br from-primary/20 to-green-500/20 flex items-center justify-center text-3xl font-bold text-white">
                                 ?
                             </div>
                         </div>
-                        <div class="absolute bottom-1 right-1 bg-primary text-black size-8 rounded-full flex items-center justify-center border-4 border-background-dark">
-                            <span class="material-symbols-outlined text-[18px] font-black">verified</span>
-                        </div>
+                        <button type="button" onclick="window.showPage('profile-edit')" class="absolute bottom-0 right-0 bg-primary text-black size-9 rounded-full flex items-center justify-center border-2 border-background-dark active:scale-95 transition-transform shadow-lg">
+                            <span class="material-symbols-outlined text-[20px]">edit</span>
+                        </button>
                     </div>
-                    <h1 id="profile-name" class="text-2xl font-extrabold tracking-tight">Foydalanuvchi</h1>
-                    <div class="flex items-center gap-2 mt-1.5">
-                        <span id="profile-telegram-id" class="text-[12px] font-black tracking-widest text-primary/80 uppercase">#0</span>
-                        <span class="w-1 h-1 rounded-full bg-white/20"></span>
-                        <span class="text-[10px] font-bold text-primary px-2.5 py-0.5 rounded-full bg-primary/10 border border-primary/20 uppercase tracking-wider">Tasdiqlangan</span>
+                    <h1 id="profile-name" class="text-xl font-extrabold tracking-tight text-white">Foydalanuvchi</h1>
+                    <div class="flex items-center gap-2 mt-1">
+                        <span id="profile-telegram-id" class="text-[11px] font-black tracking-widest text-primary/80 uppercase">#0</span>
+                        <span class="text-[10px] font-bold text-primary/70 px-2 py-0.5 rounded-full bg-primary/10 border border-primary/20 uppercase">Tasdiqlangan</span>
                     </div>
                 </div>
             </div>
 
-            <main class="max-w-md mx-auto px-5 w-full space-y-6" style="padding-bottom: 140px;">
-                <div class="glass-card rounded-3xl p-5 grid grid-cols-3 gap-2">
-                    <div class="flex flex-col items-center border-r border-white/5">
-                        <span class="text-[10px] font-bold text-white/40 uppercase tracking-wider mb-1">Ko'rilganlar</span>
-                        <span id="profile-views" class="text-lg font-extrabold">0</span>
+            <main class="max-w-md mx-auto px-5 w-full space-y-3" style="padding-bottom: 140px;">
+                <!-- Statistika — ixcham -->
+                <div class="glass-card rounded-2xl p-3 grid grid-cols-3 gap-1">
+                    <div class="flex flex-col items-center">
+                        <span id="profile-views" class="text-base font-extrabold text-white">0</span>
+                        <span class="text-[9px] font-bold text-white/40 uppercase tracking-wider">Ko'rilgan</span>
                     </div>
-                    <div class="flex flex-col items-center border-r border-white/5">
-                        <span class="text-[10px] font-bold text-white/40 uppercase tracking-wider mb-1">Sevimlilar</span>
-                        <span id="profile-likes" class="text-lg font-extrabold">0</span>
+                    <div class="flex flex-col items-center border-x border-white/5">
+                        <span id="profile-likes" class="text-base font-extrabold text-white">0</span>
+                        <span class="text-[9px] font-bold text-white/40 uppercase tracking-wider">Sevimlilar</span>
                     </div>
                     <div class="flex flex-col items-center">
-                        <span class="text-[10px] font-bold text-white/40 uppercase tracking-wider mb-1">So'rovlar</span>
-                        <span id="profile-requests" class="text-lg font-extrabold">0</span>
+                        <span id="profile-requests" class="text-base font-extrabold text-white">0</span>
+                        <span class="text-[9px] font-bold text-white/40 uppercase tracking-wider">So'rovlar</span>
                     </div>
                 </div>
-                
-                <div class="space-y-3">
-                    <div class="glass-card rounded-2xl p-4 flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <div class="size-10 rounded-xl bg-white/5 flex items-center justify-center text-white/60">
-                                <span class="material-symbols-outlined text-[22px]">campaign</span>
-                            </div>
-                            <div>
-                                <p class="text-sm font-bold">E'lon holati</p>
-                                <p class="text-[10px] text-white/40">E'lonni hammaga ko'rsatish</p>
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-3">
-                            <span id="profile-status-text" class="text-[10px] font-bold uppercase tracking-tight text-primary">Aktiv</span>
-                            <label class="cursor-pointer">
-                                <input type="checkbox" id="profile-toggle" class="sr-only peer">
-                                <div class="toggle-pill bg-white/10">
-                                    <div class="toggle-circle"></div>
-                                </div>
-                            </label>
-                        </div>
-                    </div>
-                    
-                    <div id="profile-top-btn" class="hidden">
-                        <button onclick="window.showPage('top')" class="w-full gold-gradient p-4 rounded-2xl flex items-center justify-center gap-3 active:scale-[0.97] transition-all shadow-[0_10px_30px_rgba(255,165,0,0.3)]">
-                            <span class="material-symbols-outlined text-black font-bold">rocket_launch</span>
-                            <span class="text-sm font-black text-black uppercase tracking-wider">TOPga olib chiqish</span>
-                        </button>
-                    </div>
-                    
-                    <!-- E'lon yaratish tugmasi -->
-                    <div id="profile-create-ad-btn" class="hidden">
-                        <button onclick="createAd()" class="w-full bg-primary text-black p-4 rounded-2xl flex items-center justify-center gap-3 active:scale-[0.97] transition-all neon-glow font-bold">
-                            <span class="material-symbols-outlined text-[20px]">add_circle</span>
-                            <span class="text-sm uppercase tracking-wider">E'lon yaratish</span>
-                        </button>
-                    </div>
+
+                <!-- TOP va Tariflar -->
+                <div class="grid grid-cols-2 gap-2">
+                    <button type="button" id="profile-top-btn" onclick="window.showPage('top')" class="hidden glass-card rounded-2xl py-2.5 flex items-center justify-center gap-1.5 active:scale-[0.98] border border-amber-500/20">
+                        <span class="material-symbols-outlined text-amber-400 text-[18px]">rocket_launch</span>
+                        <span class="text-[11px] font-bold text-amber-400">TOP</span>
+                    </button>
+                    <button type="button" onclick="window.showPage('tariff')" class="glass-card rounded-2xl py-2.5 flex items-center justify-center gap-1.5 active:scale-[0.98]">
+                        <span class="material-symbols-outlined text-primary text-[18px]">workspace_premium</span>
+                        <span class="text-[11px] font-bold text-white/80">Tariflar</span>
+                    </button>
                 </div>
-                
-                <div class="space-y-2">
-                    <h3 class="px-2 text-[10px] font-black uppercase tracking-[0.2em] text-white/30 mb-3">Asosiy amallar</h3>
-                    <!-- To'liq profil to'ldirish (so'rov yuborish va e'lon joylash uchun) -->
+
+                <div class="space-y-1.5">
                     <div id="profile-full-profile-btn" class="hidden">
-                        <button type="button" onclick="openOnboarding('full')" class="w-full glass-card rounded-2xl p-4 flex items-center justify-between group active:scale-[0.98] transition-transform border border-primary/20 bg-primary/5">
-                            <div class="flex items-center gap-4">
-                                <div class="size-10 rounded-xl bg-primary/20 flex items-center justify-center text-primary">
-                                    <span class="material-symbols-outlined text-[24px]">person_add</span>
+                        <button type="button" onclick="openOnboarding('full')" class="w-full glass-card rounded-2xl py-2.5 px-3 flex items-center justify-between border border-primary/20 bg-primary/5 active:scale-[0.98]">
+                            <div class="flex items-center gap-3">
+                                <div class="size-8 rounded-xl bg-primary/20 flex items-center justify-center text-primary">
+                                    <span class="material-symbols-outlined text-[18px]">person_add</span>
                                 </div>
-                                <div class="text-left">
-                                    <p class="text-sm font-bold text-primary">To'liq profil to'ldirish</p>
-                                    <p class="text-[10px] text-white/50">So'rov yuborish va e'lon joylash uchun</p>
-                                </div>
+                                <p class="text-xs font-bold text-primary">To'liq profil to'ldirish</p>
                             </div>
-                            <span class="material-symbols-outlined text-primary">chevron_right</span>
+                            <span class="material-symbols-outlined text-primary text-[18px]">chevron_right</span>
                         </button>
                     </div>
-                    <button type="button" onclick="window.showPage('tariff')" class="w-full glass-card rounded-2xl p-4 flex items-center justify-between group active:scale-[0.98] transition-transform text-left">
-                        <div class="flex items-center gap-4">
-                            <div class="size-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
-                                <span class="material-symbols-outlined text-[24px]">workspace_premium</span>
+                    <button type="button" onclick="window.showPage('listings')" class="w-full glass-card rounded-2xl py-2.5 px-3 flex items-center justify-between group active:scale-[0.98] text-left">
+                        <div class="flex items-center gap-3">
+                            <div class="size-8 rounded-xl bg-white/5 flex items-center justify-center text-white/60">
+                                <span class="material-symbols-outlined text-[18px]">campaign</span>
                             </div>
-                            <p class="text-sm font-bold">Tariflar (Obuna)</p>
+                            <p class="text-xs font-bold">E'lonlarim</p>
                         </div>
-                        <span class="material-symbols-outlined text-white/20 group-hover:text-primary transition-colors">chevron_right</span>
+                        <span class="material-symbols-outlined text-white/20 text-[18px] group-hover:text-primary">chevron_right</span>
                     </button>
-                    <button type="button" onclick="window.showPage('profile-edit')" class="w-full glass-card rounded-2xl p-4 flex items-center justify-between group active:scale-[0.98] transition-transform text-left">
-                        <div class="flex items-center gap-4">
-                            <div class="size-10 rounded-xl bg-white/5 flex items-center justify-center text-white/60">
-                                <span class="material-symbols-outlined text-[22px]">person_edit</span>
+                    <button type="button" onclick="window.showPage('settings')" class="w-full glass-card rounded-2xl py-2.5 px-3 flex items-center justify-between group active:scale-[0.98] text-left">
+                        <div class="flex items-center gap-3">
+                            <div class="size-8 rounded-xl bg-white/5 flex items-center justify-center text-white/60">
+                                <span class="material-symbols-outlined text-[18px]">settings</span>
                             </div>
-                            <p class="text-sm font-bold">Profilni tahrirlash</p>
+                            <p class="text-xs font-bold">Sozlamalar</p>
                         </div>
-                        <span class="material-symbols-outlined text-white/20 group-hover:text-primary transition-colors">chevron_right</span>
+                        <span class="material-symbols-outlined text-white/20 text-[18px] group-hover:text-primary">chevron_right</span>
                     </button>
-                    <!-- E'lonlarim (aka/opa uchun alohida e'lon yaratish) -->
-                    <div id="profile-listings-section" class="space-y-2">
-                        <h3 class="px-2 text-[10px] font-black uppercase tracking-[0.2em] text-white/30 mb-2">E'lonlarim</h3>
-                        <div id="profile-listings-list" class="space-y-2"></div>
-                        <button type="button" id="profile-add-listing-btn" onclick="window.startNewListing()" class="w-full glass-card rounded-2xl p-4 flex items-center justify-between group active:scale-[0.98] transition-transform border border-dashed border-primary/30 bg-primary/5">
-                            <div class="flex items-center gap-4">
-                                <div class="size-10 rounded-xl bg-primary/20 flex items-center justify-center text-primary">
-                                    <span class="material-symbols-outlined text-[22px]">add_circle</span>
-                                </div>
-                                <div class="text-left">
-                                    <p class="text-sm font-bold text-primary">Yangi e'lon qo'shish</p>
-                                    <p class="text-[10px] text-white/50">Aka, opa, ota uchun alohida e'lon</p>
-                                </div>
-                            </div>
-                            <span class="material-symbols-outlined text-primary">chevron_right</span>
+                    <!-- Qo'llanma, Bog'lanish, Ulashish — yonma-yon, kichik -->
+                    <div class="grid grid-cols-3 gap-2 pt-2">
+                        <button type="button" onclick="window.showPage('guide')" class="glass-card rounded-2xl py-2.5 flex flex-col items-center justify-center gap-1 active:scale-[0.98]">
+                            <span class="material-symbols-outlined text-white/60 text-[20px]">menu_book</span>
+                            <span class="text-[10px] font-bold text-white/70">Qo'llanma</span>
                         </button>
-                    </div>
-                    <button class="w-full glass-card rounded-2xl p-4 flex items-center justify-between group active:scale-[0.98] transition-transform">
-                        <div class="flex items-center gap-4">
-                            <div class="size-10 rounded-xl bg-white/5 flex items-center justify-center text-white/60">
-                                <span class="material-symbols-outlined text-[22px]">settings</span>
-                            </div>
-                            <p class="text-sm font-bold">Sozlamalar</p>
-                        </div>
-                        <span class="material-symbols-outlined text-white/20">chevron_right</span>
-                    </button>
-                    <div class="pt-4 space-y-2">
-                        <h3 class="px-2 text-[10px] font-black uppercase tracking-[0.2em] text-white/30 mb-3">Qo'shimcha</h3>
-                        <button onclick="window.showPage('guide')" class="w-full glass-card rounded-2xl p-4 flex items-center justify-between group active:scale-[0.98] transition-transform">
-                            <div class="flex items-center gap-4">
-                                <div class="size-10 rounded-xl bg-white/5 flex items-center justify-center text-white/60">
-                                    <span class="material-symbols-outlined text-[22px]">menu_book</span>
-                                </div>
-                                <p class="text-sm font-bold">Qo'llanma</p>
-                            </div>
-                            <span class="material-symbols-outlined text-white/20">chevron_right</span>
+                        <button type="button" onclick="window.showPage('contact')" class="glass-card rounded-2xl py-2.5 flex flex-col items-center justify-center gap-1 active:scale-[0.98]">
+                            <span class="material-symbols-outlined text-white/60 text-[20px]">support_agent</span>
+                            <span class="text-[10px] font-bold text-white/70">Bog'lanish</span>
                         </button>
-                        <button onclick="window.showPage('contact')" class="w-full glass-card rounded-2xl p-4 flex items-center justify-between group active:scale-[0.98] transition-transform">
-                            <div class="flex items-center gap-4">
-                                <div class="size-10 rounded-xl bg-white/5 flex items-center justify-center text-white/60">
-                                    <span class="material-symbols-outlined text-[22px]">support_agent</span>
-                                </div>
-                                <p class="text-sm font-bold">Bog'lanish</p>
-                            </div>
-                            <span class="material-symbols-outlined text-white/20">chevron_right</span>
-                        </button>
-                        <button onclick="window.showPage('partnership')" class="w-full glass-card rounded-2xl p-4 flex items-center justify-between group active:scale-[0.98] transition-transform">
-                            <div class="flex items-center gap-4">
-                                <div class="size-10 rounded-xl bg-white/5 flex items-center justify-center text-white/60">
-                                    <span class="material-symbols-outlined text-[22px]">handshake</span>
-                                </div>
-                                <p class="text-sm font-bold">Hamkorlik</p>
-                            </div>
-                            <span class="material-symbols-outlined text-white/20">chevron_right</span>
-                        </button>
-                        <button onclick="window.showPage('share')" class="w-full glass-card rounded-2xl p-4 flex items-center justify-between group active:scale-[0.98] transition-transform">
-                            <div class="flex items-center gap-4">
-                                <div class="size-10 rounded-xl bg-white/5 flex items-center justify-center text-white/60">
-                                    <span class="material-symbols-outlined text-[22px]">share</span>
-                                </div>
-                                <p class="text-sm font-bold">Do'stlar bilan ulashing</p>
-                            </div>
-                            <span class="material-symbols-outlined text-white/20">chevron_right</span>
+                        <button type="button" onclick="window.showPage('share')" class="glass-card rounded-2xl py-2.5 flex flex-col items-center justify-center gap-1 active:scale-[0.98]">
+                            <span class="material-symbols-outlined text-white/60 text-[20px]">share</span>
+                            <span class="text-[10px] font-bold text-white/70">Ulashish</span>
                         </button>
                     </div>
                 </div>
-                <button class="w-full mt-8 py-4 px-6 rounded-2xl border border-red-500/10 bg-red-500/5 text-red-500/60 flex items-center justify-center gap-2 active:scale-95 transition-all">
+            </main>
+            </div>
+        </div>
+
+        <!-- Sozlamalar (Chiqish shu yerda) -->
+        <div id="page-settings" class="page-container">
+            <header class="sticky top-0 z-30 flex items-center justify-between px-5 py-4 backdrop-blur-xl bg-background-dark/80 border-b border-white/5">
+                <div class="flex items-center gap-3">
+                    <button type="button" onclick="window.showPage('profile')" class="size-9 rounded-full glass-card flex items-center justify-center text-white/80 active:scale-95 transition-transform">
+                        <span class="material-symbols-outlined text-[20px]">arrow_back_ios_new</span>
+                    </button>
+                    <h1 class="text-lg font-extrabold tracking-tight text-white">Sozlamalar</h1>
+                </div>
+            </header>
+            <main class="px-5 py-6">
+                <button type="button" onclick="if(confirm('Chiqishni xohlaysizmi?')) window.location.href='/auth/logout';" class="w-full py-3 px-4 rounded-xl border border-red-500/20 bg-red-500/10 text-red-400 flex items-center justify-center gap-2 active:scale-[0.98] font-bold text-sm">
                     <span class="material-symbols-outlined text-[20px]">logout</span>
-                    <span class="text-xs font-black uppercase tracking-[0.2em]">Chiqish</span>
+                    Chiqish
                 </button>
             </main>
         </div>
@@ -1588,6 +1598,25 @@
                         <span class="material-symbols-outlined text-white/30 group-hover:text-primary transition-colors profile-edit-chevron">chevron_right</span>
                     </button>
                 </div>
+            </main>
+        </div>
+
+        <!-- E'lonlar (barcha e'lonlar — 2+ bo'lganda profildan o'tish) -->
+        <div id="page-listings" class="page-container">
+            <header class="sticky top-0 z-30 flex items-center justify-between px-6 py-5 backdrop-blur-xl bg-background-dark/80 border-b border-white/5">
+                <div class="flex items-center gap-3">
+                    <button type="button" onclick="window.showPage('profile')" class="size-10 rounded-full glass-card flex items-center justify-center text-white/80 active:scale-95 transition-transform">
+                        <span class="material-symbols-outlined text-[22px]">arrow_back_ios_new</span>
+                    </button>
+                    <h1 class="text-xl font-extrabold tracking-tight text-white">E'lonlarim</h1>
+                </div>
+            </header>
+            <main class="px-5 pb-32 pt-4">
+                <div id="listings-page-list" class="space-y-2"></div>
+                <button type="button" onclick="window.showNewListingInfoModal()" class="w-full mt-4 glass-card rounded-2xl py-3 flex items-center justify-center gap-2 border border-dashed border-primary/30 bg-primary/5 active:scale-[0.98]">
+                    <span class="material-symbols-outlined text-primary text-[20px]">add_circle</span>
+                    <span class="text-sm font-bold text-primary">Yangi e'lon</span>
+                </button>
             </main>
         </div>
 
@@ -2175,6 +2204,29 @@
             </div>
         </div>
 
+        <!-- Yangi e'lon qo'shish haqida (avval ma'lumot, keyin Boshlash) -->
+        <div id="new-listing-info-modal" class="hidden fixed inset-0 z-[60] flex items-end sm:items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+            <div class="glass-card rounded-2xl p-6 max-w-md w-full shadow-2xl border border-primary/20">
+                <div class="text-center mb-6">
+                    <div class="size-16 mx-auto mb-4 rounded-2xl bg-primary/10 flex items-center justify-center">
+                        <span class="material-symbols-outlined text-primary text-3xl">add_circle</span>
+                    </div>
+                    <h3 class="text-lg font-bold mb-2">Yangi e'lon qo'shish</h3>
+                    <p class="text-sm text-white/60 leading-relaxed">
+                        Aka, opa yoki ota uchun alohida e'lon yaratishingiz mumkin. Har bir e'lon uchun ism, yosh, joylashuv va boshqa ma'lumotlarni to'ldirish talab qilinadi. Boshlash tugmasini bosing va formani to'ldiring.
+                    </p>
+                </div>
+                <div class="space-y-3">
+                    <button type="button" onclick="document.getElementById('new-listing-info-modal').classList.add('hidden'); window.startNewListing();" class="w-full bg-primary text-black font-bold py-3.5 rounded-xl text-sm uppercase tracking-wider active:scale-[0.98] transition-all">
+                        Boshlash
+                    </button>
+                    <button type="button" onclick="document.getElementById('new-listing-info-modal').classList.add('hidden')" class="w-full text-white/50 text-sm py-2">
+                        Yopish
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <!-- To'lov modali (tarif sotib olish — SPA ichida) -->
         <div id="tariff-payment-modal" class="hidden fixed inset-0 z-[60] flex items-end sm:items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
             <div class="glass-card rounded-t-3xl sm:rounded-2xl p-6 max-w-md w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-white/10">
@@ -2244,15 +2296,23 @@
             }
         }
 
-        // Haptic (taptic) helper
-        function hapticTap(type = 'medium') {
+        // Haptic (taptic) — yengil va tez
+        function hapticTap(type = 'light') {
             try {
                 if (tg && tg.HapticFeedback && typeof tg.HapticFeedback.impactOccurred === 'function') {
                     tg.HapticFeedback.impactOccurred(type);
                 }
-            } catch (e) {
-                console.warn('Haptic error', e);
+            } catch (e) {}
+        }
+        // Har bir bosishda darhol haptic (capture — birinchi ishlaydi)
+        function initGlobalHaptic() {
+            function trigger(e) {
+                if (e.target && e.target.closest('button, a, [onclick], [role="button"], .nav-link, .glass-card[onclick], .feed-gender-btn')) {
+                    hapticTap('light');
+                }
             }
+            document.addEventListener('touchend', trigger, { capture: true, passive: true });
+            document.addEventListener('mousedown', trigger, { capture: true, passive: true });
         }
 
         // Global state
@@ -2261,6 +2321,64 @@
         let hasActiveTariff = false;
         let lastTariffCheck = null; // Obuna tekshiruvi uchun
         let onboardingDone = false;
+
+        // Chiqib ketgach qayt kirganda ko'rsatish uchun localStorage cache (7 kun)
+        const NIKOH_CACHE_USER = 'nikoh_user';
+        const NIKOH_CACHE_FEED = 'nikoh_feed';
+        const NIKOH_CACHE_FAVORITES = 'nikoh_favorites';
+        const NIKOH_CACHE_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
+
+        function restoreFromLocalStorage() {
+            try {
+                const rawUser = localStorage.getItem(NIKOH_CACHE_USER);
+                if (rawUser) {
+                    const parsed = JSON.parse(rawUser);
+                    if (parsed && parsed.data && (Date.now() - (parsed.t || 0)) < NIKOH_CACHE_MAX_AGE_MS) {
+                        userData = parsed.data;
+                        hasActiveTariff = parsed.data.tariff && parsed.data.tariff.has_active_tariff;
+                        lastTariffCheck = hasActiveTariff;
+                        if (typeof pageDataLoaded !== 'undefined') pageDataLoaded.profile = true;
+                    }
+                }
+                const rawFeed = localStorage.getItem(NIKOH_CACHE_FEED);
+                if (rawFeed) {
+                    const parsed = JSON.parse(rawFeed);
+                    if (parsed && (Date.now() - (parsed.t || 0)) < NIKOH_CACHE_MAX_AGE_MS && parsed.Ayol) {
+                        if (typeof feedCacheByGender !== 'undefined') {
+                            feedCacheByGender.Ayol = parsed.Ayol;
+                            feedCacheByGender.Erkak = parsed.Erkak || null;
+                        }
+                        if (parsed.feedGender && typeof feedGender !== 'undefined') feedGender = parsed.feedGender;
+                    }
+                }
+                const rawFav = localStorage.getItem(NIKOH_CACHE_FAVORITES);
+                if (rawFav) {
+                    const parsed = JSON.parse(rawFav);
+                    if (parsed && parsed.favorites && Array.isArray(parsed.favorites) && (Date.now() - (parsed.t || 0)) < NIKOH_CACHE_MAX_AGE_MS) {
+                        try { favoritesCache = parsed.favorites.filter(f => f && f.favorite_user); } catch (e) {}
+                    }
+                }
+            } catch (e) { console.warn('Cache restore:', e); }
+        }
+
+        function saveUserDataToCache() {
+            try {
+                if (userData) localStorage.setItem(NIKOH_CACHE_USER, JSON.stringify({ t: Date.now(), data: userData }));
+            } catch (e) {}
+        }
+
+        function saveFeedToCache() {
+            try {
+                if (typeof feedCacheByGender !== 'undefined' && (feedCacheByGender.Ayol || feedCacheByGender.Erkak))
+                    localStorage.setItem(NIKOH_CACHE_FEED, JSON.stringify({ t: Date.now(), Ayol: feedCacheByGender.Ayol, Erkak: feedCacheByGender.Erkak, feedGender: typeof feedGender !== 'undefined' ? feedGender : 'Ayol' }));
+            } catch (e) {}
+        }
+        function saveFavoritesToCache() {
+            try {
+                if (typeof favoritesCache !== 'undefined' && favoritesCache.length >= 0)
+                    localStorage.setItem(NIKOH_CACHE_FAVORITES, JSON.stringify({ t: Date.now(), favorites: favoritesCache }));
+            } catch (e) {}
+        }
 
         // Davlatlar va viloyatlar (barcha joylarda ishlatiladi)
         const LOCATION_COUNTRIES_REGIONS = {
@@ -2341,29 +2459,48 @@
         };
 
         // Sahifa ma'lumotlari faqat 1 marta yuklanadi (sahifadan sahifaga qaytganda qayta yuklanmaydi)
-        let pageDataLoaded = { feed: false, chats: false, favorites: false, profile: false, requests: false };
+        let pageDataLoaded = { feed: false, chats: false, favorites: false, profile: false, requests: false, listings: false, tariff: false };
         window.invalidatePageCache = function(pageName) {
             if (pageDataLoaded[pageName] !== undefined) pageDataLoaded[pageName] = false;
         };
 
-        // Page navigation - INSTANT + haptic
+        // Page navigation — ozgina qimirlash, tez (Xabarlar: faqat birinchi kirganda yuklanadi, sahifa almashganda qayta yuklanmaydi)
         window.showPage = function(pageName) {
             if (currentPage === pageName) return;
-            hapticTap('light');
             
-            // Hide all pages instantly
-            document.querySelectorAll('.page-container').forEach(page => {
-                page.classList.remove('active');
-            });
-            
+            const currentEl = document.querySelector('.page-container.active');
             const targetPage = document.getElementById(`page-${pageName}`);
-            if (targetPage) {
+            if (!targetPage) return;
+            
+            var switched = false;
+            function doSwitch() {
+                if (switched) return;
+                switched = true;
+                if (currentEl) currentEl.classList.remove('active', 'page-leave');
                 targetPage.classList.add('active');
                 currentPage = pageName;
                 updateNav(pageName);
-                // Faqat birinchi marta yuklash; keyin cache'dan
                 setTimeout(() => loadPageData(pageName), 0);
                 window.scrollTo({ top: 0, behavior: 'instant' });
+            }
+            
+            if (currentEl && currentEl !== targetPage) {
+                currentEl.classList.add('page-leave');
+                targetPage.classList.add('active');
+                currentPage = pageName;
+                updateNav(pageName);
+                setTimeout(() => loadPageData(pageName), 0);
+                window.scrollTo({ top: 0, behavior: 'instant' });
+                currentEl.addEventListener('transitionend', function onEnd(e) {
+                    if (e.target !== currentEl || e.propertyName !== 'opacity') return;
+                    if (currentEl.classList.contains('page-leave')) {
+                        currentEl.classList.remove('active', 'page-leave');
+                    }
+                }, { once: true });
+                setTimeout(function() { currentEl.classList.remove('active', 'page-leave'); }, 120);
+            } else {
+                if (currentEl) currentEl.classList.remove('active');
+                doSwitch();
             }
         };
 
@@ -2423,6 +2560,19 @@
         }
 
         function initApp() {
+            initGlobalHaptic();
+            var modalEl = document.getElementById('feed-profile-modal');
+            if (modalEl && modalEl.parentNode && modalEl.parentNode !== document.body) {
+                document.body.appendChild(modalEl);
+            }
+            restoreFromLocalStorage();
+            // Oldin kirgan bo'lsa: cache bilan darhol ko'rsatish, keyin orqada yangi ma'lumot yuklanadi
+            if (currentPage === 'feed' && typeof applyFeedFromCache === 'function' && typeof feedCacheByGender !== 'undefined' && typeof feedGender !== 'undefined' && feedCacheByGender[feedGender] && feedCacheByGender[feedGender].listings && feedCacheByGender[feedGender].listings.length > 0) {
+                applyFeedFromCache(feedCacheByGender[feedGender]);
+                if (typeof updateFeedGenderUI === 'function') updateFeedGenderUI();
+            }
+            if (userData && currentPage === 'feed' && typeof updateFeedTariffInfo === 'function') updateFeedTariffInfo();
+
             // Welcome va oddiy ro'yxatdan o'tish
             const welcomeStartBtn = document.getElementById('welcome-start-btn');
             if (welcomeStartBtn) {
@@ -2507,16 +2657,12 @@
             const chatMatch = urlPath.match(/^\/chat\/(\d+)$/);
             if (chatMatch) {
                 const chatId = parseInt(chatMatch[1]);
-                // URL'ni o'zgartirish (history'da chat_id qoldirmaslik uchun)
                 window.history.replaceState({}, '', '/');
-                // User data yuklangandan keyin chat view'ni ochish
-                initUserData().then(() => {
-                    showChatView(chatId);
-                });
+                initUserData().then(() => { showChatView(chatId); });
                 return;
             }
             
-            // User-data va (feed bo'lsa) feed ni parallel yuklash — tezroq birinchi ekran
+            // Orqada yangi ma'lumot yuklanadi (user kutmaydi, cache bilan ishlaydi)
             const initPromises = [initUserData()];
             if (currentPage === 'feed') initPromises.push(loadFeedListings(1));
             Promise.all(initPromises).then(() => {
@@ -2554,7 +2700,7 @@
                     } catch (error) {
                         console.error('Error checking tariff status:', error);
                     }
-                }, 10000); // 10 soniyada bir marta
+                }, 30000); // 30 soniyada bir marta (kamroq yuk, tezroq ilova)
                 
                 // Update UI with user data
                 if (currentPage === 'feed') {
@@ -2578,8 +2724,24 @@
                         }, 350);
                     }
                 }
-            }).catch(err => {
-                console.error('Initialization error:', err);
+            }).catch(err => { console.error('Initialization error:', err); });
+
+            // Asosiy sahifa: Nikoh yonidagi Yangilash tugmasi
+            document.getElementById('feed-refresh-btn')?.addEventListener('click', async function() {
+                const btn = this;
+                const icon = btn.querySelector('.material-symbols-outlined');
+                if (!icon) return;
+                btn.disabled = true;
+                icon.classList.add('animate-spin');
+                try {
+                    pageDataLoaded.feed = false;
+                    await initUserData();
+                    await loadFeedData();
+                    if (typeof updateFeedGenderUI === 'function') updateFeedGenderUI();
+                } finally {
+                    btn.disabled = false;
+                    icon.classList.remove('animate-spin');
+                }
             });
         }
 
@@ -2587,19 +2749,19 @@
         async function loadPageData(pageName) {
             switch(pageName) {
                 case 'feed':
-                    if (pageDataLoaded.feed) { updateFeedTariffInfo(); return; }
+                    if (pageDataLoaded.feed) { updateFeedTariffInfo(); if (!pageDataLoaded.profile) loadProfileData().catch(function() {}); return; }
                     await loadFeedData();
+                    if (!pageDataLoaded.profile) loadProfileData().catch(function() {});
                     break;
                 case 'requests':
-                    if (pageDataLoaded.requests) { updateRequestsTariffInfo(); return; }
                     if (requestsCurrentTab !== 'received' && requestsCurrentTab !== 'sent') {
                         switchRequestsTab('received');
                     }
+                    pageDataLoaded.requests = false;
                     await loadRequestsData();
                     break;
                 case 'chats':
-                    if (pageDataLoaded.chats) return;
-                    await loadChatsData();
+                    if (!pageDataLoaded.chats) await loadChatsData();
                     break;
                 case 'chat-view':
                     if (currentChatId) await loadChatView(currentChatId);
@@ -2610,8 +2772,19 @@
                     break;
                 case 'profile':
                     await initUserData();
-                    if (pageDataLoaded.profile) { updateProfileUI(); return; }
+                    if (pageDataLoaded.profile) {
+                        document.getElementById('profile-skeleton')?.classList.add('hidden');
+                        document.getElementById('profile-content')?.classList.remove('hidden');
+                        if (document.getElementById('profile-content')?.style) document.getElementById('profile-content').style.display = '';
+                        updateProfileUI();
+                        return;
+                    }
+                    document.getElementById('profile-skeleton')?.classList.remove('hidden');
+                    var pc = document.getElementById('profile-content');
+                    if (pc) { pc.classList.add('hidden'); pc.style.display = 'none'; }
                     await loadProfileData();
+                    document.getElementById('profile-skeleton')?.classList.add('hidden');
+                    if (pc) { pc.classList.remove('hidden'); pc.style.display = ''; }
                     break;
                 case 'profile-edit':
                     await loadProfileEditPage();
@@ -2621,7 +2794,14 @@
                     updateAddListingSummaries();
                     break;
                 case 'tariff':
+                    if (pageDataLoaded.tariff) return;
                     await loadTariffPageData();
+                    break;
+                case 'listings':
+                    if (pageDataLoaded.listings) return;
+                    await loadListingsPageData();
+                    break;
+                case 'settings':
                     break;
             }
         }
@@ -2662,6 +2842,7 @@
                         </div>
                         <p class="text-white/40 text-center text-sm mt-4">Aktiv tarifingiz mavjud. Yangi tarif kerak bo'lsa, obuna tugagach qayta kirishingiz mumkin.</p>
                     `;
+                    pageDataLoaded.tariff = true;
                     return;
                 }
 
@@ -2677,6 +2858,7 @@
                 container.innerHTML = '';
                 if (tariffs.length === 0) {
                     container.innerHTML = '<p class="text-white/50 text-center py-8">Tariflar topilmadi</p>';
+                    pageDataLoaded.tariff = true;
                     return;
                 }
                 tariffs.forEach(t => {
@@ -2702,6 +2884,7 @@
                     `;
                     container.appendChild(card);
                 });
+                pageDataLoaded.tariff = true;
             } catch (e) {
                 console.error(e);
                 container.innerHTML = '<p class="text-red-400 text-center py-8">Xatolik yuz berdi</p>';
@@ -3092,6 +3275,7 @@
                 userData = newUserData;
                 hasActiveTariff = newHasActiveTariff;
                 lastTariffCheck = hasActiveTariff;
+                saveUserDataToCache();
                 console.log('User data loaded:', userData);
             } catch (error) {
                 console.error('Error loading user data:', error);
@@ -3149,6 +3333,7 @@
                         var key = getFeedCacheKey();
                         if (!feedCacheByGender[other] || feedCacheByGender[other].filterKey !== key) {
                             feedCacheByGender[other] = { listings: data.listings.slice(), has_next: !!data.has_next, filterKey: key };
+                            saveFeedToCache();
                         }
                     }
                 })
@@ -3243,6 +3428,7 @@
                     feedCacheByGender[feedGender] = { listings: (data.listings || []).slice(), has_next: !!data.has_next, filterKey: getFeedCacheKey() };
                     const lm = document.getElementById('feed-load-more');
                     if (lm) lm.classList.toggle('hidden', !feedHasMore);
+                    saveFeedToCache();
                 }
                 function applyQuick(data) {
                     if (fullReceived || !data || !data.listings || data.listings.length === 0) return;
@@ -3256,6 +3442,7 @@
                     feedCacheByGender[feedGender] = { listings: (data.listings || []).slice(), has_next: !!data.has_next, filterKey: getFeedCacheKey() };
                     const lm = document.getElementById('feed-load-more');
                     if (lm) lm.classList.toggle('hidden', !feedHasMore);
+                    saveFeedToCache();
                 }
                 try {
                     const quickPromise = fetch(urlBase + '&per_page=1', { method: 'GET', headers: feedHeaders, credentials: 'same-origin' })
@@ -3484,24 +3671,20 @@
         
         window.toggleFavorite = toggleFavorite;
 
+        function updateFeedModalHeaderFavorite(userId, isFavorite) {
+            const el = document.getElementById('feed-profile-modal-header-right');
+            if (!el) return;
+            const fav = !!isFavorite;
+            el.innerHTML = '<button type="button" onclick="event.stopPropagation(); window.toggleFavorite(' + userId + ', this)" class="size-10 rounded-full flex items-center justify-center transition-colors ' + (fav ? 'text-red-400 bg-red-500/20' : 'text-white/80 hover:text-red-400 hover:bg-red-500/10') + '" data-is-favorite="' + fav + '"><span class="material-symbols-outlined text-[22px]" style="' + (fav ? 'font-variation-settings: \'FILL\' 1' : '') + '">favorite</span></button>';
+        }
+
         function renderFeedModalContent(profile, userId, actionHtml) {
             const bioEsc = (profile.bio || '').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
             const gradients = ['linear-gradient(135deg, #667eea 0%, #764ba2 100%)','linear-gradient(135deg, #f093fb 0%, #f5576c 100%)','linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)','linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)','linear-gradient(135deg, #fa709a 0%, #fee140 100%)','linear-gradient(135deg, #30cfd0 0%, #330867 100%)','linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)','linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)','linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)','linear-gradient(135deg, #ff6e7f 0%, #bfe9ff 100%)'];
             const gradientIndex = (profile.user_id || userId || 0) % gradients.length;
             const gradient = gradients[gradientIndex];
             return `
-                <header class="sticky top-0 z-50 bg-background-dark/95 backdrop-blur-xl border-b border-white/5 flex items-center px-5 py-4">
-                    <div class="max-w-md mx-auto w-full flex items-center justify-between">
-                        <button type="button" onclick="window.closeFeedModal()" class="size-10 flex items-center justify-center text-white/80 active:scale-95 transition-transform">
-                            <span class="material-symbols-outlined text-[28px]">chevron_left</span>
-                        </button>
-                        <h1 class="text-lg font-extrabold tracking-tight text-white">Profil</h1>
-                        <div class="size-10 flex items-center justify-center">
-                            <span class="material-symbols-outlined text-white/40 text-[22px]">more_horiz</span>
-                        </div>
-                    </div>
-                </header>
-                <main class="max-w-md mx-auto" style="padding-bottom: 120px;">
+                <main class="max-w-md mx-auto px-0" style="padding-bottom: 24px;">
                     <section class="relative h-[45vh] w-full overflow-hidden">
                         <div class="absolute inset-0" style="background: ${gradient}"></div>
                         <div class="absolute inset-0 profile-gradient"></div>
@@ -3586,111 +3769,190 @@
                         </div>
                         ` : ''}
                         ${bioEsc ? `<div class="glass-card rounded-2xl p-5"><h3 class="text-[13px] font-black uppercase tracking-widest text-primary mb-3">O'zim haqimda</h3><p class="text-[14px] leading-relaxed text-white/80 font-medium">${bioEsc}</p></div>` : ''}
-                        <div id="feed-profile-other-listings"></div>
-                        <div id="feed-profile-action">${actionHtml}</div>
+                        <div id="feed-profile-similar-listings" class="glass-card rounded-xl p-3">
+                            <div class="flex items-center gap-2 mb-2 border-b border-white/5 pb-2">
+                                <span class="material-symbols-outlined text-primary text-[16px]">recommend</span>
+                                <h3 class="text-[11px] font-black uppercase tracking-widest text-white/80">Tafsiya qilinadigan e'lonlar</h3>
+                            </div>
+                            <div id="feed-profile-similar-listings-body" class="flex gap-2 overflow-x-auto ios-scroll-hide pb-1 -mx-1" style="-webkit-overflow-scrolling: touch;">
+                                <p class="text-white/40 text-[11px] py-4 flex items-center gap-2 shrink-0"><span class="animate-spin rounded-full h-3 w-3 border border-primary border-t-transparent"></span>Tafsiya qilinadigan e'lonlar yuklanmoqda</p>
+                            </div>
+                        </div>
                         </div>
                 </main>
             `;
         }
 
-        function renderOtherListingsSection(otherListings, userId) {
-            if (!otherListings || !otherListings.length) return '';
+        function renderSimilarListingsCards(listings) {
+            if (!listings || !listings.length) return '';
             const gradients = ['linear-gradient(135deg, #667eea 0%, #764ba2 100%)','linear-gradient(135deg, #f093fb 0%, #f5576c 100%)','linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)','linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)','linear-gradient(135deg, #fa709a 0%, #fee140 100%)','linear-gradient(135deg, #30cfd0 0%, #330867 100%)'];
-            const cards = otherListings.map(function(listing) {
-                const gIdx = (listing.id || 0) % gradients.length;
-                return `<div onclick="showFeedProfile(${userId}, ${listing.id})" class="flex-shrink-0 w-[180px] glass-card rounded-2xl overflow-hidden cursor-pointer active:scale-95 transition-transform border border-white/10">
-                    <div class="h-24 w-full" style="background: ${gradients[gIdx]}"></div>
-                    <div class="p-3">
-                        <p class="text-[13px] font-bold text-white truncate">${listing.name || 'Noma\'lum'}, ${listing.age || '?'}</p>
-                        <p class="text-[11px] text-white/50 truncate">${listing.region || ''}</p>
-                        <p class="text-[10px] text-white/40 mt-1">${listing.profession || ''} ${listing.marital_status ? '· ' + listing.marital_status : ''}</p>
+            return listings.map(function(l) {
+                const gIdx = (l.id || 0) % gradients.length;
+                return `<div onclick="window.closeFeedModal(); showFeedProfile(${l.user_id}, ${l.id || 0})" class="flex-shrink-0 w-[calc(50%-4px)] min-w-[140px] max-w-[168px] glass-card rounded-xl overflow-hidden cursor-pointer active:scale-95 transition-transform border border-white/10">
+                    <div class="h-16 w-full" style="background: ${gradients[gIdx]}"></div>
+                    <div class="p-2">
+                        <p class="text-[11px] font-bold text-white truncate">${(l.name || 'Noma\'lum')}, ${l.age || '?'}</p>
+                        <p class="text-[9px] text-white/50 truncate">${l.region || ''}</p>
+                        <p class="text-[8px] text-white/40 mt-0.5 truncate">${l.profession || ''} ${l.marital_status ? '· ' + l.marital_status : ''}</p>
                     </div>
                 </div>`;
             }).join('');
-            return `<div class="glass-card rounded-2xl p-4">
-                <div class="flex items-center gap-2 mb-3 border-b border-white/5 pb-2">
-                    <span class="material-symbols-outlined text-primary text-[20px]">group</span>
-                    <h3 class="text-[12px] font-black uppercase tracking-widest text-white/80">Boshqa e'lonlari (${otherListings.length})</h3>
-                </div>
-                <div class="flex gap-3 overflow-x-auto ios-scroll-hide pb-1">${cards}</div>
-            </div>`;
         }
+
+        function loadSimilarListings(profile, excludeUserId, callback) {
+            const gender = profile.gender || (feedGender === 'Erkak' ? 'Ayol' : 'Erkak');
+            const region = profile.region ? encodeURIComponent(profile.region) : '';
+            var urlWithRegion = '/feed/api/listings?page=1&per_page=8&gender=' + encodeURIComponent(gender) + '&exclude_user_id=' + excludeUserId + (region ? '&regions=' + region : '');
+            var urlNoRegion = '/feed/api/listings?page=1&per_page=8&gender=' + encodeURIComponent(gender) + '&exclude_user_id=' + excludeUserId;
+            fetch(urlWithRegion, { method: 'GET', headers: { 'X-Requested-With': 'XMLHttpRequest' }, credentials: 'same-origin' })
+                .then(r => r.ok ? r.json() : null)
+                .then(function(data) {
+                    var list = (data && data.listings) || [];
+                    if (list.length > 0) {
+                        if (typeof callback === 'function') callback(list);
+                        return;
+                    }
+                    return fetch(urlNoRegion, { method: 'GET', headers: { 'X-Requested-With': 'XMLHttpRequest' }, credentials: 'same-origin' })
+                        .then(function(r) { return r.ok ? r.json() : null; })
+                        .then(function(data2) {
+                            var list2 = (data2 && data2.listings) || [];
+                            if (typeof callback === 'function') callback(list2);
+                        })
+                        .catch(function() { if (typeof callback === 'function') callback([]); });
+                })
+                .catch(function() {
+                    fetch(urlNoRegion, { method: 'GET', headers: { 'X-Requested-With': 'XMLHttpRequest' }, credentials: 'same-origin' })
+                        .then(function(r) { return r.ok ? r.json() : null; })
+                        .then(function(data2) {
+                            var list2 = (data2 && data2.listings) || [];
+                            if (typeof callback === 'function') callback(list2);
+                        })
+                        .catch(function() { if (typeof callback === 'function') callback([]); });
+                });
+        }
+
+        var feedModalSavedScrollY = 0;
 
         function showFeedProfileFromListing(listing) {
             const modal = document.getElementById('feed-profile-modal');
             const content = document.getElementById('feed-profile-content');
+            const footer = document.getElementById('feed-profile-modal-footer');
+            const scrollEl = document.getElementById('feed-profile-modal-scroll');
+            const nav = document.querySelector('nav');
             if (!modal || !content) return;
             hapticTap('light');
+            feedModalSavedScrollY = window.scrollY ?? document.documentElement.scrollTop ?? document.body.scrollTop ?? 0;
+            window.scrollTo(0, 0);
             const userId = listing.user_id;
-            const actionPlaceholder = '<div class="mt-6 py-4 rounded-2xl text-center text-white/40 text-sm">Yuklanmoqda...</div>';
-            content.innerHTML = renderFeedModalContent(listing, userId, actionPlaceholder);
+            content.innerHTML = renderFeedModalContent(listing, userId, '');
+            if (scrollEl) scrollEl.scrollTop = 0;
+            if (footer) { footer.classList.remove('hidden'); footer.innerHTML = '<div class="max-w-md mx-auto"><div class="h-14 rounded-2xl bg-white/10 animate-pulse"></div></div>'; }
+            if (nav) nav.style.display = 'none';
+            updateFeedModalHeaderFavorite(userId, listing.is_favorite);
+            document.body.classList.add('feed-modal-open');
             modal.classList.remove('hidden');
+            modal.style.opacity = '0';
+            modal.style.transform = 'scale(0.98)';
+            requestAnimationFrame(function() { modal.style.transition = 'opacity 0.2s ease-out, transform 0.2s ease-out'; modal.style.opacity = '1'; modal.style.transform = 'scale(1)'; });
+            var similarGender = (typeof feedGender !== 'undefined' ? feedGender : 'Ayol');
+            loadSimilarListings({ gender: similarGender, region: listing.region }, userId, function(similar) {
+                const bodyEl = document.getElementById('feed-profile-similar-listings-body');
+                if (!bodyEl) return;
+                if (similar.length === 0) {
+                    bodyEl.innerHTML = '<p class="text-white/40 text-[11px] py-2">Tafsiya qilinadigan e\'lonlar topilmadi</p>';
+                    return;
+                }
+                bodyEl.innerHTML = renderSimilarListingsCards(similar);
+            });
             const profileId = listing.id || '';
-            const url = profileId ? `/feed/api/listing/${userId}?profile_id=${profileId}` : `/feed/api/listing/${userId}`;
+            const url = profileId ? '/feed/api/listing/' + userId + '?profile_id=' + profileId : '/feed/api/listing/' + userId;
             fetch(url, { method: 'GET', headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }, credentials: 'same-origin' })
                 .then(r => r.ok ? r.json() : null)
                 .then(profile => {
                     if (!profile) return;
                     let actionHtml;
                     if (profile.request_sent && profile.request_status === 'accepted' && profile.chat_id) {
-                        actionHtml = `<button onclick="window.closeFeedModal(); window.showChatView(${profile.chat_id})" class="mt-0 w-full h-14 bg-gradient-to-r from-primary to-green-500 rounded-2xl flex items-center justify-center gap-2 text-black font-extrabold text-[15px] tracking-widest uppercase neon-glow active:scale-95 transition-all">CHATGA O'TISH 💬</button>`;
+                        actionHtml = '<button onclick="window.closeFeedModal(); window.showChatView(' + profile.chat_id + ')" class="w-full h-14 bg-gradient-to-r from-primary to-green-500 rounded-2xl flex items-center justify-center gap-2 text-black font-extrabold text-[15px] tracking-widest uppercase neon-glow active:scale-95">CHATGA O\'TISH 💬</button>';
                     } else if (profile.request_sent && profile.request_status === 'pending' && profile.is_sender) {
-                        actionHtml = '<div class="mt-0 glass-card p-4 rounded-2xl text-center text-white/60">So\'rov yuborilgan, javob kutilmoqda</div>';
+                        actionHtml = '<div class="glass-card p-4 rounded-2xl text-center text-white/60">So\'rov yuborilgan, javob kutilmoqda</div>';
                     } else if (profile.request_sent && profile.request_status === 'pending' && !profile.is_sender) {
-                        actionHtml = '<div class="mt-0 glass-card p-4 rounded-2xl text-center text-white/60">Sizga so\'rov yuborilgan. So\'rovlar bo\'limida ko\'ring</div>';
+                        actionHtml = '<div class="glass-card p-4 rounded-2xl text-center text-white/60">Sizga so\'rov yuborilgan. So\'rovlar bo\'limida ko\'ring</div>';
                     } else if (profile.request_sent && profile.request_status === 'rejected') {
-                        actionHtml = '<div class="mt-0 glass-card p-4 rounded-2xl text-center text-white/60">So\'rov rad etilgan</div>';
+                        actionHtml = '<div class="glass-card p-4 rounded-2xl text-center text-white/60">So\'rov rad etilgan</div>';
                     } else {
-                        const profileId = profile.id || '';
-                        actionHtml = `<button onclick="window.sendFeedRequest(${userId}, ${profileId})" class="mt-0 w-full h-14 bg-gradient-to-r from-primary to-green-500 rounded-2xl flex items-center justify-center gap-2 text-black font-extrabold text-[15px] tracking-widest uppercase neon-glow active:scale-95 transition-all">SO'ROV YUBORISH 💌</button>`;
+                        const pid = profile.id || '';
+                        actionHtml = '<button onclick="window.sendFeedRequest(' + userId + ', ' + pid + ')" class="w-full h-14 bg-gradient-to-r from-primary to-green-500 rounded-2xl flex items-center justify-center gap-2 text-black font-extrabold text-[15px] tracking-widest uppercase neon-glow active:scale-95">SO\'ROV YUBORISH 💌</button>';
                     }
-                    content.innerHTML = renderFeedModalContent(profile, userId, actionHtml);
-                    const otherEl = document.getElementById('feed-profile-other-listings');
-                    if (otherEl && profile.other_listings && profile.other_listings.length) {
-                        otherEl.innerHTML = renderOtherListingsSection(profile.other_listings, userId);
-                    }
+                    if (footer) footer.innerHTML = '<div class="max-w-md mx-auto">' + actionHtml + '</div>';
+                    content.innerHTML = renderFeedModalContent(profile, userId, '');
+                    updateFeedModalHeaderFavorite(userId, profile.is_favorite === true || (typeof favoritesCache !== 'undefined' && favoritesCache.some(function(f){ return (f.favorite_user_id || (f.favorite_user && f.favorite_user.id)) == userId; })));
                 })
                 .catch(() => {
-                    const actionEl = document.getElementById('feed-profile-action');
-                    if (actionEl) actionEl.innerHTML = `<button onclick="window.sendFeedRequest(${userId})" class="mt-0 w-full h-14 bg-primary text-black rounded-2xl py-4 font-bold">SO'ROV YUBORISH</button>`;
+                    if (footer) footer.innerHTML = '<div class="max-w-md mx-auto"><button onclick="window.sendFeedRequest(' + userId + ')" class="w-full h-14 bg-primary text-black rounded-2xl font-bold">SO\'ROV YUBORISH</button></div>';
                 });
         }
 
         async function showFeedProfile(userId, profileId) {
             const modal = document.getElementById('feed-profile-modal');
             const content = document.getElementById('feed-profile-content');
+            const footer = document.getElementById('feed-profile-modal-footer');
+            const scrollEl = document.getElementById('feed-profile-modal-scroll');
+            const nav = document.querySelector('nav');
             if (!modal || !content) return;
+            feedModalSavedScrollY = window.scrollY ?? document.documentElement.scrollTop ?? document.body.scrollTop ?? 0;
+            window.scrollTo(0, 0);
             content.innerHTML = '<div class="text-center py-12"><div class="animate-spin rounded-full h-10 w-10 border-2 border-primary border-t-transparent mx-auto"></div></div>';
+            if (footer) { footer.classList.remove('hidden'); footer.innerHTML = '<div class="max-w-md mx-auto"><div class="h-14 rounded-2xl bg-white/10 animate-pulse"></div></div>'; }
+            if (nav) nav.style.display = 'none';
+            if (scrollEl) scrollEl.scrollTop = 0;
+            var fromCache = typeof favoritesCache !== 'undefined' && favoritesCache.some(function(f){ return (f.favorite_user_id || (f.favorite_user && f.favorite_user.id)) == userId; });
+            updateFeedModalHeaderFavorite(userId, fromCache);
+            document.body.classList.add('feed-modal-open');
             modal.classList.remove('hidden');
+            modal.style.opacity = '0';
+            modal.style.transform = 'scale(0.98)';
+            requestAnimationFrame(function() { modal.style.transition = 'opacity 0.2s ease-out, transform 0.2s ease-out'; modal.style.opacity = '1'; modal.style.transform = 'scale(1)'; });
             try {
-                const url = profileId ? `/feed/api/listing/${userId}?profile_id=${profileId}` : `/feed/api/listing/${userId}`;
+                const url = profileId ? '/feed/api/listing/' + userId + '?profile_id=' + profileId : '/feed/api/listing/' + userId;
                 const response = await fetch(url, { method: 'GET', headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }, credentials: 'same-origin' });
                 if (!response.ok) throw new Error();
                 const profile = await response.json();
                 const pid = profile.id || profileId || '';
-                const actionHtml = profile.request_sent && profile.request_status === 'accepted' && profile.chat_id ?
-                    `<button onclick="window.closeFeedModal(); window.showChatView(${profile.chat_id})" class="mt-0 w-full h-14 bg-gradient-to-r from-primary to-green-500 rounded-2xl flex items-center justify-center gap-2 text-black font-extrabold text-[15px] tracking-widest uppercase neon-glow active:scale-95">CHATGA O'TISH 💬</button>` :
-                    profile.request_sent && profile.request_status === 'pending' && profile.is_sender ? '<div class="mt-0 glass-card p-4 rounded-2xl text-center text-white/60">So\'rov yuborilgan</div>' :
-                    profile.request_sent && profile.request_status === 'pending' && !profile.is_sender ? '<div class="mt-0 glass-card p-4 rounded-2xl text-center text-white/60">Sizga so\'rov yuborilgan</div>' :
-                    profile.request_sent && profile.request_status === 'rejected' ? '<div class="mt-0 glass-card p-4 rounded-2xl text-center text-white/60">So\'rov rad etilgan</div>' :
-                    `<button onclick="window.sendFeedRequest(${userId}, ${pid})" class="mt-0 w-full h-14 bg-primary text-black rounded-2xl py-4 font-bold">SO'ROV YUBORISH</button>`;
-                content.innerHTML = renderFeedModalContent(profile, userId, actionHtml);
-                const otherEl = document.getElementById('feed-profile-other-listings');
-                if (otherEl && profile.other_listings && profile.other_listings.length) {
-                    otherEl.innerHTML = renderOtherListingsSection(profile.other_listings, userId);
-                }
-                modal.scrollTop = 0;
+                let actionHtml = profile.request_sent && profile.request_status === 'accepted' && profile.chat_id ?
+                    '<button onclick="window.closeFeedModal(); window.showChatView(' + profile.chat_id + ')" class="w-full h-14 bg-gradient-to-r from-primary to-green-500 rounded-2xl flex items-center justify-center gap-2 text-black font-extrabold text-[15px] tracking-widest uppercase neon-glow active:scale-95">CHATGA O\'TISH 💬</button>' :
+                    profile.request_sent && profile.request_status === 'pending' && profile.is_sender ? '<div class="glass-card p-4 rounded-2xl text-center text-white/60">So\'rov yuborilgan</div>' :
+                    profile.request_sent && profile.request_status === 'pending' && !profile.is_sender ? '<div class="glass-card p-4 rounded-2xl text-center text-white/60">Sizga so\'rov yuborilgan</div>' :
+                    profile.request_sent && profile.request_status === 'rejected' ? '<div class="glass-card p-4 rounded-2xl text-center text-white/60">So\'rov rad etilgan</div>' :
+                    '<button onclick="window.sendFeedRequest(' + userId + ', ' + pid + ')" class="w-full h-14 bg-gradient-to-r from-primary to-green-500 rounded-2xl flex items-center justify-center gap-2 text-black font-extrabold text-[15px] tracking-widest uppercase neon-glow active:scale-95">SO\'ROV YUBORISH 💌</button>';
+                if (footer) footer.innerHTML = '<div class="max-w-md mx-auto">' + actionHtml + '</div>';
+                content.innerHTML = renderFeedModalContent(profile, userId, '');
+                loadSimilarListings(profile, userId, function(similar) {
+                    const bodyEl = document.getElementById('feed-profile-similar-listings-body');
+                    const wrapEl = document.getElementById('feed-profile-similar-listings');
+                    if (!bodyEl || !wrapEl) return;
+                    if (similar.length === 0) {
+                        bodyEl.innerHTML = '<p class="text-white/40 text-[11px] py-2">Tafsiya qilinadigan e\'lonlar topilmadi</p>';
+                        return;
+                    }
+                    bodyEl.innerHTML = renderSimilarListingsCards(similar);
+                });
             } catch (e) {
                 content.innerHTML = '<div class="text-center py-8 text-red-400">Xatolik</div>';
+                if (footer) footer.classList.add('hidden');
             }
         }
 
         window.closeFeedModal = function() {
             hapticTap('light');
+            document.body.classList.remove('feed-modal-open');
+            if (typeof feedModalSavedScrollY === 'number') window.scrollTo(0, feedModalSavedScrollY);
             const modal = document.getElementById('feed-profile-modal');
+            const nav = document.querySelector('nav');
+            if (nav) nav.style.display = '';
             if (modal) {
                 modal.classList.add('hidden');
-                modal.scrollTop = 0;
+                const scrollEl = document.getElementById('feed-profile-modal-scroll');
+                if (scrollEl) scrollEl.scrollTop = 0;
             }
         };
 
@@ -4702,6 +4964,10 @@
             const container = document.getElementById('favorites-list');
             const skeleton = document.getElementById('favorites-skeleton');
             if (!container) return;
+            if (favoritesCache.length > 0) {
+                if (skeleton) { skeleton.style.display = 'none'; skeleton.remove(); }
+                renderFavoritesListWithFilter();
+            }
             try {
                 const response = await fetch('/favorites/api/list', {
                     method: 'GET',
@@ -4717,10 +4983,11 @@
                 favoritesCache = (data.favorites || []).filter(f => f.favorite_user);
                 pageDataLoaded.favorites = true;
                 renderFavoritesListWithFilter();
+                saveFavoritesToCache();
             } catch (error) {
                 console.error('Error loading favorites:', error);
                 if (skeleton) skeleton.remove();
-                container.innerHTML = '<div class="text-center py-8 text-red-400">Xatolik yuz berdi</div>';
+                if (favoritesCache.length === 0) container.innerHTML = '<div class="text-center py-8 text-red-400">Xatolik yuz berdi</div>';
             }
         }
         
@@ -4835,6 +5102,7 @@
         async function loadProfileData() {
             if (!userData) await initUserData();
             updateProfileUI();
+            await Promise.all([loadListingsPageData(), loadTariffPageData()]);
             pageDataLoaded.profile = true;
         }
 
@@ -5597,8 +5865,6 @@
             const views = document.getElementById('profile-views');
             const likes = document.getElementById('profile-likes');
             const requests = document.getElementById('profile-requests');
-            const statusText = document.getElementById('profile-status-text');
-            const toggle = document.getElementById('profile-toggle');
             const topBtn = document.getElementById('profile-top-btn');
             
             const profile = userData.profile || {};
@@ -5612,42 +5878,16 @@
             if (likes) likes.textContent = profile.likes || 0;
             if (requests) requests.textContent = user.sent_requests_count || 0;
             
-            const isActive = user.profile_active || false;
-            if (statusText) statusText.textContent = isActive ? 'Aktiv' : 'Passiv';
-            if (toggle) toggle.checked = isActive;
-            
             if (topBtn) {
-                const btn = topBtn.querySelector('button');
-                const icon = btn?.querySelector('.material-symbols-outlined');
-                const textSpan = btn?.querySelector('span:nth-child(2)');
-
+                const icon = topBtn.querySelector('.material-symbols-outlined');
+                const textSpan = topBtn.querySelector('span:last-child');
                 const hasTopActive = !!(tariffInfo && tariffInfo.is_top);
-
                 if (hasActiveTariff) {
-                topBtn.classList.remove('hidden');
-                    if (btn && icon && textSpan) {
-                        if (hasTopActive) {
-                            // Reklama aktiv bo'lsa
-                            icon.textContent = 'campaign';
-                            textSpan.textContent = `Reklama haqida (${tariffInfo.days_remaining || 0} kun)`;
-                        } else {
-                            // Hali TOP ga chiqarilmagan bo'lsa
-                            icon.textContent = 'rocket_launch';
-                            textSpan.textContent = 'TOPga olib chiqish';
-                        }
-                    }
+                    topBtn.classList.remove('hidden');
+                    if (icon) icon.textContent = hasTopActive ? 'campaign' : 'rocket_launch';
+                    if (textSpan) textSpan.textContent = hasTopActive ? `Reklama (${tariffInfo.days_remaining || 0} kun)` : 'TOP';
                 } else {
-                topBtn.classList.add('hidden');
-                }
-            }
-            
-            // E'lon yaratish tugmasini ko'rsatish/yashirish
-            const createAdBtn = document.getElementById('profile-create-ad-btn');
-            if (createAdBtn) {
-                if (!isActive && hasActiveTariff && user.profile_complete) {
-                    createAdBtn.classList.remove('hidden');
-                } else {
-                    createAdBtn.classList.add('hidden');
+                    topBtn.classList.add('hidden');
                 }
             }
 
@@ -5662,7 +5902,6 @@
                     fullProfileBtn.style.display = 'none';
                 }
             }
-            loadProfileListings();
         }
 
         window.startNewListing = function() {
@@ -5673,14 +5912,70 @@
             window.showPage('add-listing');
         };
 
+        window.showNewListingInfoModal = function() {
+            if (!userData) return;
+            var user = userData.user || {};
+            var profileComplete = user.profile_complete;
+            if (!profileComplete || !hasActiveTariff) {
+                document.getElementById('require-full-profile-modal').classList.remove('hidden');
+                return;
+            }
+            document.getElementById('new-listing-info-modal').classList.remove('hidden');
+        };
+
         async function loadProfileListings() {
             const listEl = document.getElementById('profile-listings-list');
+            const rowEl = document.getElementById('profile-listings-row');
+            const toPageLink = document.getElementById('profile-listings-to-page-link');
+            const addWrap = document.getElementById('profile-add-listing-wrap');
+            const addBtn = document.getElementById('profile-add-listing-btn');
+            if (!listEl || !rowEl) return;
+            rowEl.innerHTML = '';
+            listEl.innerHTML = '';
+            listEl.classList.add('hidden');
+            toPageLink.classList.add('hidden');
+            if (addBtn && addWrap && !addWrap.contains(addBtn)) addWrap.appendChild(addBtn);
+            try {
+                const r = await fetch('/profile/api/listings', { method: 'GET', headers: { 'X-Requested-With': 'XMLHttpRequest' }, credentials: 'same-origin' });
+                if (!r.ok) {
+                    rowEl.innerHTML = '<p class="text-white/50 text-sm">E\'lonlar yuklanmadi.</p>';
+                    return;
+                }
+                const data = await r.json();
+                const profiles = data.profiles || data.listings || [];
+                if (profiles.length === 0) {
+                    return;
+                }
+                if (profiles.length === 1) {
+                    var p = profiles[0];
+                    var name = p.name || 'E\'lon';
+                    var isPrimary = p.is_primary;
+                    var isPublished = p.is_published !== false;
+                    var card = document.createElement('div');
+                    card.className = 'glass-card rounded-2xl p-3 flex-1 min-w-0 flex items-center justify-between gap-2';
+                    card.innerHTML = '<div class="min-w-0 flex-1 flex items-center gap-2"><p class="text-sm font-bold text-white truncate">' + name + '</p></div>' +
+                        (!isPrimary ? '<label class="relative inline-flex items-center cursor-pointer shrink-0"><input type="checkbox" class="sr-only peer" ' + (isPublished ? 'checked' : '') + ' onchange="window.toggleListingPublish(' + p.id + ', this.checked)"><div class="toggle-pill bg-white/10"><div class="toggle-circle"></div></div></label>' : '') +
+                        '<button type="button" onclick="window.editListing(' + p.id + ')" class="size-8 rounded-lg flex items-center justify-center text-white/40 hover:text-white hover:bg-white/10 shrink-0"><span class="material-symbols-outlined text-[18px]">edit</span></button>';
+                    rowEl.appendChild(card);
+                    if (addBtn && addWrap && addWrap.contains(addBtn)) { addWrap.removeChild(addBtn); rowEl.appendChild(addBtn); }
+                    return;
+                }
+                toPageLink.classList.remove('hidden');
+                toPageLink.textContent = 'Barchasi (' + profiles.length + ') →';
+            } catch (e) {
+                console.warn('Profile listings load error', e);
+                rowEl.innerHTML = '<p class="text-white/50 text-sm">E\'lonlar yuklanmadi.</p>';
+            }
+        }
+
+        async function loadListingsPageData() {
+            const listEl = document.getElementById('listings-page-list');
             if (!listEl) return;
             listEl.innerHTML = '<p class="text-white/50 text-center py-4 text-sm">Yuklanmoqda...</p>';
             try {
                 const r = await fetch('/profile/api/listings', { method: 'GET', headers: { 'X-Requested-With': 'XMLHttpRequest' }, credentials: 'same-origin' });
                 if (!r.ok) {
-                    listEl.innerHTML = '<p class="text-white/50 text-center py-4 text-sm">E\'lonlar yuklanmadi. Sahifani yangilab ko\'ring.</p>';
+                    listEl.innerHTML = '<p class="text-white/50 text-center py-4 text-sm">E\'lonlar yuklanmadi.</p>';
                     return;
                 }
                 const data = await r.json();
@@ -5689,37 +5984,16 @@
                 profiles.forEach(p => {
                     const name = p.name || 'E\'lon';
                     const isPrimary = p.is_primary;
-                    const isActive = p.is_active;
                     const isPublished = p.is_published !== false;
                     const div = document.createElement('div');
                     div.className = 'glass-card rounded-2xl p-4';
-                    div.innerHTML = `
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center gap-3 flex-1 min-w-0" onclick="window.editListing(${p.id})">
-                                <div class="size-10 rounded-xl ${isPublished ? 'bg-primary/10 text-primary' : 'bg-white/5 text-white/40'} flex items-center justify-center shrink-0">
-                                    <span class="material-symbols-outlined text-[22px]">${isPublished ? 'visibility' : 'visibility_off'}</span>
-                                </div>
-                                <div class="min-w-0">
-                                    <p class="text-sm font-bold text-white truncate">${name}</p>
-                                    <p class="text-[10px] text-white/40">${isPrimary ? 'Asosiy profil' : (isPublished ? 'E\'lon qilingan' : 'Qoralama')}</p>
-                                </div>
-                            </div>
-                            <div class="flex items-center gap-2 shrink-0">
-                                ${!isPrimary ? `<label class="relative inline-flex items-center cursor-pointer">
-                                    <input type="checkbox" class="sr-only peer" ${isPublished ? 'checked' : ''} onchange="window.toggleListingPublish(${p.id}, this.checked)">
-                                    <div class="w-11 h-6 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
-                                </label>` : ''}
-                                <button onclick="window.editListing(${p.id})" class="size-8 rounded-lg flex items-center justify-center text-white/40 hover:text-white hover:bg-white/10 transition-all">
-                                    <span class="material-symbols-outlined text-[20px]">edit</span>
-                                </button>
-                            </div>
-                        </div>
-                    `;
+                    div.innerHTML = '<div class="flex items-center justify-between"><div class="flex items-center gap-3 flex-1 min-w-0" onclick="window.editListing(' + p.id + ')"><div class="size-10 rounded-xl ' + (isPublished ? 'bg-primary/10 text-primary' : 'bg-white/5 text-white/40') + ' flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-[22px]">' + (isPublished ? 'visibility' : 'visibility_off') + '</span></div><div class="min-w-0"><p class="text-sm font-bold text-white truncate">' + name + '</p><p class="text-[10px] text-white/40">' + (isPrimary ? 'Asosiy profil' : (isPublished ? 'E\'lon qilingan' : 'Qoralama')) + '</p></div></div><div class="flex items-center gap-2 shrink-0">' + '<label class="relative inline-flex items-center cursor-pointer"><input type="checkbox" class="sr-only peer" ' + (isPublished ? 'checked' : '') + ' onchange="window.toggleListingPublish(' + p.id + ', this.checked)"><div class="toggle-pill bg-white/10"><div class="toggle-circle"></div></div></label>' + '<button type="button" onclick="window.editListing(' + p.id + ')" class="size-8 rounded-lg flex items-center justify-center text-white/40 hover:text-white hover:bg-white/10"><span class="material-symbols-outlined text-[20px]">edit</span></button></div></div>';
                     listEl.appendChild(div);
                 });
+                pageDataLoaded.listings = true;
             } catch (e) {
-                console.warn('Profile listings load error', e);
-                listEl.innerHTML = '<p class="text-white/50 text-center py-4 text-sm">E\'lonlar yuklanmadi. Sahifani yangilab ko\'ring.</p>';
+                console.warn('Listings page load error', e);
+                listEl.innerHTML = '<p class="text-white/50 text-center py-4 text-sm">E\'lonlar yuklanmadi.</p>';
             }
         }
 
@@ -5733,15 +6007,17 @@
                 });
                 const data = await r.json();
                 if (r.ok && data.success) {
-                    if (typeof window.showNotification === 'function') window.showNotification(publish ? '✅ E\'lon yoqildi' : 'E\'lon o\'chirildi');
                     loadProfileListings();
+                    if (currentPage === 'listings' && typeof loadListingsPageData === 'function') loadListingsPageData();
                 } else {
                     alert(data.message || data.error || 'Xatolik');
                     loadProfileListings();
+                    if (currentPage === 'listings' && typeof loadListingsPageData === 'function') loadListingsPageData();
                 }
             } catch (e) {
                 alert('Xatolik yuz berdi');
                 loadProfileListings();
+                if (currentPage === 'listings' && typeof loadListingsPageData === 'function') loadListingsPageData();
             }
         };
 
@@ -8163,4 +8439,6 @@
     </div>
 
 </body>
+</html>
+
 </html>

@@ -78,6 +78,7 @@ def get_listings():
     request_salary_max = request.args.get('salary_max', type=int)
     request_smoking = request.args.get('smoking', type=str)
     request_sport_days_min = request.args.get('sport_days_min', type=int)
+    request_exclude_user_id = request.args.get('exclude_user_id', type=int)
 
     # Jins: to'g'ridan-to'g'ri filter (exists() so'rov olib tashlandi)
     if request_gender in ('Erkak', 'Ayol'):
@@ -90,6 +91,8 @@ def get_listings():
         Profile.user_id != current_user.id,
         Profile.gender == filter_gender
     ).join(User)
+    if request_exclude_user_id:
+        query = query.filter(Profile.user_id != request_exclude_user_id)
 
     if request_regions and request_regions.strip():
         regions_list = [r.strip() for r in request_regions.split(',') if r.strip()]
@@ -229,7 +232,7 @@ def get_listings():
         for profile in profiles
     ]
 
-    return jsonify({
+    resp = jsonify({
         'listings': listings,
         'page': page,
         'per_page': per_page,
@@ -239,6 +242,10 @@ def get_listings():
         'has_prev': pagination.has_prev,
         'filter_gender': filter_gender,
     })
+    # Birinchi sahifa qisqa vaqt brauzer cache da — qayta ochganda tezroq
+    if page == 1 and per_page >= 10:
+        resp.headers['Cache-Control'] = 'private, max-age=60'
+    return resp
 
 
 @feed_bp.route('/api/listing/<int:user_id>')

@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session, jsonify
 from models import User, Profile
 from database import db
-from routes.auth import login_required
+from routes.auth import login_required, invalidate_user_data_cache
 from datetime import datetime
 
 profile_bp = Blueprint('profile', __name__, url_prefix='/profile')
@@ -235,6 +235,7 @@ def edit():
             # Shuning uchun uni alohida set qilish shart emas
 
             db.session.commit()
+            invalidate_user_data_cache(session.get('user_id'))
 
             # SPA da yana profilga qaytarish uchun JSON javob
             return jsonify({'success': True, 'message': 'Profil saqlandi'})
@@ -438,6 +439,7 @@ def create_listing():
             pass
         db.session.add(profile)
         db.session.commit()
+        invalidate_user_data_cache(user.id)
         return jsonify({'success': True, 'profile': profile.to_dict(), 'id': profile.id, 'listing_id': profile.id})
     except Exception as e:
         db.session.rollback()
@@ -522,6 +524,7 @@ def update_listing(listing_id):
     
     try:
         db.session.commit()
+        invalidate_user_data_cache(user.id)
         return jsonify({'success': True, 'listing': profile.to_dict(), 'listing_id': profile.id})
     except Exception as e:
         db.session.rollback()
@@ -542,6 +545,7 @@ def delete_listing(listing_id):
     try:
         db.session.delete(profile)
         db.session.commit()
+        invalidate_user_data_cache(user.id)
         return jsonify({'success': True, 'message': 'E\'lon o\'chirildi'})
     except Exception as e:
         db.session.rollback()
@@ -571,6 +575,7 @@ def toggle_listing_publish(listing_id):
     
     try:
         db.session.commit()
+        invalidate_user_data_cache(user.id)
         return jsonify({'success': True, 'is_published': profile.is_published, 'is_active': profile.is_active, 'message': 'E\'lon yoqildi' if profile.is_published else 'E\'lon o\'chirildi'})
     except Exception as e:
         db.session.rollback()

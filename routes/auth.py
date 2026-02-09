@@ -6,6 +6,14 @@ from sqlalchemy import func
 
 auth_bp = Blueprint('auth', __name__)
 
+# /api/user-data uchun qisqa cache (30s) — takroriy so'rovlar tezroq
+_user_data_cache = {}
+_USER_DATA_CACHE_TTL = 30
+
+def invalidate_user_data_cache(user_id):
+    """Profil/tarif o'zgarganda cache ni tozalash."""
+    _user_data_cache.pop(user_id, None)
+
 
 @auth_bp.route('/')
 def index():
@@ -48,11 +56,18 @@ def index():
 
 @auth_bp.route('/api/user-data')
 def get_user_data():
-    """Foydalanuvchi ma'lumotlarini olish (SPA uchun) — eager load, kamroq DB so'rov."""
+    """Foydalanuvchi ma'lumotlarini olish (SPA uchun) — eager load, 30s cache."""
     user_id = session.get('user_id')
 
     if not user_id:
         return jsonify({'error': 'Avtorizatsiya kerak'}), 401
+
+    now = datetime.utcnow()
+    cache_key = user_id
+    if cache_key in _user_data_cache:
+        cached_at, payload = _user_data_cache[cache_key]
+        if (now - cached_at).total_seconds() < _USER_DATA_CACHE_TTL:
+            return jsonify(payload)
 
     user = User.query.get(user_id)
     if not user:
@@ -107,7 +122,7 @@ def get_user_data():
     profile_complete = profile.is_complete if profile else False
     profile_active = profile.is_active if profile else False
 
-    return jsonify({
+    payload = {
         'user': {
             'id': user.id,
             'telegram_id': user.telegram_id,
@@ -119,7 +134,16 @@ def get_user_data():
         },
         'profile': profile_data,
         'tariff': tariff_data
-    })
+    }
+    _user_data_cache[cache_key] = (now, payload)
+    return jsonify(payload)
+
+
+@auth_bp.route('/logout')
+def logout():
+    """Sessionni tozalash va asosiy sahifaga yo'naltirish."""
+    session.clear()
+    return redirect(url_for('auth.index'))
 
 
 @auth_bp.route('/api/check-auth')
