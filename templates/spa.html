@@ -1038,9 +1038,6 @@
                                 <span class="material-symbols-outlined text-black text-[18px] font-bold">diamond</span>
                             </div>
                             <h1 class="text-lg logo-text uppercase font-extrabold tracking-wider">Nikoh</h1>
-                            <button type="button" id="feed-refresh-btn" class="size-9 rounded-full glass-card flex items-center justify-center text-white/70 hover:text-primary active:scale-95 transition-all" title="Yangilash">
-                                <span class="material-symbols-outlined text-[20px]">refresh</span>
-                            </button>
                         </div>
                         <div class="flex items-center gap-2">
                             <button type="button" id="feed-kuyov-btn" class="feed-gender-btn h-9 px-3 rounded-full text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5 transition-all active:scale-95" title="Kuyovlar">
@@ -2726,23 +2723,6 @@
                 }
             }).catch(err => { console.error('Initialization error:', err); });
 
-            // Asosiy sahifa: Nikoh yonidagi Yangilash tugmasi
-            document.getElementById('feed-refresh-btn')?.addEventListener('click', async function() {
-                const btn = this;
-                const icon = btn.querySelector('.material-symbols-outlined');
-                if (!icon) return;
-                btn.disabled = true;
-                icon.classList.add('animate-spin');
-                try {
-                    pageDataLoaded.feed = false;
-                    await initUserData();
-                    await loadFeedData();
-                    if (typeof updateFeedGenderUI === 'function') updateFeedGenderUI();
-                } finally {
-                    btn.disabled = false;
-                    icon.classList.remove('animate-spin');
-                }
-            });
         }
 
         // Load page data — faqat birinchi marta yuklanadi, keyin cache'dan
@@ -2754,6 +2734,15 @@
                     if (!pageDataLoaded.profile) loadProfileData().catch(function() {});
                     break;
                 case 'requests':
+                    var receivedSkeleton = document.getElementById('requests-received-skeleton');
+                    var sentSkeleton = document.getElementById('requests-sent-skeleton');
+                    if (requestsCurrentTab === 'received' && receivedSkeleton) {
+                        receivedSkeleton.style.display = 'block';
+                    } else if (requestsCurrentTab === 'sent' && sentSkeleton) {
+                        sentSkeleton.style.display = 'block';
+                    } else if (receivedSkeleton) {
+                        receivedSkeleton.style.display = 'block';
+                    }
                     if (requestsCurrentTab !== 'received' && requestsCurrentTab !== 'sent') {
                         switchRequestsTab('received');
                     }
@@ -2761,7 +2750,16 @@
                     await loadRequestsData();
                     break;
                 case 'chats':
-                    if (!pageDataLoaded.chats) await loadChatsData();
+                    if (!pageDataLoaded.chats) {
+                        await Promise.all([
+                            loadChatsData(),
+                            loadRequestsData().catch(function() {})
+                        ]);
+                    } else {
+                        if (!pageDataLoaded.requests) {
+                            loadRequestsData().catch(function() {});
+                        }
+                    }
                     break;
                 case 'chat-view':
                     if (currentChatId) await loadChatView(currentChatId);
@@ -4013,11 +4011,16 @@
         async function loadRequestsData() {
             if (!userData) await initUserData();
             updateRequestsTariffInfo();
+            var receivedSkeleton = document.getElementById('requests-received-skeleton');
+            var sentSkeleton = document.getElementById('requests-sent-skeleton');
             if (requestsCurrentTab === 'received') {
-            await loadReceivedRequests();
+                if (receivedSkeleton) receivedSkeleton.style.display = 'block';
+                await loadReceivedRequests();
             } else if (requestsCurrentTab === 'sent') {
+                if (sentSkeleton) sentSkeleton.style.display = 'block';
                 await loadSentRequests();
             } else {
+                if (receivedSkeleton) receivedSkeleton.style.display = 'block';
                 switchRequestsTab('received');
             }
             pageDataLoaded.requests = true;
@@ -4127,7 +4130,7 @@
             if (!container) return;
             
             try {
-                if (skeleton) setTimeout(() => skeleton.style.display = 'none', 100);
+                if (skeleton) skeleton.style.display = 'block';
                 
                 const response = await fetch('/requests/api/received', {
                     method: 'GET',
@@ -4146,7 +4149,7 @@
                 }
                 const data = await response.json();
 
-                if (skeleton) skeleton.remove();
+                if (skeleton) skeleton.style.display = 'none';
                 container.innerHTML = '';
 
                 if (data.requests.length === 0) {
@@ -4167,7 +4170,7 @@
 
             } catch (error) {
                 console.error('Error loading received requests:', error);
-                if (skeleton) skeleton.remove();
+                if (skeleton) skeleton.style.display = 'none';
                 container.innerHTML = '<div class="text-center py-8 text-red-400">Xatolik yuz berdi</div>';
             }
         }
@@ -4179,7 +4182,7 @@
             if (!container) return;
             
             try {
-                if (skeleton) setTimeout(() => skeleton.style.display = 'none', 100);
+                if (skeleton) skeleton.style.display = 'block';
                 
                 const response = await fetch('/requests/api/sent', {
                     method: 'GET',
@@ -4198,7 +4201,7 @@
                 }
                 const data = await response.json();
 
-                if (skeleton) skeleton.remove();
+                if (skeleton) skeleton.style.display = 'none';
                 container.innerHTML = '';
 
                 if (data.requests.length === 0) {
@@ -4219,7 +4222,7 @@
 
             } catch (error) {
                 console.error('Error loading sent requests:', error);
-                if (skeleton) skeleton.remove();
+                if (skeleton) skeleton.style.display = 'none';
                 container.innerHTML = '<div class="text-center py-8 text-red-400">Xatolik yuz berdi</div>';
             }
         }

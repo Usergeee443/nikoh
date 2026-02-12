@@ -195,10 +195,15 @@ def send_message(chat_id):
     
     def send_notification_to_receiver():
         try:
+            sender_name = current_user.profile.name if current_user.profile else 'Foydalanuvchi'
+            message_preview = content.strip()[:100] + ('...' if len(content.strip()) > 100 else '')
+            
             notification_message = f"""
 💬 Yangi xabar!
 
-{current_user.profile.name if current_user.profile else 'Foydalanuvchi'} sizga xabar yubordi.
+{sender_name} sizga xabar yubordi:
+
+"{message_preview}"
 
 📱 Mini App'da ko'rish: /start
 """

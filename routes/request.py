@@ -149,11 +149,14 @@ def send_request():
     # Qabul qiluvchiga bildirishnoma yuborish
     def send_notifications():
         try:
+            sender_name = current_user.profile.name if current_user.profile else 'Foydalanuvchi'
+            receiver_name = receiver.profile.name if receiver.profile else 'Foydalanuvchi'
+            
             # Qabul qiluvchiga xabar
             receiver_message = f"""
-💌 Yangi so'rov!
+💌 So'rov keldi!
 
-{current_user.profile.name if current_user.profile else 'Foydalanuvchi'} sizga so'rov yubordi.
+{sender_name} sizga so'rov yubordi.
 
 📱 Mini App'da ko'rish uchun: /start
 """
@@ -161,7 +164,7 @@ def send_request():
             sender_message = f"""
 ✅ So'rov yuborildi!
 
-{receiver.profile.name if receiver.profile else 'Foydalanuvchi'} ga so'rovingiz yuborildi.
+{receiver_name} ga so'rovingiz yuborildi.
 
 📱 Mini App'da ko'rish uchun: /start
 """
@@ -225,11 +228,14 @@ def accept_request(request_id):
     # Yuboruvchiga va qabul qiluvchiga bildirishnoma
     def send_notifications():
         try:
+            sender_name = sender.profile.name if sender.profile else 'Foydalanuvchi'
+            receiver_name = receiver.profile.name if receiver.profile else 'Foydalanuvchi'
+            
             # Yuboruvchiga xabar (so'rov qabul qilindi)
             sender_message = f"""
 ✅ So'rovingiz qabul qilindi!
 
-{receiver.profile.name if receiver.profile else 'Foydalanuvchi'} so'rovingizni qabul qildi.
+{receiver_name} so'rovingizni qabul qildi.
 
 💬 7 kunlik chat ochildi! Endi xabarlashishingiz mumkin.
 
@@ -239,7 +245,7 @@ def accept_request(request_id):
             receiver_message = f"""
 💬 Chat ochildi!
 
-{sender.profile.name if sender.profile else 'Foydalanuvchi'} bilan 7 kunlik chat ochildi.
+{sender_name} bilan 7 kunlik chat ochildi.
 
 📱 Mini App'da chatga kirish: /start
 """
@@ -302,10 +308,12 @@ def reject_request(request_id):
     # Yuboruvchiga bildirishnoma
     def send_notification_to_sender():
         try:
+            receiver_name = current_user.profile.name if current_user.profile else 'Foydalanuvchi'
+            
             sender_message = f"""
 ❌ So'rovingiz rad etildi
 
-{current_user.profile.name if current_user.profile else 'Foydalanuvchi'} so'rovingizni rad etdi.
+{receiver_name} so'rovingizni rad etdi.
 
 📱 Mini App'da ko'rish uchun: /start
 """
