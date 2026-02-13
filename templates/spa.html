@@ -2323,7 +2323,9 @@
         const NIKOH_CACHE_USER = 'nikoh_user';
         const NIKOH_CACHE_FEED = 'nikoh_feed';
         const NIKOH_CACHE_FAVORITES = 'nikoh_favorites';
+        const NIKOH_CACHE_CHATS = 'nikoh_chats';
         const NIKOH_CACHE_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
+        const NIKOH_CACHE_CHATS_MAX_AGE_MS = 24 * 60 * 60 * 1000; // 24 soat — cache'dan tez ko'rsatish, orqada yangilanadi
 
         function restoreFromLocalStorage() {
             try {
@@ -2355,6 +2357,18 @@
                         try { favoritesCache = parsed.favorites.filter(f => f && f.favorite_user); } catch (e) {}
                     }
                 }
+                const rawChats = localStorage.getItem(NIKOH_CACHE_CHATS);
+                if (rawChats) {
+                    try {
+                        var parsed = JSON.parse(rawChats);
+                        if (parsed && (Date.now() - (parsed.t || 0)) < NIKOH_CACHE_CHATS_MAX_AGE_MS && parsed.chats) {
+                            if (typeof chatsCache !== 'undefined') chatsCache['all'] = { data: parsed.chats, timestamp: parsed.t };
+                            if (typeof chatsMyProfiles !== 'undefined' && parsed.chats.my_profiles) chatsMyProfiles = parsed.chats.my_profiles;
+                            if (typeof chatsPageReceivedCache !== 'undefined' && parsed.received) chatsPageReceivedCache = parsed.received;
+                            if (typeof chatsPageSentCache !== 'undefined' && parsed.sent) chatsPageSentCache = parsed.sent;
+                        }
+                    } catch (e) {}
+                }
             } catch (e) { console.warn('Cache restore:', e); }
         }
 
@@ -2374,6 +2388,19 @@
             try {
                 if (typeof favoritesCache !== 'undefined' && favoritesCache.length >= 0)
                     localStorage.setItem(NIKOH_CACHE_FAVORITES, JSON.stringify({ t: Date.now(), favorites: favoritesCache }));
+            } catch (e) {}
+        }
+        function saveChatsPageToCache() {
+            try {
+                if (typeof chatsCache === 'undefined' || !chatsCache['all'] || !chatsCache['all'].data) return;
+                var received = (typeof chatsPageReceivedCache !== 'undefined') ? chatsPageReceivedCache : null;
+                var sent = (typeof chatsPageSentCache !== 'undefined') ? chatsPageSentCache : null;
+                localStorage.setItem(NIKOH_CACHE_CHATS, JSON.stringify({
+                    t: Date.now(),
+                    chats: chatsCache['all'].data,
+                    received: received,
+                    sent: sent
+                }));
             } catch (e) {}
         }
 
@@ -2754,8 +2781,14 @@
                     await loadRequestsData();
                     break;
                 case 'chats':
+                    if (applyChatsPageFromCache()) {
+                        pageDataLoaded.chats = true;
+                        pageDataLoaded.requests = true;
+                        loadChatsPageAllData(true);
+                        break;
+                    }
                     if (!pageDataLoaded.chats || !pageDataLoaded.requests) {
-                        await loadChatsPageAllData();
+                        await loadChatsPageAllData(false);
                     }
                     break;
                 case 'chat-view':
@@ -4506,10 +4539,12 @@
             }
         });
 
-        // CHATS PAGE — barcha ma'lumotlar bir marta: chatlar + so'rovlar (received/sent)
+        // CHATS PAGE — barcha ma'lumotlar bir marta yuklanadi, cache'da saqlanadi, keyin faqat fon yangilanadi
         let chatsSelectedProfileId = null;
         let chatsCache = {}; // 'all' -> { data: { chats, my_profiles }, timestamp }
         let chatsMyProfiles = null;
+        var chatsPageReceivedCache = null; // So'rovlar (qabul qilingan) cache
+        var chatsPageSentCache = null;    // So'rovlar (yuborilgan) cache
 
         function renderChatsFromCache() {
             const container = document.getElementById('chats-list');
@@ -4559,15 +4594,32 @@
             });
         }
 
-        async function loadChatsPageAllData() {
+        function applyChatsPageFromCache() {
+            if (!chatsCache['all'] || !chatsCache['all'].data) return false;
+            renderChatsTabs();
+            renderChatsFromCache();
+            if (chatsPageReceivedCache) applyReceivedRequestsData(chatsPageReceivedCache);
+            if (chatsPageSentCache) applySentRequestsData(chatsPageSentCache);
+            var skeleton = document.getElementById('chats-skeleton');
+            var receivedSkeleton = document.getElementById('requests-received-skeleton');
+            var sentSkeleton = document.getElementById('requests-sent-skeleton');
+            if (skeleton) skeleton.style.display = 'none';
+            if (receivedSkeleton) receivedSkeleton.style.display = 'none';
+            if (sentSkeleton) sentSkeleton.style.display = 'none';
+            return true;
+        }
+
+        async function loadChatsPageAllData(silent) {
             if (!userData) await initUserData();
             updateRequestsTariffInfo();
             var skeleton = document.getElementById('chats-skeleton');
             var receivedSkeleton = document.getElementById('requests-received-skeleton');
             var sentSkeleton = document.getElementById('requests-sent-skeleton');
-            if (skeleton) skeleton.style.display = 'block';
-            if (receivedSkeleton) receivedSkeleton.style.display = 'block';
-            if (sentSkeleton) sentSkeleton.style.display = 'block';
+            if (!silent) {
+                if (skeleton) skeleton.style.display = 'block';
+                if (receivedSkeleton) receivedSkeleton.style.display = 'block';
+                if (sentSkeleton) sentSkeleton.style.display = 'block';
+            }
             try {
                 var res = await Promise.all([
                     fetch('/chat/api/list', { method: 'GET', headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }, credentials: 'same-origin' }),
@@ -4581,18 +4633,26 @@
                 var receivedData = res[1].ok ? await res[1].json() : { requests: [] };
                 var sentData = res[2].ok ? await res[2].json() : { requests: [] };
                 chatsCache['all'] = { data: chatData, timestamp: Date.now() };
+                chatsPageReceivedCache = receivedData;
+                chatsPageSentCache = sentData;
                 if (chatData.my_profiles && chatData.my_profiles.length > 0) chatsMyProfiles = chatData.my_profiles;
                 renderChatsTabs();
                 renderChatsFromCache();
                 applyReceivedRequestsData(receivedData);
                 applySentRequestsData(sentData);
-                pageDataLoaded.chats = true;
-                pageDataLoaded.requests = true;
-            } catch (e) {
-                console.error('loadChatsPageAllData:', e);
                 if (skeleton) skeleton.style.display = 'none';
                 if (receivedSkeleton) receivedSkeleton.style.display = 'none';
                 if (sentSkeleton) sentSkeleton.style.display = 'none';
+                pageDataLoaded.chats = true;
+                pageDataLoaded.requests = true;
+                saveChatsPageToCache();
+            } catch (e) {
+                console.error('loadChatsPageAllData:', e);
+                if (!silent) {
+                    if (skeleton) skeleton.style.display = 'none';
+                    if (receivedSkeleton) receivedSkeleton.style.display = 'none';
+                    if (sentSkeleton) sentSkeleton.style.display = 'none';
+                }
             }
         }
 
@@ -8489,6 +8549,11 @@
 </html>
 
 </html>
+
+
+
+
+
 
 
 
