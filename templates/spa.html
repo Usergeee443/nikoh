@@ -2734,6 +2734,10 @@
                     if (!pageDataLoaded.profile) loadProfileData().catch(function() {});
                     break;
                 case 'requests':
+                    if (pageDataLoaded.requests) {
+                        if (requestsCurrentTab !== 'received' && requestsCurrentTab !== 'sent') switchRequestsTab('received');
+                        break;
+                    }
                     var receivedSkeleton = document.getElementById('requests-received-skeleton');
                     var sentSkeleton = document.getElementById('requests-sent-skeleton');
                     if (requestsCurrentTab === 'received' && receivedSkeleton) {
@@ -2750,15 +2754,8 @@
                     await loadRequestsData();
                     break;
                 case 'chats':
-                    if (!pageDataLoaded.chats) {
-                        await Promise.all([
-                            loadChatsData(),
-                            loadRequestsData().catch(function() {})
-                        ]);
-                    } else {
-                        if (!pageDataLoaded.requests) {
-                            loadRequestsData().catch(function() {});
-                        }
+                    if (!pageDataLoaded.chats || !pageDataLoaded.requests) {
+                        await loadChatsPageAllData();
                     }
                     break;
                 case 'chat-view':
@@ -3528,21 +3525,11 @@
             div.style.minHeight = '245px';
             div.onclick = () => showFeedProfileFromListing(listing);
 
-            // Har xil gradient ranglar yaratish
-            const gradients = [
-                'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-                'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
-                'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
-                'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
-                'linear-gradient(135deg, #30cfd0 0%, #330867 100%)',
-                'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)',
-                'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)',
-                'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)',
-                'linear-gradient(135deg, #ff6e7f 0%, #bfe9ff 100%)'
-            ];
-            const gradientIndex = (listing.user_id || 0) % gradients.length;
-            const selectedGradient = gradients[gradientIndex];
+            // Erkak = ochroq ko'k, Ayol = ochroq pushti
+            const isErkak = (listing.gender || '') === 'Erkak';
+            const selectedGradient = isErkak
+                ? 'linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%)' // Ochroq ko'k
+                : 'linear-gradient(135deg, #f9a8d4 0%, #f472b6 100%)'; // Ochroq pushti
             
             div.innerHTML = `
                 <div class="relative flex-1" style="background: ${selectedGradient}">
@@ -3678,9 +3665,10 @@
 
         function renderFeedModalContent(profile, userId, actionHtml) {
             const bioEsc = (profile.bio || '').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-            const gradients = ['linear-gradient(135deg, #667eea 0%, #764ba2 100%)','linear-gradient(135deg, #f093fb 0%, #f5576c 100%)','linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)','linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)','linear-gradient(135deg, #fa709a 0%, #fee140 100%)','linear-gradient(135deg, #30cfd0 0%, #330867 100%)','linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)','linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)','linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)','linear-gradient(135deg, #ff6e7f 0%, #bfe9ff 100%)'];
-            const gradientIndex = (profile.user_id || userId || 0) % gradients.length;
-            const gradient = gradients[gradientIndex];
+            const isErkak = (profile.gender || '') === 'Erkak';
+            const gradient = isErkak 
+                ? 'linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%)' // Ochroq ko'k
+                : 'linear-gradient(135deg, #f9a8d4 0%, #f472b6 100%)'; // Ochroq pushti
             return `
                 <main class="max-w-md mx-auto px-0" style="padding-bottom: 24px;">
                     <section class="relative h-[45vh] w-full overflow-hidden">
@@ -3783,11 +3771,12 @@
 
         function renderSimilarListingsCards(listings) {
             if (!listings || !listings.length) return '';
-            const gradients = ['linear-gradient(135deg, #667eea 0%, #764ba2 100%)','linear-gradient(135deg, #f093fb 0%, #f5576c 100%)','linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)','linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)','linear-gradient(135deg, #fa709a 0%, #fee140 100%)','linear-gradient(135deg, #30cfd0 0%, #330867 100%)'];
+            const gradErkak = 'linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%)'; // Ochroq ko'k
+            const gradAyol = 'linear-gradient(135deg, #f9a8d4 0%, #f472b6 100%)'; // Ochroq pushti
             return listings.map(function(l) {
-                const gIdx = (l.id || 0) % gradients.length;
+                const g = (l.gender || '') === 'Erkak' ? gradErkak : gradAyol;
                 return `<div onclick="window.closeFeedModal(); showFeedProfile(${l.user_id}, ${l.id || 0})" class="flex-shrink-0 w-[calc(50%-4px)] min-w-[140px] max-w-[168px] glass-card rounded-xl overflow-hidden cursor-pointer active:scale-95 transition-transform border border-white/10">
-                    <div class="h-16 w-full" style="background: ${gradients[gIdx]}"></div>
+                    <div class="h-16 w-full" style="background: ${g}"></div>
                     <div class="p-2">
                         <p class="text-[11px] font-bold text-white truncate">${(l.name || 'Noma\'lum')}, ${l.age || '?'}</p>
                         <p class="text-[9px] text-white/50 truncate">${l.region || ''}</p>
@@ -4013,17 +4002,29 @@
             updateRequestsTariffInfo();
             var receivedSkeleton = document.getElementById('requests-received-skeleton');
             var sentSkeleton = document.getElementById('requests-sent-skeleton');
-            if (requestsCurrentTab === 'received') {
-                if (receivedSkeleton) receivedSkeleton.style.display = 'block';
-                await loadReceivedRequests();
-            } else if (requestsCurrentTab === 'sent') {
-                if (sentSkeleton) sentSkeleton.style.display = 'block';
-                await loadSentRequests();
-            } else {
-                if (receivedSkeleton) receivedSkeleton.style.display = 'block';
-                switchRequestsTab('received');
+            if (receivedSkeleton) receivedSkeleton.style.display = 'block';
+            if (sentSkeleton) sentSkeleton.style.display = 'block';
+            try {
+                var res = await Promise.all([
+                    fetch('/requests/api/received', { method: 'GET', headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }, credentials: 'same-origin' }),
+                    fetch('/requests/api/sent', { method: 'GET', headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }, credentials: 'same-origin' })
+                ]);
+                if (res[0].status === 401 || res[0].status === 403) { window.location.href = '/'; return; }
+                if (res[1].status === 401 || res[1].status === 403) { window.location.href = '/'; return; }
+                var receivedData = res[0].ok ? await res[0].json() : { requests: [] };
+                var sentData = res[1].ok ? await res[1].json() : { requests: [] };
+                applyReceivedRequestsData(receivedData);
+                applySentRequestsData(sentData);
+                pageDataLoaded.requests = true;
+                if (requestsCurrentTab === 'received' || requestsCurrentTab === 'sent') {
+                    switchRequestsTab(requestsCurrentTab);
+                } else {
+                    switchRequestsTab('received');
+                }
+            } catch (e) {
+                if (receivedSkeleton) receivedSkeleton.style.display = 'none';
+                if (sentSkeleton) sentSkeleton.style.display = 'none';
             }
-            pageDataLoaded.requests = true;
         }
         
         async function loadRequestsDataOld() {
@@ -4109,7 +4110,7 @@
                 }
                 if (receivedLabel) receivedLabel.classList.remove('hidden');
                 document.getElementById('requests-received-container')?.classList.remove('hidden');
-                loadReceivedRequests();
+                if (!pageDataLoaded.requests) loadReceivedRequests();
             } else if (tab === 'sent') {
                 if (sentTab) {
                     sentTab.classList.remove('text-white/40', 'requests-tab-icon-only');
@@ -4117,57 +4118,49 @@
                 }
                 if (sentLabel) sentLabel.classList.remove('hidden');
                 document.getElementById('requests-sent-container')?.classList.remove('hidden');
-                loadSentRequests();
+                if (!pageDataLoaded.requests) loadSentRequests();
             }
         }
         
         window.switchRequestsTab = switchRequestsTab;
 
+        function applyReceivedRequestsData(data) {
+            const container = document.getElementById('requests-received-container');
+            const skeleton = document.getElementById('requests-received-skeleton');
+            if (!container) return;
+            if (skeleton) skeleton.style.display = 'none';
+            container.innerHTML = '';
+            const requests = (data && data.requests) || [];
+            if (requests.length === 0) {
+                container.innerHTML = '<div class="text-center py-8 text-white/60">Qabul qilingan so\'rovlar yo\'q</div>';
+                return;
+            }
+            const badge = document.getElementById('requests-received-badge');
+            if (badge && data.count > 0) {
+                badge.textContent = data.count;
+                badge.classList.remove('hidden');
+            }
+            const sorted = sortRequestsBy(requests, requestsSort);
+            sorted.forEach(request => container.appendChild(createReceivedRequestCard(request)));
+        }
+
         async function loadReceivedRequests() {
             const container = document.getElementById('requests-received-container');
             const skeleton = document.getElementById('requests-received-skeleton');
-            
             if (!container) return;
-            
             try {
                 if (skeleton) skeleton.style.display = 'block';
-                
                 const response = await fetch('/requests/api/received', {
                     method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    },
+                    headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
                     credentials: 'same-origin'
                 });
                 if (!response.ok) {
-                    if (response.status === 401 || response.status === 403) {
-                        window.location.href = '/';
-                        return;
-                    }
+                    if (response.status === 401 || response.status === 403) { window.location.href = '/'; return; }
                     throw new Error(`HTTP ${response.status}: Failed to load requests`);
                 }
                 const data = await response.json();
-
-                if (skeleton) skeleton.style.display = 'none';
-                container.innerHTML = '';
-
-                if (data.requests.length === 0) {
-                    container.innerHTML = '<div class="text-center py-8 text-white/60">Qabul qilingan so\'rovlar yo\'q</div>';
-                    return;
-                }
-                
-                const badge = document.getElementById('requests-received-badge');
-                if (badge && data.count > 0) {
-                    badge.textContent = data.count;
-                    badge.classList.remove('hidden');
-                }
-
-                const sorted = sortRequestsBy(data.requests, requestsSort);
-                sorted.forEach(request => {
-                    container.appendChild(createReceivedRequestCard(request));
-                });
-
+                applyReceivedRequestsData(data);
             } catch (error) {
                 console.error('Error loading received requests:', error);
                 if (skeleton) skeleton.style.display = 'none';
@@ -4175,51 +4168,43 @@
             }
         }
 
+        function applySentRequestsData(data) {
+            const container = document.getElementById('requests-sent-container');
+            const skeleton = document.getElementById('requests-sent-skeleton');
+            if (!container) return;
+            if (skeleton) skeleton.style.display = 'none';
+            container.innerHTML = '';
+            const requests = (data && data.requests) || [];
+            if (requests.length === 0) {
+                container.innerHTML = '<div class="text-center py-8 text-white/60">Yuborilgan so\'rovlar yo\'q</div>';
+                return;
+            }
+            const badge = document.getElementById('requests-sent-badge');
+            if (badge && data.count > 0) {
+                badge.textContent = data.count;
+                badge.classList.remove('hidden');
+            }
+            const sorted = sortRequestsBy(requests, requestsSort);
+            sorted.forEach(request => container.appendChild(createSentRequestCard(request)));
+        }
+
         async function loadSentRequests() {
             const container = document.getElementById('requests-sent-container');
             const skeleton = document.getElementById('requests-sent-skeleton');
-            
             if (!container) return;
-            
             try {
                 if (skeleton) skeleton.style.display = 'block';
-                
                 const response = await fetch('/requests/api/sent', {
                     method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    },
+                    headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
                     credentials: 'same-origin'
                 });
                 if (!response.ok) {
-                    if (response.status === 401 || response.status === 403) {
-                        window.location.href = '/';
-                        return;
-                    }
+                    if (response.status === 401 || response.status === 403) { window.location.href = '/'; return; }
                     throw new Error(`HTTP ${response.status}: Failed to load requests`);
                 }
                 const data = await response.json();
-
-                if (skeleton) skeleton.style.display = 'none';
-                container.innerHTML = '';
-
-                if (data.requests.length === 0) {
-                    container.innerHTML = '<div class="text-center py-8 text-white/60">Yuborilgan so\'rovlar yo\'q</div>';
-                    return;
-                }
-                
-                const badge = document.getElementById('requests-sent-badge');
-                if (badge && data.count > 0) {
-                    badge.textContent = data.count;
-                    badge.classList.remove('hidden');
-                }
-
-                const sorted = sortRequestsBy(data.requests, requestsSort);
-                sorted.forEach(request => {
-                    container.appendChild(createSentRequestCard(request));
-                });
-
+                applySentRequestsData(data);
             } catch (error) {
                 console.error('Error loading sent requests:', error);
                 if (skeleton) skeleton.style.display = 'none';
@@ -4521,81 +4506,140 @@
             }
         });
 
-        // CHATS PAGE
+        // CHATS PAGE — barcha ma'lumotlar bir marta: chatlar + so'rovlar (received/sent)
         let chatsSelectedProfileId = null;
-        async function loadChatsData(profileId) {
-            if (profileId !== undefined) chatsSelectedProfileId = profileId;
+        let chatsCache = {}; // 'all' -> { data: { chats, my_profiles }, timestamp }
+        let chatsMyProfiles = null;
+
+        function renderChatsFromCache() {
             const container = document.getElementById('chats-list');
             const skeleton = document.getElementById('chats-skeleton');
             const tabsEl = document.getElementById('chats-profile-tabs');
-            
-            if (!container) {
-                console.error('chats-list container not found');
+            if (!container) return;
+            var cached = chatsCache['all'];
+            if (!cached || !cached.data) return;
+            var chats = (cached.data.chats || []).filter(function(c) {
+                return chatsSelectedProfileId == null ? true : (c.profile_id === chatsSelectedProfileId);
+            });
+            if (skeleton) skeleton.style.display = 'none';
+            Array.from(container.children).forEach(function(child) {
+                if (child.id !== 'chats-skeleton') child.remove();
+            });
+            var emptyEl = document.getElementById('chats-empty');
+            if (chats.length === 0) {
+                if (emptyEl) emptyEl.classList.remove('hidden');
+            } else {
+                if (emptyEl) emptyEl.classList.add('hidden');
+                chats.forEach(function(chat) { container.appendChild(createChatCard(chat)); });
+            }
+        }
+
+        function renderChatsTabs() {
+            const tabsEl = document.getElementById('chats-profile-tabs');
+            if (!tabsEl || !chatsMyProfiles) return;
+            if (chatsMyProfiles.length <= 1) {
+                tabsEl.classList.add('hidden');
                 return;
             }
-            
+            tabsEl.classList.remove('hidden');
+            tabsEl.innerHTML = '';
+            var allBtn = document.createElement('button');
+            allBtn.type = 'button';
+            allBtn.className = 'chats-profile-tab shrink-0 px-4 py-2 rounded-full text-[12px] font-bold transition-all ' + (chatsSelectedProfileId === null ? 'bg-primary text-black' : 'glass-card text-white/70');
+            allBtn.textContent = 'Barchasi';
+            allBtn.onclick = function() { chatsSelectedProfileId = null; renderChatsFromCache(); renderChatsTabs(); };
+            tabsEl.appendChild(allBtn);
+            chatsMyProfiles.forEach(function(p) {
+                var btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'chats-profile-tab shrink-0 px-4 py-2 rounded-full text-[12px] font-bold transition-all ' + (chatsSelectedProfileId === p.id ? 'bg-primary text-black' : 'glass-card text-white/70');
+                btn.textContent = p.name || 'E\'lon';
+                btn.onclick = function() { chatsSelectedProfileId = p.id; renderChatsFromCache(); renderChatsTabs(); };
+                tabsEl.appendChild(btn);
+            });
+        }
+
+        async function loadChatsPageAllData() {
+            if (!userData) await initUserData();
+            updateRequestsTariffInfo();
+            var skeleton = document.getElementById('chats-skeleton');
+            var receivedSkeleton = document.getElementById('requests-received-skeleton');
+            var sentSkeleton = document.getElementById('requests-sent-skeleton');
+            if (skeleton) skeleton.style.display = 'block';
+            if (receivedSkeleton) receivedSkeleton.style.display = 'block';
+            if (sentSkeleton) sentSkeleton.style.display = 'block';
+            try {
+                var res = await Promise.all([
+                    fetch('/chat/api/list', { method: 'GET', headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }, credentials: 'same-origin' }),
+                    fetch('/requests/api/received', { method: 'GET', headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }, credentials: 'same-origin' }),
+                    fetch('/requests/api/sent', { method: 'GET', headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }, credentials: 'same-origin' })
+                ]);
+                if (res[0].status === 401 || res[0].status === 403) { window.location.href = '/'; return; }
+                if (res[1].status === 401 || res[1].status === 403) { window.location.href = '/'; return; }
+                if (res[2].status === 401 || res[2].status === 403) { window.location.href = '/'; return; }
+                var chatData = res[0].ok ? await res[0].json() : { chats: [], my_profiles: [] };
+                var receivedData = res[1].ok ? await res[1].json() : { requests: [] };
+                var sentData = res[2].ok ? await res[2].json() : { requests: [] };
+                chatsCache['all'] = { data: chatData, timestamp: Date.now() };
+                if (chatData.my_profiles && chatData.my_profiles.length > 0) chatsMyProfiles = chatData.my_profiles;
+                renderChatsTabs();
+                renderChatsFromCache();
+                applyReceivedRequestsData(receivedData);
+                applySentRequestsData(sentData);
+                pageDataLoaded.chats = true;
+                pageDataLoaded.requests = true;
+            } catch (e) {
+                console.error('loadChatsPageAllData:', e);
+                if (skeleton) skeleton.style.display = 'none';
+                if (receivedSkeleton) receivedSkeleton.style.display = 'none';
+                if (sentSkeleton) sentSkeleton.style.display = 'none';
+            }
+        }
+
+        async function loadChatsData(profileId, forceReload) {
+            if (profileId !== undefined) chatsSelectedProfileId = profileId;
+            var container = document.getElementById('chats-list');
+            var skeleton = document.getElementById('chats-skeleton');
+            var tabsEl = document.getElementById('chats-profile-tabs');
+            if (!container) return;
+            var cached = chatsCache['all'];
+            if (cached && !forceReload && (Date.now() - cached.timestamp < 60000)) {
+                renderChatsTabs();
+                renderChatsFromCache();
+                pageDataLoaded.chats = true;
+                return;
+            }
             try {
                 if (skeleton) skeleton.style.display = 'block';
-                const url = profileId != null ? `/chat/api/list?profile_id=${profileId}` : '/chat/api/list';
-                const response = await fetch(url, {
+                var response = await fetch('/chat/api/list', {
                     method: 'GET',
                     headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
                     credentials: 'same-origin'
                 });
                 if (!response.ok) {
                     if (response.status === 401 || response.status === 403) { window.location.href = '/'; return; }
-                    throw new Error(`HTTP ${response.status}: Failed to load chats`);
+                    throw new Error('Failed to load chats');
                 }
-                const data = await response.json();
-
+                var data = await response.json();
+                chatsCache['all'] = { data: data, timestamp: Date.now() };
+                if (data.my_profiles && data.my_profiles.length > 0) chatsMyProfiles = data.my_profiles;
                 if (skeleton) skeleton.style.display = 'none';
-                Array.from(container.children).forEach(child => {
-                    if (child.id !== 'chats-skeleton') child.remove();
-                });
-
-                const myProfiles = data.my_profiles || [];
-                if (tabsEl && myProfiles.length > 1) {
-                    tabsEl.classList.remove('hidden');
-                    tabsEl.innerHTML = '';
-                    myProfiles.forEach(p => {
-                        const btn = document.createElement('button');
-                        btn.type = 'button';
-                        btn.className = 'chats-profile-tab shrink-0 px-4 py-2 rounded-full text-[12px] font-bold transition-all ' + (chatsSelectedProfileId === p.id ? 'bg-primary text-black' : 'glass-card text-white/70');
-                        btn.textContent = p.name || 'E\'lon';
-                        btn.onclick = () => { chatsSelectedProfileId = p.id; loadChatsData(p.id); };
-                        tabsEl.appendChild(btn);
-                    });
-                    const allBtn = document.createElement('button');
-                    allBtn.type = 'button';
-                    allBtn.className = 'chats-profile-tab shrink-0 px-4 py-2 rounded-full text-[12px] font-bold transition-all ' + (chatsSelectedProfileId === null ? 'bg-primary text-black' : 'glass-card text-white/70');
-                    allBtn.textContent = 'Barchasi';
-                    allBtn.onclick = () => { chatsSelectedProfileId = null; loadChatsData(null); };
-                    tabsEl.insertBefore(allBtn, tabsEl.firstChild);
-                } else if (tabsEl) tabsEl.classList.add('hidden');
-
-                if (data.chats.length === 0) {
-                    const emptyDiv = document.getElementById('chats-empty');
-                    if (emptyDiv) emptyDiv.classList.remove('hidden');
-                    pageDataLoaded.chats = true;
-                    return;
-                }
-                const emptyDiv = document.getElementById('chats-empty');
-                if (emptyDiv) emptyDiv.classList.add('hidden');
-                data.chats.forEach(chat => container.appendChild(createChatCard(chat)));
+                renderChatsTabs();
+                renderChatsFromCache();
                 pageDataLoaded.chats = true;
             } catch (error) {
                 console.error('Error loading chats:', error);
                 if (skeleton) skeleton.style.display = 'none';
-                Array.from(container.children).forEach(child => {
+                Array.from(container.children).forEach(function(child) {
                     if (child.id !== 'chats-skeleton') child.remove();
                 });
-                const errorDiv = document.createElement('div');
-                errorDiv.className = 'text-center py-8 text-red-400';
-                errorDiv.textContent = 'Xatolik yuz berdi';
-                container.appendChild(errorDiv);
+                var errEl = document.createElement('div');
+                errEl.className = 'text-center py-8 text-red-400';
+                errEl.textContent = 'Xatolik yuz berdi';
+                container.appendChild(errEl);
             }
         }
-        
+
         window.loadChatsData = loadChatsData;
 
         function createChatCard(chat) {
@@ -8445,3 +8489,27 @@
 </html>
 
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
