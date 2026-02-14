@@ -171,6 +171,28 @@
                 0% { background-position: 200% 0; }
                 100% { background-position: -200% 0; }
             }
+            /* Splash: birinchi yuklanishda icon + Annikah, keyin sekin o'chadi */
+            #splash-overlay {
+                transition: opacity 0.45s ease-out;
+            }
+            #splash-overlay.splash-out {
+                opacity: 0;
+                pointer-events: none;
+            }
+            .splash-content {
+                animation: splash-in 0.6s ease-out forwards;
+            }
+            .splash-text {
+                animation: splash-text-in 0.5s ease-out 0.2s both;
+            }
+            @keyframes splash-in {
+                from { opacity: 0; transform: scale(0.85); }
+                to { opacity: 1; transform: scale(1); }
+            }
+            @keyframes splash-text-in {
+                from { opacity: 0; transform: translateX(-8px); }
+                to { opacity: 1; transform: translateX(0); }
+            }
             .glass-item {
                 background: rgba(255, 255, 255, 0.04);
                 backdrop-filter: blur(12px);
@@ -540,6 +562,15 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body class="font-display bg-background-dark text-white selection:bg-primary/30">
+    <!-- Splash: birinchi kirishda (cache bo'lmaganda) icon + Annikah, animatsiya, keyin o'chadi -->
+    <div id="splash-overlay" class="fixed inset-0 z-[110] bg-background-dark flex flex-col items-center justify-center">
+        <div class="splash-content flex flex-col items-center gap-4">
+            <div class="size-16 rounded-2xl bg-gradient-to-br from-primary/30 to-primary/10 flex items-center justify-center shadow-[0_0_40px_rgba(64,255,0,0.15)]">
+                <span class="material-symbols-outlined text-primary text-4xl" style="font-variation-settings: 'FILL' 1">favorite</span>
+            </div>
+            <span class="splash-text text-xl font-black tracking-tight text-white">Annikah</span>
+        </div>
+    </div>
     <!-- App Container -->
     <div id="app-container" class="min-h-screen">
         <!-- Navigation -->
@@ -564,13 +595,8 @@
             </div>
         </nav>
 
-        <!-- Yuklanish oynasi ishlatilmaydi: user cache bilan darhol ishlaydi, orqada yangi ma'lumot yuklanadi -->
-        <div id="app-loading-overlay" class="fixed inset-0 z-[100] bg-background-dark hidden flex-col items-center justify-center">
-            <div class="flex flex-col items-center gap-4">
-                <div class="size-12 border-2 border-primary/40 border-t-primary rounded-full animate-spin"></div>
-                <p class="text-white/70 text-sm font-bold">Yuklanmoqda...</p>
-            </div>
-        </div>
+        <!-- Eski yuklanish oynasi (splash ishlatiladi) -->
+        <div id="app-loading-overlay" class="fixed inset-0 z-[100] bg-background-dark hidden flex-col items-center justify-center"></div>
 
         <!-- ONBOARDING OVERLAY -->
         <div id="onboarding-overlay" class="fixed inset-0 z-50 bg-background-dark flex flex-col max-w-md mx-auto w-full hidden">
@@ -648,18 +674,21 @@
                 <!-- Header with progress -->
                 <header class="px-6 pt-6 pb-4">
                     <div class="flex items-center justify-between mb-4">
-                        <button type="button" id="onboarding-back-btn" onclick="onboardingPrevStep()" class="size-10 glass-card rounded-xl flex items-center justify-center active:scale-95 transition-transform opacity-0 pointer-events-none">
+                        <button type="button" id="onboarding-back-btn" onclick="onboardingPrevStep()" class="size-10 glass-card rounded-xl flex items-center justify-center active:scale-95 transition-transform" title="Orqaga">
                             <span class="material-symbols-outlined text-white/80 text-xl">arrow_back</span>
                         </button>
                         <div class="flex flex-col items-center">
-                            <span class="text-[10px] font-black tracking-widest text-primary/60 uppercase">Qadam <span id="onboarding-step-num">1</span>/5</span>
+                            <span class="text-[10px] font-black tracking-widest text-primary/60 uppercase">Qadam <span id="onboarding-step-num">1</span>/8</span>
                             <span id="onboarding-step-title" class="text-sm font-bold">Tanishib olaylik</span>
                         </div>
                         <div class="size-10"></div>
                     </div>
-                    <!-- Progress dots -->
-                    <div class="flex items-center justify-center gap-2">
+                    <!-- Progress dots (tahrirlash bo'limlari bilan bir xil tartib: Shaxsiy, Diniy, Joylashuv, Oilaviy, Jismoniy, Ta'lim, Ish, Juftga+Bio) -->
+                    <div class="flex items-center justify-center gap-1.5">
                         <div class="onboarding-dot active"></div>
+                        <div class="onboarding-dot"></div>
+                        <div class="onboarding-dot"></div>
+                        <div class="onboarding-dot"></div>
                         <div class="onboarding-dot"></div>
                         <div class="onboarding-dot"></div>
                         <div class="onboarding-dot"></div>
@@ -714,41 +743,90 @@
                         </div>
                     </div>
 
-                    <!-- Step 2: Joylashuv -->
+                    <!-- Step 2: Diniy (tahrirlashdagi Diniy bo'limi bilan bir xil) -->
                     <div class="onboarding-step" data-step="2">
+                        <div class="h-full overflow-y-auto ios-scroll-hide px-6 pb-6 space-y-5">
+                            <div class="text-center mb-6">
+                                <div class="size-20 mx-auto mb-4 rounded-3xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
+                                    <span class="material-symbols-outlined text-primary text-4xl">mosque</span>
+                                </div>
+                                <h2 class="text-xl font-extrabold mb-1">Diniy ma'lumotlar</h2>
+                                <p class="text-sm text-white/50">Aqida, namoz, Qur'on, mazhab, ro'za, diniy daraja</p>
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-white/60 mb-2">Aqidasi</label>
+                                <div class="flex flex-wrap gap-2">
+                                    <label class="onboarding-chip"><input type="radio" name="aqida" value="Ahli Sunna" required class="hidden"><span>Ahli Sunna</span></label>
+                                    <label class="onboarding-chip"><input type="radio" name="aqida" value="Ash'ariya" class="hidden"><span>Ash'ariya</span></label>
+                                    <label class="onboarding-chip"><input type="radio" name="aqida" value="Moturidiya" class="hidden"><span>Moturidiya</span></label>
+                                    <label class="onboarding-chip"><input type="radio" name="aqida" value="Boshqa" class="hidden"><span>Boshqa</span></label>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-white/60 mb-2">Namoz</label>
+                                <div class="space-y-2">
+                                    <label class="onboarding-list-option"><input type="radio" name="prays" value="5 vaqt to'liq" required class="hidden"><div class="option-content"><span>5 vaqt to'liq</span></div><span class="check-icon material-symbols-outlined">check_circle</span></label>
+                                    <label class="onboarding-list-option"><input type="radio" name="prays" value="Faqat juma" class="hidden"><div class="option-content"><span>Faqat juma</span></div><span class="check-icon material-symbols-outlined">check_circle</span></label>
+                                    <label class="onboarding-list-option"><input type="radio" name="prays" value="O'qimaydi" class="hidden"><div class="option-content"><span>O'qimaydi</span></div><span class="check-icon material-symbols-outlined">check_circle</span></label>
+                                    <label class="onboarding-list-option"><input type="radio" name="prays" value="Boshlash niyatida" class="hidden"><div class="option-content"><span>Boshlash niyatida</span></div><span class="check-icon material-symbols-outlined">check_circle</span></label>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-white/60 mb-2">Qur'on o'qish</label>
+                                <div class="flex flex-wrap gap-2">
+                                    <label class="onboarding-chip"><input type="radio" name="quran_reading" value="Bilmaydi" required class="hidden"><span>Bilmaydi</span></label>
+                                    <label class="onboarding-chip"><input type="radio" name="quran_reading" value="O'qishni biladi" class="hidden"><span>O'qishni biladi</span></label>
+                                    <label class="onboarding-chip"><input type="radio" name="quran_reading" value="Ravon o'qiydi" class="hidden"><span>Ravon o'qiydi</span></label>
+                                    <label class="onboarding-chip"><input type="radio" name="quran_reading" value="Hofizi Qur'on" class="hidden"><span>Hofizi Qur'on</span></label>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-white/60 mb-2">Mazhabi</label>
+                                <div class="grid grid-cols-2 gap-3">
+                                    <label class="onboarding-option-card small"><input type="radio" name="mazhab" value="Hanafi" required class="hidden"><div class="card-inner"><span class="font-bold text-sm">Hanafi</span></div></label>
+                                    <label class="onboarding-option-card small"><input type="radio" name="mazhab" value="Shafi'i" class="hidden"><div class="card-inner"><span class="font-bold text-sm">Shafi'i</span></div></label>
+                                    <label class="onboarding-option-card small"><input type="radio" name="mazhab" value="Maliki" class="hidden"><div class="card-inner"><span class="font-bold text-sm">Maliki</span></div></label>
+                                    <label class="onboarding-option-card small"><input type="radio" name="mazhab" value="Hanbali" class="hidden"><div class="card-inner"><span class="font-bold text-sm">Hanbali</span></div></label>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-white/60 mb-2">Ro'za</label>
+                                <div class="flex gap-2">
+                                    <label class="onboarding-chip flex-1"><input type="radio" name="fasts" value="Ha" required class="hidden"><span>Ha</span></label>
+                                    <label class="onboarding-chip flex-1"><input type="radio" name="fasts" value="Yo'q" class="hidden"><span>Yo'q</span></label>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-white/60 mb-2">Diniy daraja</label>
+                                <div class="flex gap-2">
+                                    <label class="onboarding-chip flex-1"><input type="radio" name="religious_level" value="Jiddiy" required class="hidden"><span>Jiddiy</span></label>
+                                    <label class="onboarding-chip flex-1"><input type="radio" name="religious_level" value="O'rtacha" class="hidden"><span>O'rtacha</span></label>
+                                    <label class="onboarding-chip flex-1"><input type="radio" name="religious_level" value="Yengil" class="hidden"><span>Yengil</span></label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 3: Joylashuv -->
+                    <div class="onboarding-step" data-step="3">
                         <div class="h-full overflow-y-auto ios-scroll-hide px-6 pb-6 space-y-5">
                             <div class="text-center mb-6">
                                 <div class="size-20 mx-auto mb-4 rounded-3xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
                                     <span class="material-symbols-outlined text-primary text-4xl">location_on</span>
                                 </div>
-                                <h2 class="text-xl font-extrabold mb-1">Qayerdansiz?</h2>
-                                <p class="text-sm text-white/50">Joylashuvingiz haqida ma'lumot</p>
+                                <h2 class="text-xl font-extrabold mb-1">Joylashuv</h2>
+                                <p class="text-sm text-white/50">Davlat, viloyat, millat</p>
                             </div>
                             <div>
                                 <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-white/60 mb-2">Davlat</label>
                                 <select name="country" id="onboarding-country" required class="w-full glass-card glass-input rounded-2xl px-4 py-4 text-base">
                                     <option value="">Davlatni tanlang</option>
-                                    <!-- Davlatlar ro'yxati JS orqali LOCATION_COUNTRIES_REGIONS dan to'ldiriladi -->
                                 </select>
                             </div>
                             <div>
                                 <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-white/60 mb-2">Viloyat / Shahar</label>
                                 <select name="region" id="onboarding-region" required class="w-full glass-card glass-input rounded-2xl px-4 py-4 text-base">
                                     <option value="">Viloyatni tanlang</option>
-                                    <option value="Toshkent shahar">Toshkent shahar</option>
-                                    <option value="Toshkent viloyati">Toshkent viloyati</option>
-                                    <option value="Samarqand">Samarqand</option>
-                                    <option value="Buxoro">Buxoro</option>
-                                    <option value="Andijon">Andijon</option>
-                                    <option value="Farg'ona">Farg'ona</option>
-                                    <option value="Namangan">Namangan</option>
-                                    <option value="Qashqadaryo">Qashqadaryo</option>
-                                    <option value="Surxondaryo">Surxondaryo</option>
-                                    <option value="Xorazm">Xorazm</option>
-                                    <option value="Navoiy">Navoiy</option>
-                                    <option value="Jizzax">Jizzax</option>
-                                    <option value="Sirdaryo">Sirdaryo</option>
-                                    <option value="Qoraqalpog'iston">Qoraqalpog'iston</option>
                                 </select>
                             </div>
                             <div>
@@ -763,10 +841,22 @@
                                     <option value="Boshqa">Boshqa</option>
                                 </select>
                             </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 4: Oilaviy holati -->
+                    <div class="onboarding-step" data-step="4">
+                        <div class="h-full overflow-y-auto ios-scroll-hide px-6 pb-6 space-y-5">
+                            <div class="text-center mb-6">
+                                <div class="size-20 mx-auto mb-4 rounded-3xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
+                                    <span class="material-symbols-outlined text-primary text-4xl">favorite</span>
+                                </div>
+                                <h2 class="text-xl font-extrabold mb-1">Oilaviy holati</h2>
+                                <p class="text-sm text-white/50">Oilaviy holatingizni tanlang</p>
+                            </div>
                             <div>
                                 <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-white/60 mb-3">Oilaviy holatingiz</label>
                                 <div id="onboarding-marital-options" class="grid grid-cols-2 gap-3">
-                                    <!-- Ayollar: Qiz bola, Beva, Ajrashgan. Erkaklar: Bo'ydoq, Oilali, Ajrashgan (JS to'ldiradi) -->
                                     <label class="onboarding-option-card">
                                         <input type="radio" name="marital_status" value="Bo'ydoq" required class="hidden">
                                         <div class="card-inner">
@@ -786,15 +876,15 @@
                         </div>
                     </div>
 
-                    <!-- Step 3: Jismoniy va diniy -->
-                    <div class="onboarding-step" data-step="3">
+                    <!-- Step 5: Jismoniy (tahrirlashdagi Jismoniy bilan bir xil) -->
+                    <div class="onboarding-step" data-step="5">
                         <div class="h-full overflow-y-auto ios-scroll-hide px-6 pb-6 space-y-5">
                             <div class="text-center mb-6">
                                 <div class="size-20 mx-auto mb-4 rounded-3xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
-                                    <span class="material-symbols-outlined text-primary text-4xl">self_improvement</span>
+                                    <span class="material-symbols-outlined text-primary text-4xl">straighten</span>
                                 </div>
-                                <h2 class="text-xl font-extrabold mb-1">Shaxsiy xususiyatlar</h2>
-                                <p class="text-sm text-white/50">Jismoniy va diniy ma'lumotlar</p>
+                                <h2 class="text-xl font-extrabold mb-1">Jismoniy</h2>
+                                <p class="text-sm text-white/50">Bo'y, vazn, sigaret, sport</p>
                             </div>
                             <div class="grid grid-cols-2 gap-3">
                                 <div>
@@ -817,68 +907,36 @@
                                 </div>
                             </div>
                             <div>
-                                <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-white/60 mb-3">Namoz o'qiysizmi?</label>
-                                <div class="flex gap-2">
-                                    <label class="onboarding-chip flex-1">
-                                        <input type="radio" name="prays" value="Ha" required class="hidden">
-                                        <span>Ha</span>
-                                    </label>
-                                    <label class="onboarding-chip flex-1">
-                                        <input type="radio" name="prays" value="Ba'zan" class="hidden">
-                                        <span>Ba'zan</span>
-                                    </label>
-                                    <label class="onboarding-chip flex-1">
-                                        <input type="radio" name="prays" value="Yo'q" class="hidden">
-                                        <span>Yo'q</span>
-                                    </label>
+                                <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-white/60 mb-2">Sigaret chekadimi?</label>
+                                <div class="grid grid-cols-3 gap-3">
+                                    <label class="onboarding-chip"><input type="radio" name="smoking" value="Ha" required class="hidden"><span>Ha</span></label>
+                                    <label class="onboarding-chip"><input type="radio" name="smoking" value="Yo'q" class="hidden"><span>Yo'q</span></label>
+                                    <label class="onboarding-chip"><input type="radio" name="smoking" value="Tashlagan" class="hidden"><span>Tashlagan</span></label>
                                 </div>
                             </div>
                             <div>
-                                <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-white/60 mb-3">Ro'za tutasizmi?</label>
-                                <div class="flex gap-2">
-                                    <label class="onboarding-chip flex-1">
-                                        <input type="radio" name="fasts" value="Ha" required class="hidden">
-                                        <span>Ha</span>
+                                <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-white/60 mb-2">Sport (haftada necha kun?)</label>
+                                <div class="grid grid-cols-4 gap-2">
+                                    {% for d in range(1, 8) %}
+                                    <label class="onboarding-chip text-center py-2.5">
+                                        <input type="radio" name="sport_days" value="{{ d }}" {{ 'required' if d == 1 else '' }} class="hidden">
+                                        <span>{{ d if d < 7 else 'Har kuni' }}</span>
                                     </label>
-                                    <label class="onboarding-chip flex-1">
-                                        <input type="radio" name="fasts" value="Ba'zan" class="hidden">
-                                        <span>Ba'zan</span>
-                                    </label>
-                                    <label class="onboarding-chip flex-1">
-                                        <input type="radio" name="fasts" value="Yo'q" class="hidden">
-                                        <span>Yo'q</span>
-                                    </label>
-                                </div>
-                            </div>
-                            <div>
-                                <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-white/60 mb-3">Diniy darajangiz</label>
-                                <div class="flex gap-2">
-                                    <label class="onboarding-chip flex-1">
-                                        <input type="radio" name="religious_level" value="Jiddiy" required class="hidden">
-                                        <span>Jiddiy</span>
-                                    </label>
-                                    <label class="onboarding-chip flex-1">
-                                        <input type="radio" name="religious_level" value="O'rtacha" class="hidden">
-                                        <span>O'rtacha</span>
-                                    </label>
-                                    <label class="onboarding-chip flex-1">
-                                        <input type="radio" name="religious_level" value="Yengil" class="hidden">
-                                        <span>Yengil</span>
-                                    </label>
+                                    {% endfor %}
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Step 4: Ta'lim va kasb -->
-                    <div class="onboarding-step" data-step="4">
+                    <!-- Step 6: Ta'lim (tahrirlashdagi Ta'lim bilan bir xil) -->
+                    <div class="onboarding-step" data-step="6">
                         <div class="h-full overflow-y-auto ios-scroll-hide px-6 pb-6 space-y-5">
                             <div class="text-center mb-6">
                                 <div class="size-20 mx-auto mb-4 rounded-3xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
                                     <span class="material-symbols-outlined text-primary text-4xl">school</span>
                                 </div>
-                                <h2 class="text-xl font-extrabold mb-1">Ta'lim va kasb</h2>
-                                <p class="text-sm text-white/50">Bilim va tajribangiz</p>
+                                <h2 class="text-xl font-extrabold mb-1">Ta'lim</h2>
+                                <p class="text-sm text-white/50">Ta'lim darajangiz</p>
                             </div>
                             <div>
                                 <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-white/60 mb-3">Ta'lim darajangiz</label>
@@ -908,6 +966,19 @@
                                         <span class="check-icon material-symbols-outlined">check_circle</span>
                                     </label>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 7: Ish & Kasb (tahrirlashdagi Ish bo'limi bilan bir xil) -->
+                    <div class="onboarding-step" data-step="7">
+                        <div class="h-full overflow-y-auto ios-scroll-hide px-6 pb-6 space-y-5">
+                            <div class="text-center mb-6">
+                                <div class="size-20 mx-auto mb-4 rounded-3xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
+                                    <span class="material-symbols-outlined text-primary text-4xl">work</span>
+                                </div>
+                                <h2 class="text-xl font-extrabold mb-1">Ish & Kasb</h2>
+                                <p class="text-sm text-white/50">Kasb, ish, maosh</p>
                             </div>
                             <div>
                                 <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-white/60 mb-2">Kasbingiz</label>
@@ -939,8 +1010,8 @@
                         </div>
                     </div>
 
-                    <!-- Step 5: Juft talablari va Bio -->
-                    <div class="onboarding-step" data-step="5">
+                    <!-- Step 8: Juft talablari va Bio -->
+                    <div class="onboarding-step" data-step="8">
                         <div class="h-full overflow-y-auto ios-scroll-hide px-6 pb-6 space-y-5">
                             <div class="text-center mb-6">
                                 <div class="size-20 mx-auto mb-4 rounded-3xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
@@ -1409,6 +1480,7 @@
                 </div>
 
                 <div class="space-y-1.5">
+                    <!-- Faqat profil to'liq to'lmaganida ko'rsatiladi (updateProfileUI da profile_complete tekshiriladi) -->
                     <div id="profile-full-profile-btn" class="hidden">
                         <button type="button" onclick="openOnboarding('full')" class="w-full glass-card rounded-2xl py-2.5 px-3 flex items-center justify-between border border-primary/20 bg-primary/5 active:scale-[0.98]">
                             <div class="flex items-center gap-3">
@@ -2327,6 +2399,12 @@
         const NIKOH_CACHE_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
         const NIKOH_CACHE_CHATS_MAX_AGE_MS = 24 * 60 * 60 * 1000; // 24 soat — cache'dan tez ko'rsatish, orqada yangilanadi
 
+        // Xabarlar sahifasi cache (restoreFromLocalStorage ularni to'ldiradi, Asosiy sahifa kabi)
+        var chatsCache = {}; // 'all' -> { data: { chats, my_profiles }, timestamp }
+        var chatsPageReceivedCache = null;
+        var chatsPageSentCache = null;
+        var chatsMyProfiles = null;
+
         function restoreFromLocalStorage() {
             try {
                 const rawUser = localStorage.getItem(NIKOH_CACHE_USER);
@@ -2362,10 +2440,10 @@
                     try {
                         var parsed = JSON.parse(rawChats);
                         if (parsed && (Date.now() - (parsed.t || 0)) < NIKOH_CACHE_CHATS_MAX_AGE_MS && parsed.chats) {
-                            if (typeof chatsCache !== 'undefined') chatsCache['all'] = { data: parsed.chats, timestamp: parsed.t };
-                            if (typeof chatsMyProfiles !== 'undefined' && parsed.chats.my_profiles) chatsMyProfiles = parsed.chats.my_profiles;
-                            if (typeof chatsPageReceivedCache !== 'undefined' && parsed.received) chatsPageReceivedCache = parsed.received;
-                            if (typeof chatsPageSentCache !== 'undefined' && parsed.sent) chatsPageSentCache = parsed.sent;
+                            chatsCache['all'] = { data: parsed.chats, timestamp: parsed.t };
+                            if (parsed.chats.my_profiles) chatsMyProfiles = parsed.chats.my_profiles;
+                            if (parsed.received) chatsPageReceivedCache = parsed.received;
+                            if (parsed.sent) chatsPageSentCache = parsed.sent;
                         }
                     } catch (e) {}
                 }
@@ -2584,12 +2662,18 @@
         }
 
         function initApp() {
+            var splashStart = Date.now();
             initGlobalHaptic();
             var modalEl = document.getElementById('feed-profile-modal');
             if (modalEl && modalEl.parentNode && modalEl.parentNode !== document.body) {
                 document.body.appendChild(modalEl);
             }
             restoreFromLocalStorage();
+            // Ikkinchi marta kirishda (localStorage'da ma'lumot bor bo'lsa) Annikah splash ko'rinmasin
+            if (localStorage.getItem(NIKOH_CACHE_USER) || localStorage.getItem(NIKOH_CACHE_FEED)) {
+                var splashEl = document.getElementById('splash-overlay');
+                if (splashEl) splashEl.remove();
+            }
             // Oldin kirgan bo'lsa: cache bilan darhol ko'rsatish, keyin orqada yangi ma'lumot yuklanadi
             if (currentPage === 'feed' && typeof applyFeedFromCache === 'function' && typeof feedCacheByGender !== 'undefined' && typeof feedGender !== 'undefined' && feedCacheByGender[feedGender] && feedCacheByGender[feedGender].listings && feedCacheByGender[feedGender].listings.length > 0) {
                 applyFeedFromCache(feedCacheByGender[feedGender]);
@@ -2689,6 +2773,21 @@
             // Orqada yangi ma'lumot yuklanadi (user kutmaydi, cache bilan ishlaydi)
             const initPromises = [initUserData()];
             if (currentPage === 'feed') initPromises.push(loadFeedListings(1));
+            // Splash: kamida 1.2s ko'rsatiladi, keyin app tayyor bo'lganda o'chadi; maksimum 2.5s
+            function hideSplash() {
+                var el = document.getElementById('splash-overlay');
+                if (!el) return;
+                el.classList.add('splash-out');
+                setTimeout(function() { el.remove(); }, 480);
+            }
+            Promise.race([
+                Promise.all(initPromises),
+                new Promise(function(r) { setTimeout(r, 2500); })
+            ]).then(function() {
+                var elapsed = Date.now() - splashStart;
+                var remain = Math.max(0, 1200 - elapsed);
+                setTimeout(hideSplash, remain);
+            }).catch(function() { hideSplash(); });
             Promise.all(initPromises).then(() => {
                 // Obuna holatini tekshirish (har 10 soniyada)
                 setInterval(async () => {
@@ -2732,6 +2831,14 @@
                     if (typeof updateFeedGenderUI === 'function') updateFeedGenderUI();
                 } else if (currentPage === 'profile') {
                     updateProfileUI();
+                }
+
+                // Sevimlilar va Xabarlar sahifalari tez ochilsin: orqada prefetch
+                if (userData && userData.user) {
+                    setTimeout(function() {
+                        if (typeof loadFavoritesData === 'function' && !pageDataLoaded.favorites) loadFavoritesData().catch(function() {});
+                        if (typeof loadChatsPageAllData === 'function' && (!pageDataLoaded.chats || !pageDataLoaded.requests)) loadChatsPageAllData(true).catch(function() {});
+                    }, 350);
                 }
 
                 // Agar minimal ro'yxatdan o'tmagan bo'lsa: ilovani tanishtirish + oddiy ro'yxatdan o'tish
@@ -2781,10 +2888,11 @@
                     await loadRequestsData();
                     break;
                 case 'chats':
+                    // Avval localStorage cache'dan darhol ko'rsatish (Asosiy sahifa kabi), keyin orqada yangi xabar/so'rov yuklanadi
                     if (applyChatsPageFromCache()) {
                         pageDataLoaded.chats = true;
                         pageDataLoaded.requests = true;
-                        loadChatsPageAllData(true);
+                        loadChatsPageAllData(true); // silent: yangilanishni faqat fonda olib keladi
                         break;
                     }
                     if (!pageDataLoaded.chats || !pageDataLoaded.requests) {
@@ -3012,22 +3120,29 @@
         }
 
         // ONBOARDING HELPERS
-        // Onboarding state
+        // Onboarding state: 'full' = to'liq profil to'ldirish (profil sahifasidan), 'welcome' = birinchi marta (welcome -> simple-reg -> 5 qadam)
+        let onboardingMode = 'full';
         let currentOnboardingStep = 1;
-        const totalOnboardingSteps = 5;
+        const totalOnboardingSteps = 8;
         const stepTitles = {
             1: "Tanishib olaylik",
-            2: "Qayerdansiz?",
-            3: "Shaxsiy xususiyatlar",
-            4: "Ta'lim va kasb",
-            5: "Juftingiz haqida"
+            2: "Diniy ma'lumotlar",
+            3: "Joylashuv",
+            4: "Oilaviy holati",
+            5: "Jismoniy",
+            6: "Ta'lim",
+            7: "Ish & Kasb",
+            8: "Juftingiz haqida"
         };
         const stepFields = {
             1: ['name', 'gender', 'birth_year'],
-            2: ['country', 'region', 'nationality', 'marital_status'],
-            3: ['height', 'weight', 'prays', 'fasts', 'religious_level'],
-            4: ['education', 'profession', 'is_working', 'salary'],
-            5: ['partner_age_min', 'partner_age_max', 'partner_region', 'partner_religious_level', 'partner_marital_status', 'bio']
+            2: ['aqida', 'prays', 'quran_reading', 'mazhab', 'fasts', 'religious_level'],
+            3: ['country', 'region', 'nationality'],
+            4: ['marital_status'],
+            5: ['height', 'weight', 'smoking', 'sport_days'],
+            6: ['education'],
+            7: ['profession', 'is_working', 'salary'],
+            8: ['partner_age_min', 'partner_age_max', 'partner_region', 'partner_religious_level', 'partner_marital_status', 'bio']
         };
 
         function openOnboarding(mode) {
@@ -3046,17 +3161,19 @@
             document.querySelectorAll('.page-container').forEach(page => { page.style.display = 'none'; });
             
             if (mode === 'welcome') {
+                onboardingMode = 'welcome';
                 if (welcomeScreen) { welcomeScreen.classList.remove('hidden'); welcomeScreen.style.display = 'flex'; }
                 if (simpleRegForm) { simpleRegForm.classList.add('hidden'); simpleRegForm.style.display = 'none'; }
                 if (onboardingForm) { onboardingForm.classList.add('hidden'); onboardingForm.style.display = 'none'; }
             } else {
+                onboardingMode = 'full';
                 // To'liq profil (5 qadam)
                 if (welcomeScreen) { welcomeScreen.classList.add('hidden'); welcomeScreen.style.display = 'none'; }
                 if (simpleRegForm) { simpleRegForm.classList.add('hidden'); simpleRegForm.style.display = 'none'; }
                 if (onboardingForm) { onboardingForm.classList.remove('hidden'); onboardingForm.style.display = 'flex'; }
-            currentOnboardingStep = 1;
-            updateOnboardingUI();
-            initOnboardingListeners();
+                currentOnboardingStep = 1;
+                updateOnboardingUI();
+                initOnboardingListeners();
             }
         }
 
@@ -3119,15 +3236,7 @@
                 }
             });
 
-            // Update back button
-            const backBtn = document.getElementById('onboarding-back-btn');
-            if (backBtn) {
-                if (currentOnboardingStep === 1) {
-                    backBtn.classList.add('opacity-0', 'pointer-events-none');
-                } else {
-                    backBtn.classList.remove('opacity-0', 'pointer-events-none');
-                }
-            }
+            // Orqaga tugmasi har doim ko'rinadi (1-qadamda ham)
 
             // Update next button text
             const nextBtn = document.getElementById('onboarding-next-btn');
@@ -3138,7 +3247,7 @@
                     nextBtn.textContent = 'DAVOM ETISH';
                 }
             }
-            if (currentOnboardingStep === 2) updateOnboardingMaritalOptions();
+            if (currentOnboardingStep === 4) updateOnboardingMaritalOptions();
         }
         function updateOnboardingMaritalOptions() {
             const container = document.getElementById('onboarding-marital-options');
@@ -3222,6 +3331,18 @@
             if (currentOnboardingStep > 1) {
                 currentOnboardingStep--;
                 updateOnboardingUI();
+            } else {
+                // 1-qadamda orqaga: 'full' bo'lsa overlay yopiladi va profil sahifasiga qaytadi
+                if (onboardingMode === 'full' && typeof window.closeOnboardingOverlay === 'function') {
+                    window.closeOnboardingOverlay();
+                    window.showPage('profile');
+                } else if (onboardingMode === 'welcome') {
+                    // Birinchi marta flow: simple-reg sahifasiga qaytish
+                    const onboardingForm = document.getElementById('onboarding-form');
+                    const simpleRegForm = document.getElementById('simple-reg-form');
+                    if (onboardingForm) { onboardingForm.classList.add('hidden'); onboardingForm.style.display = 'none'; }
+                    if (simpleRegForm) { simpleRegForm.classList.remove('hidden'); simpleRegForm.style.display = 'flex'; }
+                }
             }
         }
 
@@ -4539,12 +4660,8 @@
             }
         });
 
-        // CHATS PAGE — barcha ma'lumotlar bir marta yuklanadi, cache'da saqlanadi, keyin faqat fon yangilanadi
+        // CHATS PAGE — localStorage'dan tez ko'rsatish, orqada yangi xabar/so'rov yangilanadi
         let chatsSelectedProfileId = null;
-        let chatsCache = {}; // 'all' -> { data: { chats, my_profiles }, timestamp }
-        let chatsMyProfiles = null;
-        var chatsPageReceivedCache = null; // So'rovlar (qabul qilingan) cache
-        var chatsPageSentCache = null;    // So'rovlar (yuborilgan) cache
 
         function renderChatsFromCache() {
             const container = document.getElementById('chats-list');
@@ -8549,6 +8666,7 @@
 </html>
 
 </html>
+
 
 
 
