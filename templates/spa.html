@@ -1417,57 +1417,61 @@
 
         <!-- PROFILE PAGE -->
         <div id="page-profile" class="page-container">
-            <!-- Skeleton: profil yuklanayotganda -->
-            <div id="profile-skeleton" class="px-6 pt-10 pb-4 hidden">
+            <!-- Skeleton: faqat avatar, ism, stats yuklanayotganda (soxta ma'lumot ko'rinmasin) -->
+            <div id="profile-skeleton" class="px-6 pt-10 pb-4">
                 <div class="max-w-md mx-auto flex flex-col items-center">
                     <div class="size-24 rounded-full bg-white/10 animate-pulse mb-3"></div>
                     <div class="h-6 w-40 bg-white/10 rounded animate-pulse mb-2"></div>
                     <div class="h-4 w-24 bg-white/10 rounded animate-pulse"></div>
                 </div>
-                <div class="max-w-md mx-auto px-5 mt-6 space-y-3">
-                    <div class="h-14 rounded-2xl bg-white/10 animate-pulse"></div>
-                    <div class="h-12 rounded-2xl bg-white/10 animate-pulse"></div>
+                <div class="max-w-md mx-auto px-5 mt-6">
+                    <div class="glass-card rounded-2xl p-3 grid grid-cols-3 gap-1">
+                        <div class="flex flex-col items-center"><div class="h-5 w-8 bg-white/10 rounded animate-pulse mb-1"></div><div class="h-3 w-12 bg-white/10 rounded animate-pulse"></div></div>
+                        <div class="flex flex-col items-center border-x border-white/5"><div class="h-5 w-8 bg-white/10 rounded animate-pulse mb-1"></div><div class="h-3 w-12 bg-white/10 rounded animate-pulse"></div></div>
+                        <div class="flex flex-col items-center"><div class="h-5 w-8 bg-white/10 rounded animate-pulse mb-1"></div><div class="h-3 w-12 bg-white/10 rounded animate-pulse"></div></div>
+                    </div>
                 </div>
             </div>
-            <div id="profile-content" class="contents">
+            <!-- Haqiqiy ma'lumot (avatar, ism, stats) — userData yuklangach ko'rinadi -->
+            <div id="profile-content" class="hidden">
             <div class="px-6 pt-10 pb-3">
                 <div class="max-w-md mx-auto flex flex-col items-center">
                     <div class="relative mb-3">
                         <div class="size-24 rounded-full p-1.5 glass-card border-primary/20 overflow-hidden">
-                            <div id="profile-avatar" class="w-full h-full rounded-full overflow-hidden border border-white/10 bg-gradient-to-br from-primary/20 to-green-500/20 flex items-center justify-center text-3xl font-bold text-white">
-                                ?
-                            </div>
+                            <div id="profile-avatar" class="w-full h-full rounded-full overflow-hidden border border-white/10 bg-gradient-to-br from-primary/20 to-green-500/20 flex items-center justify-center text-3xl font-bold text-white"></div>
                         </div>
                         <button type="button" onclick="window.showPage('profile-edit')" class="absolute bottom-0 right-0 bg-primary text-black size-9 rounded-full flex items-center justify-center border-2 border-background-dark active:scale-95 transition-transform shadow-lg">
                             <span class="material-symbols-outlined text-[20px]">edit</span>
                         </button>
                     </div>
-                    <h1 id="profile-name" class="text-xl font-extrabold tracking-tight text-white">Foydalanuvchi</h1>
-                    <div class="flex items-center gap-2 mt-1">
-                        <span id="profile-telegram-id" class="text-[11px] font-black tracking-widest text-primary/80 uppercase">#0</span>
-                        <span class="text-[10px] font-bold text-primary/70 px-2 py-0.5 rounded-full bg-primary/10 border border-primary/20 uppercase">Tasdiqlangan</span>
+                    <h1 id="profile-name" class="text-xl font-extrabold tracking-tight text-white"></h1>
+                    <div class="flex items-center gap-3 mt-1">
+                        <span id="profile-telegram-id" class="text-[11px] font-black tracking-widest text-primary/80 uppercase"></span>
+                        <span class="text-[10px] font-bold text-primary/70 px-2 py-0.5 rounded-full bg-primary/10 border border-primary/20 uppercase ml-0.5">Tasdiqlangan</span>
                     </div>
                 </div>
             </div>
-
-            <main class="max-w-md mx-auto px-5 w-full space-y-3" style="padding-bottom: 140px;">
-                <!-- Statistika — ixcham -->
+            <div class="max-w-md mx-auto px-5">
                 <div class="glass-card rounded-2xl p-3 grid grid-cols-3 gap-1">
                     <div class="flex flex-col items-center">
-                        <span id="profile-views" class="text-base font-extrabold text-white">0</span>
+                        <span id="profile-views" class="text-base font-extrabold text-white"></span>
                         <span class="text-[9px] font-bold text-white/40 uppercase tracking-wider">Ko'rilgan</span>
                     </div>
                     <div class="flex flex-col items-center border-x border-white/5">
-                        <span id="profile-likes" class="text-base font-extrabold text-white">0</span>
+                        <span id="profile-likes" class="text-base font-extrabold text-white"></span>
                         <span class="text-[9px] font-bold text-white/40 uppercase tracking-wider">Sevimlilar</span>
                     </div>
                     <div class="flex flex-col items-center">
-                        <span id="profile-requests" class="text-base font-extrabold text-white">0</span>
+                        <span id="profile-requests" class="text-base font-extrabold text-white"></span>
                         <span class="text-[9px] font-bold text-white/40 uppercase tracking-wider">So'rovlar</span>
                     </div>
                 </div>
+            </div>
+            </div>
 
-                <!-- TOP va Tariflar -->
+            <!-- Tugmalar doim ko'rinadi (Tariflar, E'lonlarim, ...) -->
+            <main class="max-w-md mx-auto px-5 w-full space-y-3 mt-5" style="padding-bottom: 140px;">
+                <!-- TOP va Tariflar — yuklanguncha ham tursin -->
                 <div class="grid grid-cols-2 gap-2">
                     <button type="button" id="profile-top-btn" onclick="window.showPage('top')" class="hidden glass-card rounded-2xl py-2.5 flex items-center justify-center gap-1.5 active:scale-[0.98] border border-amber-500/20">
                         <span class="material-symbols-outlined text-amber-400 text-[18px]">rocket_launch</span>
@@ -2907,20 +2911,23 @@
                     await loadFavoritesData();
                     break;
                 case 'profile':
-                    await initUserData();
-                    if (pageDataLoaded.profile) {
-                        document.getElementById('profile-skeleton')?.classList.add('hidden');
-                        document.getElementById('profile-content')?.classList.remove('hidden');
-                        if (document.getElementById('profile-content')?.style) document.getElementById('profile-content').style.display = '';
-                        updateProfileUI();
-                        return;
-                    }
-                    document.getElementById('profile-skeleton')?.classList.remove('hidden');
+                    var skel = document.getElementById('profile-skeleton');
                     var pc = document.getElementById('profile-content');
-                    if (pc) { pc.classList.add('hidden'); pc.style.display = 'none'; }
-                    await loadProfileData();
-                    document.getElementById('profile-skeleton')?.classList.add('hidden');
+                    if (userData && userData.profile) {
+                        if (skel) skel.classList.add('hidden');
+                        if (pc) { pc.classList.remove('hidden'); pc.style.display = ''; }
+                        updateProfileUI();
+                    } else {
+                        if (skel) skel.classList.remove('hidden');
+                        if (pc) { pc.classList.add('hidden'); pc.style.display = 'none'; }
+                    }
+                    await initUserData();
+                    if (skel) skel.classList.add('hidden');
                     if (pc) { pc.classList.remove('hidden'); pc.style.display = ''; }
+                    updateProfileUI();
+                    if (pageDataLoaded.profile) return;
+                    pageDataLoaded.profile = true;
+                    loadProfileData();
                     break;
                 case 'profile-edit':
                     await loadProfileEditPage();
@@ -4738,29 +4745,33 @@
                 if (sentSkeleton) sentSkeleton.style.display = 'block';
             }
             try {
-                var res = await Promise.all([
-                    fetch('/chat/api/list', { method: 'GET', headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }, credentials: 'same-origin' }),
-                    fetch('/requests/api/received', { method: 'GET', headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }, credentials: 'same-origin' }),
-                    fetch('/requests/api/sent', { method: 'GET', headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }, credentials: 'same-origin' })
-                ]);
-                if (res[0].status === 401 || res[0].status === 403) { window.location.href = '/'; return; }
-                if (res[1].status === 401 || res[1].status === 403) { window.location.href = '/'; return; }
-                if (res[2].status === 401 || res[2].status === 403) { window.location.href = '/'; return; }
-                var chatData = res[0].ok ? await res[0].json() : { chats: [], my_profiles: [] };
-                var receivedData = res[1].ok ? await res[1].json() : { requests: [] };
-                var sentData = res[2].ok ? await res[2].json() : { requests: [] };
+                // 1) Avval faqat chatlar — tez ko'rsatish, keyin so'rovlar alohida
+                var chatRes = await fetch('/chat/api/list', { method: 'GET', headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }, credentials: 'same-origin' });
+                if (chatRes.status === 401 || chatRes.status === 403) { window.location.href = '/'; return; }
+                var chatData = chatRes.ok ? await chatRes.json() : { chats: [], my_profiles: [] };
                 chatsCache['all'] = { data: chatData, timestamp: Date.now() };
-                chatsPageReceivedCache = receivedData;
-                chatsPageSentCache = sentData;
                 if (chatData.my_profiles && chatData.my_profiles.length > 0) chatsMyProfiles = chatData.my_profiles;
                 renderChatsTabs();
                 renderChatsFromCache();
+                if (skeleton) skeleton.style.display = 'none';
+                pageDataLoaded.chats = true;
+                saveChatsPageToCache();
+
+                // 2) So'rovlar alohida yuklanadi (received + sent parallel)
+                var reqRes = await Promise.all([
+                    fetch('/requests/api/received', { method: 'GET', headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }, credentials: 'same-origin' }),
+                    fetch('/requests/api/sent', { method: 'GET', headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }, credentials: 'same-origin' })
+                ]);
+                if (reqRes[0].status === 401 || reqRes[0].status === 403) { window.location.href = '/'; return; }
+                if (reqRes[1].status === 401 || reqRes[1].status === 403) { window.location.href = '/'; return; }
+                var receivedData = reqRes[0].ok ? await reqRes[0].json() : { requests: [] };
+                var sentData = reqRes[1].ok ? await reqRes[1].json() : { requests: [] };
+                chatsPageReceivedCache = receivedData;
+                chatsPageSentCache = sentData;
                 applyReceivedRequestsData(receivedData);
                 applySentRequestsData(sentData);
-                if (skeleton) skeleton.style.display = 'none';
                 if (receivedSkeleton) receivedSkeleton.style.display = 'none';
                 if (sentSkeleton) sentSkeleton.style.display = 'none';
-                pageDataLoaded.chats = true;
                 pageDataLoaded.requests = true;
                 saveChatsPageToCache();
             } catch (e) {
@@ -5323,11 +5334,11 @@
         
         window.removeFavorite = removeFavorite;
 
-        async function loadProfileData() {
-            if (!userData) await initUserData();
+        function loadProfileData() {
+            if (!userData) { initUserData().then(function() { updateProfileUI(); loadProfileData(); }); return; }
             updateProfileUI();
-            await Promise.all([loadListingsPageData(), loadTariffPageData()]);
-            pageDataLoaded.profile = true;
+            loadListingsPageData().catch(function() {});
+            loadTariffPageData().catch(function() {});
         }
 
         let currentProfileEditSection = null;
@@ -6095,12 +6106,12 @@
             const user = userData.user || {};
             const tariffInfo = userData.tariff?.tariff || null;
             
-            if (avatar) avatar.textContent = profile.name?.[0] || '?';
-            if (name) name.textContent = profile.name || 'Foydalanuvchi';
-            if (telegramId) telegramId.textContent = `#${user.telegram_id || '0'}`;
-            if (views) views.textContent = profile.views || 0;
-            if (likes) likes.textContent = profile.likes || 0;
-            if (requests) requests.textContent = user.sent_requests_count || 0;
+            if (avatar) avatar.textContent = profile.name ? profile.name[0] : '';
+            if (name) name.textContent = profile.name || '';
+            if (telegramId) telegramId.textContent = user.telegram_id ? '#' + user.telegram_id : '';
+            if (views) views.textContent = profile.views != null ? profile.views : '';
+            if (likes) likes.textContent = profile.likes != null ? profile.likes : '';
+            if (requests) requests.textContent = user.sent_requests_count != null ? user.sent_requests_count : '';
             
             if (topBtn) {
                 const icon = topBtn.querySelector('.material-symbols-outlined');
