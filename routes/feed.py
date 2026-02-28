@@ -31,6 +31,19 @@ def get_listings():
     # Filterlar
     show_top_only = request.args.get('top_only', 'false') == 'true'
 
+    # Qo'shimcha filterlar
+    age_min = request.args.get('age_min', type=int)
+    age_max = request.args.get('age_max', type=int)
+    filter_region = request.args.get('region')
+    filter_country = request.args.get('country')
+    religious_level = request.args.get('religious_level')
+    marital_status = request.args.get('marital_status')
+    education = request.args.get('education')
+    prays = request.args.get('prays')
+    height_min = request.args.get('height_min', type=int)
+    height_max = request.args.get('height_max', type=int)
+    search_query = request.args.get('search')
+
     # Base query
     query = Profile.query.filter(
         Profile.is_active == True,
@@ -38,29 +51,67 @@ def get_listings():
     )
 
     # Jinsi bo'yicha filter (qarshi jins)
-    # Avval qarshi jins bo'yicha filter qo'llaymiz
     if current_profile.gender == 'Erkak':
         opposite_gender = 'Ayol'
     else:
         opposite_gender = 'Erkak'
-    
+
     # Qarshi jins bo'yicha filter qo'llash
     query_with_gender = query.filter(Profile.gender == opposite_gender)
-    
-    # Agar qarshi jins bo'yicha e'lonlar topilmasa, jins filterini qoldiramiz
-    # (bu test uchun, keyinroq o'chirilishi mumkin)
-    # Avval tekshiramiz, qarshi jins bo'yicha e'lonlar bormi?
-    # exists() ishlatamiz, bu count() dan tezroq
-    has_opposite_gender = db.session.query(query_with_gender.exists()).scalar()
-    
-    if has_opposite_gender:
-        # Qarshi jins bo'yicha e'lonlar bor, filter qo'llaymiz
-        query = query_with_gender
-    # Agar qarshi jins bo'yicha e'lonlar yo'q bo'lsa, jins filterini qoldiramiz
-    # (query o'zgarishsiz qoladi - faqat is_active va user_id filterlari qoladi)
 
-    # Juftga talablar filterlari olib tashlandi
-    # Bu filterlar ilovani ochgandan keyin filter funksiyasi orqali ishlatilishi mumkin
+    has_opposite_gender = db.session.query(query_with_gender.exists()).scalar()
+
+    if has_opposite_gender:
+        query = query_with_gender
+
+    # Yosh filtri
+    current_year = datetime.utcnow().year
+    if age_min:
+        max_birth_year = current_year - age_min
+        query = query.filter(Profile.birth_year <= max_birth_year)
+    if age_max:
+        min_birth_year = current_year - age_max
+        query = query.filter(Profile.birth_year >= min_birth_year)
+
+    # Davlat filtri
+    if filter_country:
+        query = query.filter(Profile.country == filter_country)
+
+    # Hudud filtri
+    if filter_region:
+        query = query.filter(Profile.region == filter_region)
+
+    # Diniy daraja filtri
+    if religious_level:
+        query = query.filter(Profile.religious_level == religious_level)
+
+    # Oilaviy holat filtri
+    if marital_status:
+        query = query.filter(Profile.marital_status == marital_status)
+
+    # Ta'lim filtri
+    if education:
+        query = query.filter(Profile.education == education)
+
+    # Namoz filtri
+    if prays:
+        query = query.filter(Profile.prays == prays)
+
+    # Bo'y filtri
+    if height_min:
+        query = query.filter(Profile.height >= height_min)
+    if height_max:
+        query = query.filter(Profile.height <= height_max)
+
+    # Qidiruv (ism yoki ID bo'yicha)
+    if search_query:
+        search_term = f"%{search_query}%"
+        query = query.filter(
+            or_(
+                Profile.name.ilike(search_term),
+                Profile.user_id.cast(db.String).like(search_term)
+            )
+        )
 
     # User bilan join qilish (zarur, chunki UserTariff bilan join qilish uchun)
     query = query.join(User)
