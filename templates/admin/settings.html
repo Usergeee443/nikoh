@@ -1,0 +1,44 @@
+{% extends "admin/admin_base.html" %}
+{% block title %}Narxlar{% endblock %}
+{% block page_title %}Tarif va reklama narxlari{% endblock %}
+{% block content %}
+<div class="max-w-xl space-y-6">
+    <p class="text-white/50 text-sm">0 yozilsa — bepul. O'zgartirgach «Saqlash» bosing.</p>
+    <form id="prices-form" class="space-y-5">
+        <div class="glass-card rounded-2xl p-5 border border-white/10">
+            <label class="block text-white/60 text-sm font-medium mb-2">KUMUSH (so'm)</label>
+            <input type="number" name="KUMUSH_TARIFF_PRICE" value="{{ prices.KUMUSH_TARIFF_PRICE }}" min="0" class="w-full glass-input rounded-xl px-4 py-3 text-white">
+        </div>
+        <div class="glass-card rounded-2xl p-5 border border-white/10">
+            <label class="block text-white/60 text-sm font-medium mb-2">OLTIN (so'm)</label>
+            <input type="number" name="OLTIN_TARIFF_PRICE" value="{{ prices.OLTIN_TARIFF_PRICE }}" min="0" class="w-full glass-input rounded-xl px-4 py-3 text-white">
+        </div>
+        <div class="glass-card rounded-2xl p-5 border border-white/10">
+            <label class="block text-white/60 text-sm font-medium mb-2">VIP (so'm)</label>
+            <input type="number" name="VIP_TARIFF_PRICE" value="{{ prices.VIP_TARIFF_PRICE }}" min="0" class="w-full glass-input rounded-xl px-4 py-3 text-white">
+        </div>
+        <div class="glass-card rounded-2xl p-5 border border-white/10">
+            <label class="block text-white/60 text-sm font-medium mb-2">TOP 7 kun (so'm)</label>
+            <input type="number" name="TOP_7_PRICE" value="{{ prices.TOP_7_PRICE }}" min="0" class="w-full glass-input rounded-xl px-4 py-3 text-white">
+        </div>
+        <div class="glass-card rounded-2xl p-5 border border-white/10">
+            <label class="block text-white/60 text-sm font-medium mb-2">TOP 30 kun (so'm)</label>
+            <input type="number" name="TOP_30_PRICE" value="{{ prices.TOP_30_PRICE }}" min="0" class="w-full glass-input rounded-xl px-4 py-3 text-white">
+        </div>
+        <button type="submit" class="w-full py-3 px-6 rounded-xl bg-primary hover:opacity-90 text-black font-bold transition-opacity">Saqlash</button>
+    </form>
+</div>
+<script>
+document.getElementById('prices-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    var btn = this.querySelector('button[type=submit]');
+    var orig = btn.textContent; btn.disabled = true; btn.textContent = 'Saqlanmoqda...';
+    var fd = new FormData(this);
+    var obj = {};
+    fd.forEach(function(v, k) { obj[k] = parseInt(v, 10) || 0; });
+    fetch('{{ url_for("admin.api_settings_tariff") }}', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(obj) })
+        .then(function(r) { return r.json(); })
+        .then(function(d) { alert(d.message || (d.error || 'Saqlandi')); btn.disabled = false; btn.textContent = orig; });
+});
+</script>
+{% endblock %}

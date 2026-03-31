@@ -1,0 +1,215 @@
+{% extends "base.html" %}
+
+{% block title %}Profil - NIKOH{% endblock %}
+
+{% block content %}
+<div class="px-6 pt-14 pb-6">
+    <div class="max-w-md mx-auto flex flex-col items-center">
+        <div class="relative mb-4">
+            <div class="size-28 rounded-full p-1.5 glass-card neon-glow border-primary/20">
+                <div class="w-full h-full rounded-full overflow-hidden border border-white/10 bg-gradient-to-br from-primary/20 to-green-500/20 flex items-center justify-center text-4xl font-bold">
+                    {{ profile.name[0] if profile.name else '?' }}
+                </div>
+            </div>
+            <div class="absolute bottom-1 right-1 bg-primary text-black size-8 rounded-full flex items-center justify-center border-4 border-background-dark">
+                <span class="material-symbols-outlined text-[18px] font-black">verified</span>
+            </div>
+        </div>
+        <h1 class="text-2xl font-extrabold tracking-tight">{{ profile.name or 'Foydalanuvchi' }}</h1>
+        <div class="flex items-center gap-2 mt-1.5">
+            <span class="text-[12px] font-black tracking-widest text-primary/80 uppercase">#{{ user.telegram_id }}</span>
+            <span class="w-1 h-1 rounded-full bg-white/20"></span>
+            <span class="text-[10px] font-bold text-primary px-2.5 py-0.5 rounded-full bg-primary/10 border border-primary/20 uppercase tracking-wider">Tasdiqlangan</span>
+        </div>
+    </div>
+</div>
+
+<main class="max-w-md mx-auto px-5 w-full space-y-6" style="padding-bottom: 140px;">
+    <div class="glass-card rounded-3xl p-5 grid grid-cols-3 gap-2">
+        <div class="flex flex-col items-center border-r border-white/5">
+            <span class="text-[10px] font-bold text-white/40 uppercase tracking-wider mb-1">Ko'rilganlar</span>
+            <span class="text-lg font-extrabold">{{ profile.views or 0 }}</span>
+        </div>
+        <div class="flex flex-col items-center border-r border-white/5">
+            <span class="text-[10px] font-bold text-white/40 uppercase tracking-wider mb-1">Sevimlilar</span>
+            <span class="text-lg font-extrabold">{{ profile.likes or 0 }}</span>
+        </div>
+        <div class="flex flex-col items-center">
+            <span class="text-[10px] font-bold text-white/40 uppercase tracking-wider mb-1">So'rovlar</span>
+            <span class="text-lg font-extrabold">{{ user.sent_requests.count() or 0 }}</span>
+        </div>
+    </div>
+    
+    <div class="space-y-3">
+        <div class="glass-card rounded-2xl p-4 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="size-10 rounded-xl bg-white/5 flex items-center justify-center text-white/60">
+                    <span class="material-symbols-outlined text-[22px]">campaign</span>
+                </div>
+                <div>
+                    <p class="text-sm font-bold">E'lon holati</p>
+                    <p class="text-[10px] text-white/40">E'lonni hammaga ko'rsatish</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-3">
+                <span class="text-[10px] font-bold uppercase tracking-tight text-primary">{{ 'Aktiv' if profile.is_active else 'Passiv' }}</span>
+                <label class="cursor-pointer">
+                    <input type="checkbox" class="sr-only peer" {% if profile.is_active %}checked{% endif %} onchange="toggleProfile()">
+                    <div class="toggle-pill bg-white/10">
+                        <div class="toggle-circle"></div>
+                    </div>
+                </label>
+            </div>
+        </div>
+        
+        {% if user.has_active_tariff %}
+        <button class="w-full gold-gradient p-4 rounded-2xl flex items-center justify-center gap-3 active:scale-[0.97] transition-all shadow-[0_10px_30px_rgba(255,165,0,0.3)]">
+            <span class="material-symbols-outlined text-black font-bold">rocket_launch</span>
+            <span class="text-sm font-black text-black uppercase tracking-wider">TOPga olib chiqish</span>
+        </button>
+        {% endif %}
+    </div>
+    
+    <div class="space-y-2">
+        <h3 class="px-2 text-[10px] font-black uppercase tracking-[0.2em] text-white/30 mb-3">Asosiy amallar</h3>
+        <a href="{{ url_for('tariff.purchase') }}" class="w-full glass-card rounded-2xl p-4 flex items-center justify-between group active:scale-[0.98] transition-transform">
+            <div class="flex items-center gap-4">
+                <div class="size-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+                    <span class="material-symbols-outlined text-[24px]">workspace_premium</span>
+                </div>
+                <p class="text-sm font-bold">Obuna (Premium)</p>
+            </div>
+            <span class="material-symbols-outlined text-white/20 group-hover:text-primary transition-colors">chevron_right</span>
+        </a>
+        <a href="{{ url_for('profile.edit') }}" class="w-full glass-card rounded-2xl p-4 flex items-center justify-between group active:scale-[0.98] transition-transform">
+            <div class="flex items-center gap-4">
+                <div class="size-10 rounded-xl bg-white/5 flex items-center justify-center text-white/60">
+                    <span class="material-symbols-outlined text-[22px]">person_edit</span>
+                </div>
+                <p class="text-sm font-bold">Profilni tahrirlash</p>
+            </div>
+            <span class="material-symbols-outlined text-white/20">chevron_right</span>
+        </a>
+        <button class="w-full glass-card rounded-2xl p-4 flex items-center justify-between group active:scale-[0.98] transition-transform">
+            <div class="flex items-center gap-4">
+                <div class="size-10 rounded-xl bg-white/5 flex items-center justify-center text-white/60">
+                    <span class="material-symbols-outlined text-[22px]">settings</span>
+                </div>
+                <p class="text-sm font-bold">Sozlamalar</p>
+            </div>
+            <span class="material-symbols-outlined text-white/20">chevron_right</span>
+        </button>
+        <div class="pt-4 space-y-2">
+            <h3 class="px-2 text-[10px] font-black uppercase tracking-[0.2em] text-white/30 mb-3">Qo'shimcha</h3>
+            <button class="w-full glass-card rounded-2xl p-4 flex items-center justify-between group active:scale-[0.98] transition-transform">
+                <div class="flex items-center gap-4">
+                    <div class="size-10 rounded-xl bg-white/5 flex items-center justify-center text-white/60">
+                        <span class="material-symbols-outlined text-[22px]">menu_book</span>
+                    </div>
+                    <p class="text-sm font-bold">Qo'llanma</p>
+                </div>
+                <span class="material-symbols-outlined text-white/20">chevron_right</span>
+            </button>
+            <button class="w-full glass-card rounded-2xl p-4 flex items-center justify-between group active:scale-[0.98] transition-transform">
+                <div class="flex items-center gap-4">
+                    <div class="size-10 rounded-xl bg-white/5 flex items-center justify-center text-white/60">
+                        <span class="material-symbols-outlined text-[22px]">support_agent</span>
+                    </div>
+                    <p class="text-sm font-bold">Bog'lanish</p>
+                </div>
+                <span class="material-symbols-outlined text-white/20">chevron_right</span>
+            </button>
+            <button class="w-full glass-card rounded-2xl p-4 flex items-center justify-between group active:scale-[0.98] transition-transform">
+                <div class="flex items-center gap-4">
+                    <div class="size-10 rounded-xl bg-white/5 flex items-center justify-center text-white/60">
+                        <span class="material-symbols-outlined text-[22px]">handshake</span>
+                    </div>
+                    <p class="text-sm font-bold">Hamkorlik</p>
+                </div>
+                <span class="material-symbols-outlined text-white/20">chevron_right</span>
+            </button>
+            <button class="w-full glass-card rounded-2xl p-4 flex items-center justify-between group active:scale-[0.98] transition-transform">
+                <div class="flex items-center gap-4">
+                    <div class="size-10 rounded-xl bg-white/5 flex items-center justify-center text-white/60">
+                        <span class="material-symbols-outlined text-[22px]">share</span>
+                    </div>
+                    <p class="text-sm font-bold">Do'stlar bilan ulashing</p>
+                </div>
+                <span class="material-symbols-outlined text-white/20">chevron_right</span>
+            </button>
+        </div>
+    </div>
+    <button class="w-full mt-8 py-4 px-6 rounded-2xl border border-red-500/10 bg-red-500/5 text-red-500/60 flex items-center justify-center gap-2 active:scale-95 transition-all">
+        <span class="material-symbols-outlined text-[20px]">logout</span>
+        <span class="text-xs font-black uppercase tracking-[0.2em]">Chiqish</span>
+    </button>
+</main>
+{% endblock %}
+
+{% block extra_head %}
+<style>
+.glass-item {
+    background: rgba(255, 255, 255, 0.04);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.glass-item:active {
+    background: rgba(255, 255, 255, 0.08);
+    transform: scale(0.985);
+}
+.toggle-pill {
+    width: 48px;
+    height: 24px;
+    border-radius: 9999px;
+    position: relative;
+    transition: background-color 0.3s;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+.toggle-circle {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 20px;
+    height: 20px;
+    background-color: white;
+    border-radius: 9999px;
+    transition: transform 0.3s;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+input:checked + .toggle-pill {
+    background-color: #40ff00;
+}
+input:checked + .toggle-pill .toggle-circle {
+    transform: translateX(24px);
+    background-color: black;
+}
+.gold-gradient {
+    background: linear-gradient(135deg, #FFD700 0%, #FFA500 50%, #FF8C00 100%);
+}
+</style>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+async function toggleProfile() {
+    try {
+        const response = await fetch('/profile/toggle-active', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'}
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+            location.reload();
+        } else {
+            alert(data.error || 'Xatolik yuz berdi');
+        }
+    } catch (error) {
+        alert('Xatolik yuz berdi');
+    }
+}
+</script>
+{% endblock %}

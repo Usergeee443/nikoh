@@ -1,0 +1,41 @@
+{% extends "admin/admin_base.html" %}
+{% block title %}Adminlar{% endblock %}
+{% block page_title %}Adminlar{% endblock %}
+{% block content %}
+<div class="max-w-xl space-y-6">
+    <p class="text-white/50 text-sm">Yangi admin qo'shish: Telegram ID ni kiriting (foydalanuvchi avval botda /start bosgan bo'lishi kerak).</p>
+    <form id="add-admin-form" class="flex gap-3">
+        <input type="number" name="telegram_id" placeholder="Telegram ID" class="flex-1 glass-input rounded-xl px-4 py-3 text-white placeholder-white/40" required>
+        <button type="submit" class="py-3 px-6 rounded-xl bg-primary hover:opacity-90 text-black font-bold shrink-0 transition-opacity">Qo'shish</button>
+    </form>
+
+    <div class="glass-card rounded-2xl border border-white/10 overflow-hidden">
+        <div class="p-4 border-b border-white/10">
+            <h3 class="font-bold text-white">Adminlar ro'yxati</h3>
+        </div>
+        <ul class="divide-y divide-white/10">
+            {% for a in admins %}
+            <li class="p-4 flex items-center justify-between">
+                <div>
+                    <p class="text-white font-medium">ID: {{ a.id }} · Telegram: {{ a.telegram_id }}</p>
+                    <p class="text-white/50 text-sm">@{{ a.username or '—' }}</p>
+                </div>
+            </li>
+            {% else %}
+            <li class="p-8 text-center text-white/50">Adminlar ro'yxati bo'sh</li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+<script>
+document.getElementById('add-admin-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    var tid = this.querySelector('[name=telegram_id]').value;
+    var btn = this.querySelector('button[type=submit]');
+    var orig = btn.textContent; btn.disabled = true; btn.textContent = '...';
+    fetch('{{ url_for("admin.api_add_admin") }}', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ telegram_id: parseInt(tid, 10) }) })
+        .then(function(r) { return r.json(); })
+        .then(function(d) { alert(d.message || d.error); if (d.success) (window.AdminSPA && window.AdminSPA.refreshCurrent ? window.AdminSPA.refreshCurrent() : location.reload()); else { btn.disabled = false; btn.textContent = orig; } });
+});
+</script>
+{% endblock %}

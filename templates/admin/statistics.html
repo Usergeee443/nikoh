@@ -1,0 +1,59 @@
+{% extends "admin/admin_base.html" %}
+{% block title %}Statistika{% endblock %}
+{% block page_title %}Statistika{% endblock %}
+{% block content %}
+<div class="space-y-8">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="glass-card rounded-2xl p-5 border border-white/10">
+            <p class="text-white/50 text-sm">Foydalanuvchilar</p>
+            <p class="text-2xl font-bold text-white">{{ stats.total_users }}</p>
+        </div>
+        <div class="glass-card rounded-2xl p-5 border border-white/10">
+            <p class="text-white/50 text-sm">E'lonlar (aktiv)</p>
+            <p class="text-2xl font-bold text-white">{{ stats.active_profiles }}</p>
+        </div>
+        <div class="glass-card rounded-2xl p-5 border border-white/10">
+            <p class="text-white/50 text-sm">To'lovlar (kutilmoqda)</p>
+            <p class="text-2xl font-bold text-amber-400">{{ stats.pending_payments }}</p>
+        </div>
+        <div class="glass-card rounded-2xl p-5 border border-white/10">
+            <p class="text-white/50 text-sm">Chatlar (aktiv)</p>
+            <p class="text-2xl font-bold text-white">{{ stats.active_chats }}</p>
+        </div>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-6">
+        <div class="glass-card rounded-2xl p-5 border border-white/10">
+            <h3 class="font-bold text-white mb-4">To'lovlar</h3>
+            <ul class="space-y-2 text-sm">
+                <li class="flex justify-between"><span class="text-white/50">Jami</span><span class="text-white font-medium">{{ stats.total_payments }}</span></li>
+                <li class="flex justify-between"><span class="text-white/50">Tasdiqlangan</span><span class="text-primary font-medium">{{ stats.approved_payments }}</span></li>
+                <li class="flex justify-between"><span class="text-white/50">Rad etilgan</span><span class="text-red-400 font-medium">{{ stats.rejected_payments }}</span></li>
+            </ul>
+        </div>
+        <div class="glass-card rounded-2xl p-5 border border-white/10">
+            <h3 class="font-bold text-white mb-4">So'rovlar</h3>
+            <ul class="space-y-2 text-sm">
+                <li class="flex justify-between"><span class="text-white/50">Jami</span><span class="text-white font-medium">{{ stats.total_requests }}</span></li>
+                <li class="flex justify-between"><span class="text-white/50">Kutilmoqda</span><span class="text-amber-400 font-medium">{{ stats.pending_requests }}</span></li>
+                <li class="flex justify-between"><span class="text-white/50">Qabul qilingan</span><span class="text-primary font-medium">{{ stats.accepted_requests }}</span></li>
+                <li class="flex justify-between"><span class="text-white/50">Rad etilgan</span><span class="text-red-400 font-medium">{{ stats.rejected_requests }}</span></li>
+            </ul>
+        </div>
+    </div>
+
+    {% if region_stats %}
+    <div class="glass-card rounded-2xl p-5 border border-white/10">
+        <h3 class="font-bold text-white mb-4">Hududlar bo'yicha e'lonlar</h3>
+        <ul class="space-y-2 text-sm max-h-64 overflow-y-auto">
+            {% for region, count in region_stats %}
+            <li class="flex justify-between py-1.5 border-b border-white/10 last:border-0">
+                <span class="text-white/70">{{ region or '—' }}</span>
+                <span class="text-white font-medium">{{ count }}</span>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,170 @@
+{% extends "admin/admin_base.html" %}
+{% block title %}Moderatsiya{% endblock %}
+{% block page_title %}E'lonlar moderatsiyasi{% endblock %}
+{% block content %}
+<div class="space-y-6">
+    <div class="flex flex-wrap gap-2">
+        <a href="{{ url_for('admin.moderation', status='pending') }}" class="px-4 py-2 rounded-xl text-sm font-bold transition-colors {{ 'bg-primary text-black' if status_filter == 'pending' else 'glass-card text-white/80 hover:bg-white/5 border border-white/10' }}">Kutilmoqda</a>
+        <a href="{{ url_for('admin.moderation', status='approved') }}" class="px-4 py-2 rounded-xl text-sm font-bold transition-colors {{ 'bg-primary text-black' if status_filter == 'approved' else 'glass-card text-white/80 hover:bg-white/5 border border-white/10' }}">Tasdiqlangan</a>
+        <a href="{{ url_for('admin.moderation', status='rejected') }}" class="px-4 py-2 rounded-xl text-sm font-bold transition-colors {{ 'bg-primary text-black' if status_filter == 'rejected' else 'glass-card text-white/80 hover:bg-white/5 border border-white/10' }}">Rad etilgan</a>
+    </div>
+
+    <div class="space-y-3">
+        {% for p in profiles %}
+        {% set u = p.user %}
+        <div class="glass-card rounded-2xl border border-white/10 overflow-hidden">
+            <div class="p-4 flex flex-col gap-3">
+                <div class="flex flex-wrap items-start justify-between gap-3">
+                    <div class="min-w-0">
+                        <p class="font-bold text-white text-lg">{{ p.name or 'Ismsiz' }} <span class="text-white/40 font-normal text-sm">#{{ p.id }}</span></p>
+                        <p class="text-white/50 text-sm mt-1">
+                            {% if u %}
+                            TG: {{ u.telegram_id }} · @{{ u.username or '—' }}
+                            {% if u.is_blocked %}<span class="text-red-400 font-bold ml-1">[bloklangan]</span>{% endif %}
+                            {% else %}User yo'q{% endif %}
+                        </p>
+                        <p class="text-xs text-white/40 mt-1">Holat: <span class="text-primary font-medium">{{ p.moderation_status or '—' }}</span> · Aktiv: {{ 'ha' if p.is_active else 'yo\'q' }} · Asosiy: {{ 'ha' if p.is_primary else 'qo\'shimcha' }}</p>
+                    </div>
+                    <div class="flex flex-wrap gap-2 shrink-0">
+                        {% if p.moderation_status == 'pending' %}
+                        <button type="button" class="approve-moderate px-3 py-2 rounded-xl bg-primary hover:opacity-90 text-black text-xs font-bold" data-id="{{ p.id }}">Tasdiqlash</button>
+                        <button type="button" class="reject-moderate px-3 py-2 rounded-xl bg-red-500/20 text-red-400 border border-red-400/30 text-xs font-bold" data-id="{{ p.id }}">Rad etish</button>
+                        {% endif %}
+                        {% if u and not u.is_blocked %}
+                        <button type="button" class="block-user px-3 py-2 rounded-xl bg-amber-500/20 text-amber-400 border border-amber-400/30 text-xs font-bold" data-profile-id="{{ p.id }}">Bloklash</button>
+                        {% endif %}
+                        <button type="button" class="delete-profile px-3 py-2 rounded-xl bg-white/10 text-white/80 border border-white/20 text-xs font-bold hover:bg-red-500/20 hover:text-red-300 hover:border-red-400/30" data-profile-id="{{ p.id }}" data-primary="{{ '1' if p.is_primary else '0' }}">O'chirish</button>
+                    </div>
+                </div>
+
+                <details class="group border border-white/10 rounded-xl overflow-hidden">
+                    <summary class="px-4 py-3 cursor-pointer text-sm font-bold text-primary hover:bg-white/5 list-none flex items-center justify-between">
+                        <span>To'liq ma'lumot</span>
+                        <span class="material-symbols-outlined text-lg group-open:rotate-180 transition-transform">expand_more</span>
+                    </summary>
+                    <div class="px-4 pb-4 pt-0 text-sm border-t border-white/10 bg-black/20">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 pt-3">
+                            <div class="col-span-full text-[10px] font-black uppercase tracking-wider text-white/40 mt-2 mb-1">Texnik</div>
+                            <p><span class="text-white/50">Profil ID</span> · <span class="text-white">{{ p.id }}</span></p>
+                            <p><span class="text-white/50">User ID</span> · <span class="text-white">{{ p.user_id }}</span></p>
+                            <p><span class="text-white/50">Yaratilgan</span> · <span class="text-white">{{ p.created_at.strftime('%Y-%m-%d %H:%M') if p.created_at else '—' }}</span></p>
+                            <p><span class="text-white/50">Telefon</span> · <span class="text-white">{{ p.phone_number or '—' }}</span></p>
+
+                            <div class="col-span-full text-[10px] font-black uppercase tracking-wider text-white/40 mt-3 mb-1">Shaxsiy</div>
+                            <p><span class="text-white/50">Jins</span> · <span class="text-white">{{ p.gender or '—' }}</span></p>
+                            <p><span class="text-white/50">Tug'ilgan yil</span> · <span class="text-white">{{ p.birth_year or '—' }} ({{ p.age if p.age is not none else '—' }} yosh)</span></p>
+                            <p><span class="text-white/50">Oilaviy holat</span> · <span class="text-white">{{ p.marital_status or '—' }}</span></p>
+
+                            <div class="col-span-full text-[10px] font-black uppercase tracking-wider text-white/40 mt-3 mb-1">Joylashuv</div>
+                            <p><span class="text-white/50">Davlat</span> · <span class="text-white">{{ p.country or '—' }}</span></p>
+                            <p><span class="text-white/50">Viloyat / shahar</span> · <span class="text-white">{{ p.region or '—' }}</span></p>
+                            <p><span class="text-white/50">Millat</span> · <span class="text-white">{{ p.nationality or '—' }}</span></p>
+                            <p class="sm:col-span-2"><span class="text-white/50">Hozirgi joylashuv</span> · <span class="text-white">{{ p.current_residence or '—' }}</span></p>
+
+                            <div class="col-span-full text-[10px] font-black uppercase tracking-wider text-white/40 mt-3 mb-1">Diniy</div>
+                            <p><span class="text-white/50">Aqida</span> · <span class="text-white">{{ p.aqida or '—' }}</span></p>
+                            <p><span class="text-white/50">Namoz</span> · <span class="text-white">{{ p.prays or '—' }}</span></p>
+                            <p><span class="text-white/50">Ro'za</span> · <span class="text-white">{{ p.fasts or '—' }}</span></p>
+                            <p><span class="text-white/50">Qur'on</span> · <span class="text-white">{{ p.quran_reading or '—' }}</span></p>
+                            <p><span class="text-white/50">Mazhab</span> · <span class="text-white">{{ p.mazhab or '—' }}</span></p>
+                            <p><span class="text-white/50">Diniy daraja</span> · <span class="text-white">{{ p.religious_level or '—' }}</span></p>
+
+                            <div class="col-span-full text-[10px] font-black uppercase tracking-wider text-white/40 mt-3 mb-1">Jismoniy</div>
+                            <p><span class="text-white/50">Bo'y / vazn</span> · <span class="text-white">{{ p.height or '—' }} sm / {{ p.weight or '—' }} kg</span></p>
+                            <p><span class="text-white/50">Sigaret</span> · <span class="text-white">{{ p.smoking or '—' }}</span></p>
+                            <p><span class="text-white/50">Sport (kun/hafta)</span> · <span class="text-white">{{ p.sport_days if p.sport_days is not none else '—' }}</span></p>
+
+                            <div class="col-span-full text-[10px] font-black uppercase tracking-wider text-white/40 mt-3 mb-1">Ta'lim va ish</div>
+                            <p><span class="text-white/50">Ta'lim</span> · <span class="text-white">{{ p.education or '—' }}</span></p>
+                            <p><span class="text-white/50">Kasb</span> · <span class="text-white">{{ p.profession or '—' }}</span></p>
+                            <p><span class="text-white/50">Ishlaydi</span> · <span class="text-white">{% if p.is_working is true %}Ha{% elif p.is_working is false %}Yo'q{% else %}—{% endif %}</span></p>
+                            <p class="sm:col-span-2"><span class="text-white/50">Maosh</span> · <span class="text-white">{{ p.salary or '—' }}</span></p>
+
+                            <div class="col-span-full text-[10px] font-black uppercase tracking-wider text-white/40 mt-3 mb-1">Juftga talablar</div>
+                            <p><span class="text-white/50">Yosh oralig'i</span> · <span class="text-white">{{ p.partner_age_min or '—' }} – {{ p.partner_age_max or '—' }}</span></p>
+                            <p><span class="text-white/50">Juftga hudud</span> · <span class="text-white">{{ p.partner_region or '—' }}</span></p>
+                            <p><span class="text-white/50">Juftga davlat</span> · <span class="text-white">{{ p.partner_country or '—' }}</span></p>
+                            <p><span class="text-white/50">Juftga diniy</span> · <span class="text-white">{{ p.partner_religious_level or '—' }}</span></p>
+                            <p><span class="text-white/50">Juftga oilaviy</span> · <span class="text-white">{{ p.partner_marital_status or '—' }}</span></p>
+                            <p class="sm:col-span-2"><span class="text-white/50">partner_locations (JSON)</span> · <span class="text-white break-all text-xs">{{ p.partner_locations or '—' }}</span></p>
+
+                            <div class="col-span-full text-[10px] font-black uppercase tracking-wider text-white/40 mt-3 mb-1">Tavsif</div>
+                            <p class="col-span-full text-white/90 whitespace-pre-wrap break-words">{{ p.bio or '—' }}</p>
+                        </div>
+                    </div>
+                </details>
+            </div>
+        </div>
+        {% else %}
+        <div class="glass-card rounded-2xl p-8 border border-white/10 text-center text-white/50">Ro'yxat bo'sh</div>
+        {% endfor %}
+    </div>
+
+    {% if pagination.pages > 1 %}
+    <div class="flex items-center justify-between px-2">
+        {% if pagination.has_prev %}<a href="{{ url_for('admin.moderation', status=status_filter, page=pagination.prev_num) }}" class="text-primary hover:underline text-sm font-medium">← Oldingi</a>{% else %}<span></span>{% endif %}
+        <span class="text-white/50 text-sm">{{ pagination.page }} / {{ pagination.pages }}</span>
+        {% if pagination.has_next %}<a href="{{ url_for('admin.moderation', status=status_filter, page=pagination.next_num) }}" class="text-primary hover:underline text-sm font-medium">Keyingi →</a>{% else %}<span></span>{% endif %}
+    </div>
+    {% endif %}
+</div>
+<script>
+(function() {
+    var approveUrl = '{{ url_for("admin.approve_moderation", profile_id=0) }}';
+    var rejectUrl = '{{ url_for("admin.reject_moderation", profile_id=0) }}';
+    var blockUrl = '{{ url_for("admin.block_user_by_profile", profile_id=0) }}';
+    var deleteUrl = '{{ url_for("admin.delete_profile_admin", profile_id=0) }}';
+
+    function postJson(url, onDone) {
+        fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' } })
+            .then(function(r) { return r.json().then(function(d) { return { ok: r.ok, d: d }; }); })
+            .then(function(x) {
+                if (x.ok && x.d.success) {
+                    if (onDone) onDone();
+                    else (window.AdminSPA && window.AdminSPA.refreshCurrent ? window.AdminSPA.refreshCurrent() : location.reload());
+                } else {
+                    alert(x.d.error || 'Xatolik');
+                }
+            });
+    }
+    document.querySelectorAll('.approve-moderate').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            var id = this.dataset.id;
+            var el = this; el.disabled = true; el.textContent = '...';
+            postJson(approveUrl.replace('0', id), function() { (window.AdminSPA && window.AdminSPA.refreshCurrent ? window.AdminSPA.refreshCurrent() : location.reload()); });
+        });
+    });
+    document.querySelectorAll('.reject-moderate').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            var id = this.dataset.id;
+            if (!confirm('Rad etishni xohlaysizmi?')) return;
+            var el = this; el.disabled = true; el.textContent = '...';
+            postJson(rejectUrl.replace('0', id), function() { (window.AdminSPA && window.AdminSPA.refreshCurrent ? window.AdminSPA.refreshCurrent() : location.reload()); });
+        });
+    });
+    document.querySelectorAll('.block-user').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            var id = this.dataset.profileId;
+            if (!confirm('Foydalanuvchini bloklaysizmi? U ilovadan foydalana olmaydi.')) return;
+            var el = this; el.disabled = true; el.textContent = '...';
+            postJson(blockUrl.replace('0', id), function() { (window.AdminSPA && window.AdminSPA.refreshCurrent ? window.AdminSPA.refreshCurrent() : location.reload()); });
+        });
+    });
+    document.querySelectorAll('.delete-profile').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            var id = this.dataset.profileId;
+            var isPrimary = this.dataset.primary === '1';
+            var msg = isPrimary ? 'ASOSIY profil o\'chiriladi. Davom etasizmi?' : 'Bu e\'lon butunlay o\'chiriladi. Davom etasizmi?';
+            if (!confirm(msg)) return;
+            var el = this; el.disabled = true; el.textContent = '...';
+            fetch(deleteUrl.replace('0', id), { method: 'DELETE', headers: { 'Content-Type': 'application/json' } })
+                .then(function(r) { return r.json().then(function(d) { return { ok: r.ok, d: d }; }); })
+                .then(function(x) {
+                    if (x.ok && x.d.success) (window.AdminSPA && window.AdminSPA.refreshCurrent ? window.AdminSPA.refreshCurrent() : location.reload());
+                    else { alert(x.d.error || 'Xatolik'); el.disabled = false; el.textContent = 'O\'chirish'; }
+                });
+        });
+    });
+})();
+</script>
+{% endblock %}

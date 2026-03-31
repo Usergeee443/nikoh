@@ -1,0 +1,54 @@
+{% extends "admin/admin_base.html" %}
+{% block title %}Foydalanuvchilar{% endblock %}
+{% block page_title %}Foydalanuvchilar{% endblock %}
+{% block content %}
+<div class="glass-card rounded-2xl border border-white/10 overflow-hidden">
+    <ul class="divide-y divide-white/10">
+        {% for u in users %}
+        <li class="p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+                <p class="font-bold text-white">ID: {{ u.id }} · Telegram: {{ u.telegram_id }}</p>
+                <p class="text-white/50 text-sm">@{{ u.username or '—' }}{% if u.is_blocked %} <span class="text-red-400 font-medium">(bloklangan)</span>{% endif %}</p>
+            </div>
+            <div class="flex gap-2 shrink-0">
+                {% if u.is_blocked %}
+                <button type="button" class="user-unblock px-4 py-2 rounded-xl glass-card hover:bg-white/5 text-white border border-white/10 text-sm font-bold transition-colors" data-id="{{ u.id }}">Blokdan chiqarish</button>
+                {% else %}
+                <button type="button" class="user-block px-4 py-2 rounded-xl bg-red-500/20 hover:bg-red-500/30 text-red-400 border border-red-400/30 text-sm font-bold transition-colors" data-id="{{ u.id }}">Bloklash</button>
+                {% endif %}
+            </div>
+        </li>
+        {% else %}
+        <li class="p-8 text-center text-white/50">Ro'yxat bo'sh</li>
+        {% endfor %}
+    </ul>
+    {% if pagination.pages > 1 %}
+    <div class="px-5 py-4 border-t border-white/10 flex items-center justify-between">
+        {% if pagination.has_prev %}<a href="{{ url_for('admin.users', page=pagination.prev_num) }}" class="text-primary hover:underline text-sm font-medium">← Oldingi</a>{% else %}<span></span>{% endif %}
+        <span class="text-white/50 text-sm">{{ pagination.page }} / {{ pagination.pages }}</span>
+        {% if pagination.has_next %}<a href="{{ url_for('admin.users', page=pagination.next_num) }}" class="text-primary hover:underline text-sm font-medium">Keyingi →</a>{% else %}<span></span>{% endif %}
+    </div>
+    {% endif %}
+</div>
+<script>
+document.querySelectorAll('.user-block').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+        var id = this.dataset.id;
+        if (!confirm('Foydalanuvchini bloklashni xohlaysizmi?')) return;
+        var el = this; el.disabled = true; el.textContent = '...';
+        fetch('{{ url_for("admin.block_user", user_id=0) }}'.replace('0', id), { method: 'POST', headers: { 'Content-Type': 'application/json' } })
+            .then(function(r) { return r.json(); })
+            .then(function(d) { if (d.success) (window.AdminSPA && window.AdminSPA.refreshCurrent ? window.AdminSPA.refreshCurrent() : location.reload()); else { alert(d.error || 'Xatolik'); el.disabled = false; el.textContent = 'Bloklash'; } });
+    });
+});
+document.querySelectorAll('.user-unblock').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+        var id = this.dataset.id;
+        var el = this; el.disabled = true; el.textContent = '...';
+        fetch('{{ url_for("admin.unblock_user", user_id=0) }}'.replace('0', id), { method: 'POST', headers: { 'Content-Type': 'application/json' } })
+            .then(function(r) { return r.json(); })
+            .then(function(d) { if (d.success) (window.AdminSPA && window.AdminSPA.refreshCurrent ? window.AdminSPA.refreshCurrent() : location.reload()); else { alert(d.error || 'Xatolik'); el.disabled = false; el.textContent = 'Blokdan chiqarish'; } });
+    });
+});
+</script>
+{% endblock %}

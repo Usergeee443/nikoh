@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html class="dark" lang="uz">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+    <title>Profil - NIKOH</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#39FF14",
+                        "emerald": "#10b981",
+                        "background-dark": "#0a0a0b",
+                    },
+                    fontFamily: {
+                        "display": ["Manrope", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "2xl": "24px",
+                    },
+                },
+            },
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer components {
+            .glass-card {
+                background: rgba(255, 255, 255, 0.03);
+                backdrop-filter: blur(24px);
+                -webkit-backdrop-filter: blur(24px);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.05);
+            }
+            .glass-header {
+                background: rgba(10, 10, 11, 0.7);
+                backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px);
+                border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            }
+            .neon-glow {
+                box-shadow: 0 0 20px rgba(57, 255, 20, 0.35);
+            }
+            .profile-gradient {
+                background: linear-gradient(to top, 
+                    rgba(10, 10, 11, 1) 0%, 
+                    rgba(10, 10, 11, 0.8) 20%, 
+                    rgba(10, 10, 11, 0) 60%);
+            }
+            .action-button-gradient {
+                background: linear-gradient(135deg, #39FF14 0%, #D4AF37 100%);
+            }
+            .info-label {
+                @apply text-[10px] text-white/40 font-bold uppercase tracking-wider mb-1;
+            }
+            .info-value {
+                @apply text-[14px] text-white font-semibold;
+            }
+        }
+    </style>
+    <style>
+        body {
+            height: 100vh;
+            overflow-x: hidden;
+            background-color: #0a0a0b;
+        }
+        .main-container {
+            padding-bottom: 120px;
+        }
+        ::-webkit-scrollbar {
+            display: none;
+        }
+        body {
+            min-height: max(884px, 100dvh);
+        }
+    </style>
+</head>
+<body class="font-display bg-background-dark text-white selection:bg-primary/30">
+    <header class="fixed top-0 left-0 right-0 z-50 glass-header h-16 flex items-center px-5">
+        <div class="max-w-md mx-auto w-full flex items-center justify-between">
+            <button onclick="window.history.back()" class="size-10 flex items-center justify-start text-white active:scale-90 transition-transform">
+                <span class="material-symbols-outlined text-[28px]">chevron_left</span>
+            </button>
+            <div class="flex items-center gap-3">
+                <button class="size-10 glass-card rounded-full flex items-center justify-center text-white/80 active:scale-90 transition-transform">
+                    <span class="material-symbols-outlined text-[20px]">share</span>
+                </button>
+                <button class="size-10 glass-card rounded-full flex items-center justify-center text-white/80 active:scale-90 transition-transform">
+                    <span class="material-symbols-outlined text-[20px]">more_horiz</span>
+                </button>
+            </div>
+        </div>
+    </header>
+    <main class="max-w-md mx-auto main-container">
+        <section class="relative h-[45vh] w-full overflow-hidden">
+            {% set gradients = [
+                'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+                'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+                'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+                'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
+                'linear-gradient(135deg, #30cfd0 0%, #330867 100%)',
+                'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)',
+                'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)',
+                'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)',
+                'linear-gradient(135deg, #ff6e7f 0%, #bfe9ff 100%)'
+            ] %}
+            {% set gradient_index = profile.user_id % gradients|length %}
+            <div class="absolute inset-0" style="background: {{ gradients[gradient_index] }}"></div>
+            <div class="absolute inset-0 profile-gradient"></div>
+            <div class="absolute bottom-6 left-6 right-6">
+                <div class="flex items-center gap-2 mb-2">
+                    <span class="bg-primary/20 text-primary border border-primary/30 px-2 py-0.5 rounded text-[10px] font-black tracking-widest uppercase">#{{ profile.user_id }}</span>
+                    <div class="flex items-center gap-1 bg-emerald/20 text-emerald border border-emerald/30 px-2 py-0.5 rounded text-[10px] font-bold">
+                        <span class="material-symbols-outlined text-[12px]" style="font-variation-settings: 'FILL' 1">verified</span>
+                        TASDIQLANGAN
+                    </div>
+                </div>
+                <h1 class="text-3xl font-extrabold tracking-tight mb-1">{{ profile.name }}, <span class="text-white/70 font-medium text-2xl">{{ profile.age }}</span></h1>
+                <div class="flex items-center gap-1.5 text-white/60 font-medium">
+                    <span class="material-symbols-outlined text-[18px] text-primary">location_on</span>
+                    {{ profile.region or 'Toshkent' }}
+                </div>
+            </div>
+        </section>
+        <div class="px-5 space-y-4 -mt-2 relative z-10">
+            <div class="glass-card rounded-2xl p-4">
+                <div class="flex items-center gap-2 mb-4 border-b border-white/5 pb-2">
+                    <span class="material-symbols-outlined text-primary text-[20px]">straighten</span>
+                    <h3 class="text-[12px] font-black uppercase tracking-widest text-white/80">Jismoniy ma'lumotlar</h3>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <p class="info-label">Bo'yi</p>
+                        <p class="info-value">{{ profile.height or '-' }} sm</p>
+                    </div>
+                    <div>
+                        <p class="info-label">Vazni</p>
+                        <p class="info-value">{{ profile.weight or '-' }} kg</p>
+                    </div>
+                </div>
+            </div>
+            <div class="glass-card rounded-2xl p-4">
+                <div class="flex items-center gap-2 mb-4 border-b border-white/5 pb-2">
+                    <span class="material-symbols-outlined text-primary text-[20px]">person_celebrate</span>
+                    <h3 class="text-[12px] font-black uppercase tracking-widest text-white/80">Shaxsiy holati</h3>
+                </div>
+                <div class="grid grid-cols-2 gap-y-4 gap-x-4">
+                    <div>
+                        <p class="info-label">Millati</p>
+                        <p class="info-value">{{ profile.nationality or 'O\'zbek' }}</p>
+                    </div>
+                    <div>
+                        <p class="info-label">Oilaviy holati</p>
+                        <p class="info-value">{{ profile.marital_status or 'Bo\'ydoq' }}</p>
+                    </div>
+                    <div class="col-span-2">
+                        <p class="info-label">Maoshi (oylik)</p>
+                        <p class="info-value">-</p>
+                    </div>
+                </div>
+            </div>
+            <div class="glass-card rounded-2xl p-4">
+                <div class="flex items-center gap-2 mb-4 border-b border-white/5 pb-2">
+                    <span class="material-symbols-outlined text-primary text-[20px]">school</span>
+                    <h3 class="text-[12px] font-black uppercase tracking-widest text-white/80">Ilm & Kasb</h3>
+                </div>
+                <div class="grid grid-cols-2 gap-y-4 gap-x-4">
+                    <div>
+                        <p class="info-label">Ta'lim</p>
+                        <p class="info-value">{{ profile.education or '-' }}</p>
+                    </div>
+                    <div>
+                        <p class="info-label">Kasbi</p>
+                        <p class="info-value">{{ profile.profession or '-' }}</p>
+                    </div>
+                    <div class="col-span-2">
+                        <p class="info-label">Biladigan tillari</p>
+                        <p class="info-value">-</p>
+                    </div>
+                </div>
+            </div>
+            <div class="glass-card rounded-2xl p-4">
+                <div class="flex items-center gap-2 mb-4 border-b border-white/5 pb-2">
+                    <span class="material-symbols-outlined text-primary text-[20px]">auto_awesome</span>
+                    <h3 class="text-[12px] font-black uppercase tracking-widest text-white/80">Diniy ma'lumotlar</h3>
+                </div>
+                <div class="grid grid-cols-2 gap-y-4 gap-x-4">
+                    <div>
+                        <p class="info-label">Aqidasi</p>
+                        <p class="info-value">Ahli Sunna</p>
+                    </div>
+                    <div>
+                        <p class="info-label">Namoz</p>
+                        <p class="info-value">{{ profile.prays or '-' }}</p>
+                    </div>
+                    <div class="col-span-2">
+                        <p class="info-label">Qur'on o'qishi</p>
+                        <p class="info-value">{{ profile.religious_level or '-' }}</p>
+                    </div>
+                </div>
+            </div>
+            {% if profile.bio %}
+            <div class="space-y-4">
+                <div class="glass-card rounded-2xl p-5">
+                    <h3 class="text-[13px] font-black uppercase tracking-widest text-primary mb-3">O'zim haqimda</h3>
+                    <p class="text-[14px] leading-relaxed text-white/80 font-medium">
+                        {{ profile.bio }}
+                    </p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </main>
+    <div class="fixed bottom-0 left-0 right-0 p-5 bg-gradient-to-t from-background-dark via-background-dark/90 to-transparent z-50">
+        <div class="max-w-md mx-auto">
+            {% if request_sent %}
+            <button disabled class="w-full h-14 glass-card rounded-2xl flex items-center justify-center gap-2 text-white/60 font-extrabold text-[15px] tracking-widest uppercase">
+                SO'ROV YUBORILGAN
+            </button>
+            {% else %}
+            <button onclick="sendRequest()" class="w-full h-14 action-button-gradient rounded-2xl flex items-center justify-center gap-2 text-black font-extrabold text-[15px] tracking-widest uppercase neon-glow active:scale-95 transition-all">
+                SO'ROV YUBORISH 💌
+            </button>
+            {% endif %}
+        </div>
+    </div>
+    <div class="fixed top-0 left-0 w-full h-full pointer-events-none -z-10 overflow-hidden opacity-30">
+        <div class="absolute top-[-10%] right-[-10%] w-[100%] h-[50%] bg-emerald/20 blur-[150px] rounded-full"></div>
+        <div class="absolute bottom-[-10%] left-[-10%] w-[100%] h-[50%] bg-primary/10 blur-[150px] rounded-full"></div>
+    </div>
+    <script>
+        async function sendRequest() {
+            try {
+                const response = await fetch('/requests/api/send', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({receiver_id: {{ profile.user_id }}})
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    alert('✅ So\'rov muvaffaqiyatli yuborildi!');
+                    window.location.reload();
+                } else {
+                    alert('❌ ' + (data.error || 'Xatolik yuz berdi'));
+                }
+            } catch (error) {
+                console.error('Error sending request:', error);
+                alert('❌ Xatolik yuz berdi');
+            }
+        }
+    </script>
+</body>
+</html>

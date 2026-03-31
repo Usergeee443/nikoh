@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+
+{% block title %}Chatlar - NIKOH{% endblock %}
+
+{% block content %}
+<header class="sticky top-0 z-50 bg-background-dark/95 backdrop-blur-xl pt-4 pb-4 px-5">
+    <div class="max-w-md mx-auto">
+        <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-3">
+                <button onclick="history.back()" class="size-10 rounded-full glass-card flex items-center justify-center text-white/70 active:scale-95 transition-transform">
+                    <span class="material-symbols-outlined text-[20px]">arrow_back_ios_new</span>
+                </button>
+                <h1 class="text-xl font-extrabold tracking-tight">Chatlar</h1>
+            </div>
+        </div>
+    </div>
+</header>
+
+<main class="max-w-md mx-auto px-4 w-full" style="padding-top: 20px; padding-bottom: 140px;">
+    <div id="chatsList" class="space-y-3">
+        <!-- Skeleton Loading -->
+        <div id="chatsSkeleton" class="space-y-3">
+            <div class="glass-card rounded-2xl p-4 skeleton" style="height: 80px;"></div>
+            <div class="glass-card rounded-2xl p-4 skeleton" style="height: 80px;"></div>
+            <div class="glass-card rounded-2xl p-4 skeleton" style="height: 80px;"></div>
+        </div>
+    </div>
+</main>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+async function loadChats() {
+    const container = document.getElementById('chatsList');
+    const skeleton = document.getElementById('chatsSkeleton');
+    
+    try {
+        // Hide skeleton
+        if (skeleton) {
+            setTimeout(() => {
+                skeleton.style.display = 'none';
+            }, 300);
+        }
+        
+        const response = await fetch('/chat/api/list');
+        const data = await response.json();
+
+        if (skeleton) skeleton.remove();
+        container.innerHTML = '';
+
+        if (data.chats.length === 0) {
+            container.innerHTML = '<div class="text-center py-8 text-white/60">Chatlar yo\'q</div>';
+            return;
+        }
+
+        data.chats.forEach(chat => {
+            const card = createChatCard(chat);
+            container.appendChild(card);
+        });
+
+    } catch (error) {
+        console.error('Error loading chats:', error);
+        if (skeleton) skeleton.remove();
+        container.innerHTML = '<div class="text-center py-8 text-red-400">Xatolik yuz berdi</div>';
+    }
+}
+
+function createChatCard(chat) {
+    const div = document.createElement('div');
+    div.className = 'glass-card rounded-2xl p-4 cursor-pointer hover:bg-white/5 transition active:scale-[0.98]';
+    div.onclick = () => {
+        if (window.router) {
+            window.router.navigateToChat(chat.id);
+        } else {
+            window.location.href = `/chat/${chat.id}`;
+        }
+    };
+
+    const lastMsg = chat.last_message;
+    const timeAgo = lastMsg ? formatTimeAgo(new Date(lastMsg.created_at)) : '';
+    const unreadBadge = chat.unread_count > 0 ? `
+        <span class="absolute -top-1 -right-1 bg-primary text-black text-[10px] font-black px-1.5 rounded-full min-w-[18px] h-[18px] flex items-center justify-center border-2 border-background-dark">
+            ${chat.unread_count}
+        </span>
+    ` : '';
+
+    div.innerHTML = `
+        <div class="flex items-center gap-3">
+            <div class="relative size-14 rounded-full overflow-hidden border-2 border-white/10">
+                <div class="w-full h-full bg-gradient-to-br from-primary/20 to-green-500/20 flex items-center justify-center text-2xl font-bold">
+                    ${chat.other_user.name ? chat.other_user.name.charAt(0).toUpperCase() : '?'}
+                </div>
+                ${chat.is_active && !chat.is_expired ? `
+                    <div class="absolute bottom-0 right-0 size-3 bg-primary rounded-full border-2 border-background-dark"></div>
+                ` : ''}
+            </div>
+            <div class="flex-1 min-w-0">
+                <div class="flex items-center justify-between mb-1">
+                    <h3 class="text-base font-bold text-white truncate">${chat.other_user.name || 'Foydalanuvchi'}</h3>
+                    <span class="text-[10px] text-white/40 ml-2">${timeAgo}</span>
+                </div>
+                ${lastMsg ? `
+                    <p class="text-sm text-white/60 truncate">${lastMsg.is_mine ? 'Siz: ' : ''}${lastMsg.content}</p>
+                ` : '<p class="text-sm text-white/40">Chat boshlandi</p>'}
+                ${chat.is_expired ? `
+                    <p class="text-[10px] text-red-400 mt-1">Muddati tugagan</p>
+                ` : chat.days_remaining !== null ? `
+                    <p class="text-[10px] text-primary mt-1">${chat.days_remaining} kun qoldi</p>
+                ` : ''}
+            </div>
+            ${unreadBadge}
+        </div>
+    `;
+
+    return div;
+}
+
+function formatTimeAgo(date) {
+    const now = new Date();
+    const diff = now - date;
+    const minutes = Math.floor(diff / 60000);
+    const hours = Math.floor(diff / 3600000);
+    const days = Math.floor(diff / 86400000);
+
+    if (minutes < 1) return 'hozir';
+    if (minutes < 60) return `${minutes}min`;
+    if (hours < 24) return `${hours}soat`;
+    if (days < 7) return `${days}kun`;
+    return date.toLocaleDateString('uz-UZ', { day: 'numeric', month: 'short' });
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', loadChats);
+} else {
+    loadChats();
+}
+</script>
+{% endblock %}
