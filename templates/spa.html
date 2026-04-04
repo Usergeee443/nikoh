@@ -1241,7 +1241,7 @@
 
         <!-- FEED PAGE -->
         <div id="page-feed" class="page-container active flex flex-col h-[100dvh] max-h-[100dvh] overflow-hidden">
-            <header class="shrink-0 z-50 bg-background-dark/95 backdrop-blur-xl pt-4 pb-4 px-5 border-b border-white/[0.06]">
+            <header class="shrink-0 z-50 bg-background-dark/95 backdrop-blur-xl pt-4 pb-4 px-5 border-b border-white/5">
                 <div class="max-w-md mx-auto">
                     <div class="flex items-center justify-between mb-5">
                         <div class="flex items-center gap-2">
@@ -1320,7 +1320,7 @@
 
         <!-- REQUESTS PAGE -->
         <div id="page-requests" class="page-container flex flex-col h-[100dvh] max-h-[100dvh] overflow-hidden">
-            <header class="shrink-0 z-50 bg-background-dark/95 backdrop-blur-xl pt-4 pb-3 px-4 border-b border-white/[0.06]">
+            <header class="shrink-0 z-50 bg-background-dark/95 backdrop-blur-xl pt-4 pb-3 px-4 border-b border-white/5">
                 <div class="max-w-md mx-auto">
                     <div class="flex items-center justify-between mb-4">
                         <div class="flex items-center gap-3">
@@ -1386,7 +1386,7 @@
 
         <!-- CHATS PAGE -->
         <div id="page-chats" class="page-container flex flex-col h-[100dvh] max-h-[100dvh] overflow-hidden">
-            <header class="shrink-0 pt-8 pb-4 px-6 space-y-5 bg-background-dark/95 backdrop-blur-xl z-50 border-b border-white/[0.06]">
+            <header class="shrink-0 pt-8 pb-4 px-6 space-y-5 bg-background-dark/95 backdrop-blur-xl z-50 border-b border-white/5">
                 <div class="max-w-md mx-auto flex items-center justify-between">
                     <h1 class="text-3xl font-extrabold tracking-tight">Xabarlar</h1>
                         <div class="flex items-center gap-3">
@@ -1437,7 +1437,7 @@
 
         <!-- FAVORITES PAGE (Asosiy sahifa bilan bir xil header) -->
         <div id="page-favorites" class="page-container flex flex-col h-[100dvh] max-h-[100dvh] overflow-hidden">
-            <header class="shrink-0 z-50 bg-background-dark/95 backdrop-blur-xl pt-4 pb-4 px-5 border-b border-white/[0.06]">
+            <header class="shrink-0 z-50 bg-background-dark/95 backdrop-blur-xl pt-4 pb-4 px-5 border-b border-white/5">
                 <div class="max-w-md mx-auto">
                     <div class="flex items-center justify-between mb-5">
                         <div class="flex items-center gap-2">
@@ -1710,7 +1710,7 @@
         <div id="page-profile-edit" class="page-container flex flex-col min-h-0">
             <header class="sticky top-0 z-30 shrink-0 flex items-center justify-between px-6 py-5 backdrop-blur-xl bg-background-dark/80 border-b border-white/5">
                 <div class="flex items-center gap-3">
-                    <button type="button" onclick="window.showPage('profile')" class="size-10 rounded-full glass-card flex items-center justify-center text-white/80 active:scale-95 transition-transform">
+                    <button type="button" onclick="window.showPage('profile', { preserveScroll: true })" class="size-10 rounded-full glass-card flex items-center justify-center text-white/80 active:scale-95 transition-transform">
                         <span class="material-symbols-outlined text-[22px]">arrow_back_ios_new</span>
                     </button>
                     <h1 class="text-xl font-extrabold tracking-tight text-white">Profilni tahrirlash</h1>
@@ -2168,7 +2168,7 @@
 
         <!-- GUIDE PAGE -->
         <div id="page-guide" class="page-container flex flex-col h-[100dvh] max-h-[100dvh] overflow-hidden">
-            <header class="shrink-0 pt-6 pb-3 px-6 z-50 bg-background-dark/95 backdrop-blur-xl border-b border-white/[0.06]">
+            <header class="shrink-0 pt-6 pb-3 px-6 z-50 bg-background-dark/95 backdrop-blur-xl border-b border-white/5">
                 <div class="max-w-md mx-auto flex items-center justify-between">
                     <div class="flex items-center gap-3">
                         <button onclick="window.showPage('profile')" class="size-10 rounded-full glass-card flex items-center justify-center text-white/70 active:scale-95 transition-transform">
@@ -2239,7 +2239,7 @@
 
         <!-- CONTACT PAGE -->
         <div id="page-contact" class="page-container flex flex-col h-[100dvh] max-h-[100dvh] overflow-hidden">
-            <header class="shrink-0 pt-6 pb-3 px-6 z-50 bg-background-dark/95 backdrop-blur-xl border-b border-white/[0.06]">
+            <header class="shrink-0 pt-6 pb-3 px-6 z-50 bg-background-dark/95 backdrop-blur-xl border-b border-white/5">
                 <div class="max-w-md mx-auto flex items-center justify-between">
                     <div class="flex items-center gap-3">
                         <button onclick="window.showPage('profile')" class="size-10 rounded-full glass-card flex items-center justify-center text-white/70 active:scale-95 transition-transform">
@@ -2297,7 +2297,7 @@
 
         <!-- PARTNERSHIP PAGE -->
         <div id="page-partnership" class="page-container flex flex-col h-[100dvh] max-h-[100dvh] overflow-hidden">
-            <header class="shrink-0 pt-6 pb-3 px-6 z-50 bg-background-dark/95 backdrop-blur-xl border-b border-white/[0.06]">
+            <header class="shrink-0 pt-6 pb-3 px-6 z-50 bg-background-dark/95 backdrop-blur-xl border-b border-white/5">
                 <div class="max-w-md mx-auto flex items-center justify-between">
                     <div class="flex items-center gap-3">
                         <button onclick="window.showPage('profile')" class="size-10 rounded-full glass-card flex items-center justify-center text-white/70 active:scale-95 transition-transform">
@@ -2375,7 +2375,7 @@
 
         <!-- SHARE PAGE -->
         <div id="page-share" class="page-container flex flex-col h-[100dvh] max-h-[100dvh] overflow-hidden">
-            <header class="shrink-0 pt-6 pb-3 px-6 z-50 bg-background-dark/95 backdrop-blur-xl border-b border-white/[0.06]">
+            <header class="shrink-0 pt-6 pb-3 px-6 z-50 bg-background-dark/95 backdrop-blur-xl border-b border-white/5">
                 <div class="max-w-md mx-auto flex items-center justify-between">
                     <div class="flex items-center gap-3">
                         <button onclick="window.showPage('profile')" class="size-10 rounded-full glass-card flex items-center justify-center text-white/70 active:scale-95 transition-transform">
@@ -2411,7 +2411,7 @@
 
         <!-- TARIFF PAGE (tez ochilishi uchun asosiy faylda) -->
         <div id="page-tariff" class="page-container flex flex-col h-[100dvh] max-h-[100dvh] overflow-hidden">
-            <header class="shrink-0 pt-6 pb-3 px-6 z-50 bg-background-dark/95 backdrop-blur-xl border-b border-white/[0.06]">
+            <header class="shrink-0 pt-6 pb-3 px-6 z-50 bg-background-dark/95 backdrop-blur-xl border-b border-white/5">
                 <div class="max-w-md mx-auto flex items-center justify-between">
                     <button onclick="window.showPage('profile')" class="size-10 rounded-full glass-card flex items-center justify-center text-white/70 active:scale-95 transition-transform">
                         <span class="material-symbols-outlined text-[24px]">arrow_back_ios_new</span>
@@ -2990,8 +2990,45 @@
         }
 
         // Page navigation — ozgina qimirlash, tez (Xabarlar: faqat birinchi kirganda yuklanadi, sahifa almashganda qayta yuklanmaydi)
-        window.showPage = function(pageName) {
+        const pageScrollPositions = {};
+        function getActiveScrollContainerId(page) {
+            var map = {
+                feed: 'feed-scroll',
+                favorites: 'favorites-scroll',
+                requests: 'requests-scroll',
+                chats: 'chats-scroll',
+                tariff: 'tariff-scroll',
+                listings: 'listings-scroll',
+                settings: 'settings-scroll',
+                profile: 'profile-scroll',
+                'profile-edit': 'profile-edit-scroll',
+                'add-listing': 'add-listing-scroll',
+                guide: 'guide-scroll',
+                contact: 'contact-scroll',
+                partnership: 'partnership-scroll',
+                share: 'share-scroll'
+            };
+            return map[page] || null;
+        }
+        function saveCurrentPageScrollPosition() {
+            try {
+                var id = getActiveScrollContainerId(currentPage);
+                var el = id ? document.getElementById(id) : null;
+                if (el) pageScrollPositions[currentPage] = el.scrollTop || 0;
+                else pageScrollPositions[currentPage] = window.scrollY ?? document.documentElement.scrollTop ?? document.body.scrollTop ?? 0;
+            } catch (e) {}
+        }
+        function restoreTargetPageScrollPosition(pageName) {
+            var pos = (pageScrollPositions[pageName] != null) ? pageScrollPositions[pageName] : 0;
+            var id = getActiveScrollContainerId(pageName);
+            var el = id ? document.getElementById(id) : null;
+            if (el) el.scrollTop = pos;
+            else window.scrollTo(0, pos);
+        }
+
+        window.showPage = function(pageName, opts) {
             if (currentPage === pageName) return;
+            saveCurrentPageScrollPosition();
             
             const currentEl = document.querySelector('.page-container.active');
             const targetPage = document.getElementById(`page-${pageName}`);
@@ -3006,7 +3043,8 @@
                 currentPage = pageName;
                 updateNav(pageName);
                 setTimeout(() => loadPageData(pageName), 0);
-                scrollActivePageMainToTop();
+                if (opts && opts.preserveScroll) restoreTargetPageScrollPosition(pageName);
+                else scrollActivePageMainToTop();
             }
             
             if (currentEl && currentEl !== targetPage) {
@@ -3015,7 +3053,8 @@
                 currentPage = pageName;
                 updateNav(pageName);
                 setTimeout(() => loadPageData(pageName), 0);
-                scrollActivePageMainToTop();
+                if (opts && opts.preserveScroll) restoreTargetPageScrollPosition(pageName);
+                else scrollActivePageMainToTop();
                 currentEl.addEventListener('transitionend', function onEnd(e) {
                     if (e.target !== currentEl || e.propertyName !== 'opacity') return;
                     if (currentEl.classList.contains('page-leave')) {
@@ -5094,8 +5133,8 @@
             }
             updateRequestsTariffInfo();
             // Load both received and sent requests
-            await loadReceivedRequests();
-            await loadSentRequests();
+            await loadReceivedRequests(false);
+            await loadSentRequests(false);
         }
 
         function updateRequestsTariffInfo() {
@@ -5170,7 +5209,7 @@
                 }
                 if (receivedLabel) receivedLabel.classList.remove('hidden');
                 document.getElementById('requests-received-container')?.classList.remove('hidden');
-                if (!pageDataLoaded.requests) loadReceivedRequests();
+                if (!pageDataLoaded.requests) loadReceivedRequests(false);
             } else if (tab === 'sent') {
                 if (sentTab) {
                     sentTab.classList.remove('text-white/40', 'requests-tab-icon-only');
@@ -5178,7 +5217,7 @@
                 }
                 if (sentLabel) sentLabel.classList.remove('hidden');
                 document.getElementById('requests-sent-container')?.classList.remove('hidden');
-                if (!pageDataLoaded.requests) loadSentRequests();
+                if (!pageDataLoaded.requests) loadSentRequests(false);
             }
         }
         
@@ -5204,12 +5243,12 @@
             sorted.forEach(request => list.appendChild(createReceivedRequestCard(request)));
         }
 
-        async function loadReceivedRequests() {
+        async function loadReceivedRequests(silent) {
             const list = document.getElementById('requests-received-list');
             const skeleton = document.getElementById('requests-received-skeleton');
             if (!list) return;
             try {
-                if (skeleton) skeleton.style.display = 'block';
+                if (!silent && skeleton) skeleton.style.display = 'block';
                 const response = await fetch('/requests/api/received', {
                     method: 'GET',
                     headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
@@ -5248,12 +5287,12 @@
             sorted.forEach(request => list.appendChild(createSentRequestCard(request)));
         }
 
-        async function loadSentRequests() {
+        async function loadSentRequests(silent) {
             const list = document.getElementById('requests-sent-list');
             const skeleton = document.getElementById('requests-sent-skeleton');
             if (!list) return;
             try {
-                if (skeleton) skeleton.style.display = 'block';
+                if (!silent && skeleton) skeleton.style.display = 'block';
                 const response = await fetch('/requests/api/sent', {
                     method: 'GET',
                     headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
@@ -5377,10 +5416,10 @@
                             </div>` : ''}
                         </div>
                         <div class="flex flex-col gap-3">
-                            <button onclick="window.acceptRequest(${request.id})" class="size-11 rounded-full action-glass flex items-center justify-center text-primary shadow-xl border-primary/40 active:scale-90 transition-transform">
+                            <button onclick="window.acceptRequest(${request.id}, this)" class="size-11 rounded-full action-glass flex items-center justify-center text-primary shadow-xl border-primary/40 active:scale-90 transition-transform">
                                 <span class="material-symbols-outlined text-[24px]">check_circle</span>
                             </button>
-                            <button onclick="window.rejectRequest(${request.id})" class="size-11 rounded-full action-glass flex items-center justify-center text-red-500 shadow-xl border-red-500/40 active:scale-90 transition-transform">
+                            <button onclick="window.rejectRequest(${request.id}, this)" class="size-11 rounded-full action-glass flex items-center justify-center text-red-500 shadow-xl border-red-500/40 active:scale-90 transition-transform">
                                 <span class="material-symbols-outlined text-[24px]">cancel</span>
                             </button>
                         </div>
@@ -5497,8 +5536,15 @@
             return div;
         }
 
-        window.acceptRequest = async function(requestId) {
+        window.acceptRequest = async function(requestId, btnEl) {
             if (!confirm('Ushbu so\'rovni qabul qilasizmi?')) return;
+            var btn = btnEl || null;
+            var oldHtml = btn ? btn.innerHTML : '';
+            if (btn) {
+                btn.disabled = true;
+                btn.style.pointerEvents = 'none';
+                btn.innerHTML = '<span class="animate-spin rounded-full h-5 w-5 border-2 border-current border-t-transparent inline-block"></span>';
+            }
             try {
                 const response = await fetch(`/requests/api/${requestId}/accept`, { 
                     method: 'POST',
@@ -5507,18 +5553,32 @@
                 });
                 const data = await response.json();
                 if (response.ok) {
-                    alert('So\'rov qabul qilindi!');
-                    loadReceivedRequests();
+                    if (typeof window.showNotification === 'function') window.showNotification('✅ So\'rov qabul qilindi!');
+                    else alert('So\'rov qabul qilindi!');
+                    loadReceivedRequests(true);
                 } else {
                     alert(data.error || 'Xatolik yuz berdi');
                 }
             } catch (error) {
                 alert('Xatolik yuz berdi');
+            } finally {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.style.pointerEvents = '';
+                    btn.innerHTML = oldHtml;
+                }
             }
         };
 
-        window.rejectRequest = async function(requestId) {
+        window.rejectRequest = async function(requestId, btnEl) {
             if (!confirm('Ushbu so\'rovni rad qilasizmi?')) return;
+            var btn = btnEl || null;
+            var oldHtml = btn ? btn.innerHTML : '';
+            if (btn) {
+                btn.disabled = true;
+                btn.style.pointerEvents = 'none';
+                btn.innerHTML = '<span class="animate-spin rounded-full h-5 w-5 border-2 border-current border-t-transparent inline-block"></span>';
+            }
             try {
                 const response = await fetch(`/requests/api/${requestId}/reject`, { 
                     method: 'POST',
@@ -5527,13 +5587,20 @@
                 });
                 const data = await response.json();
                 if (response.ok) {
-                    alert('So\'rov rad etildi');
-                    loadReceivedRequests();
+                    if (typeof window.showNotification === 'function') window.showNotification('✅ So\'rov rad etildi');
+                    else alert('So\'rov rad etildi');
+                    loadReceivedRequests(true);
                 } else {
                     alert(data.error || 'Xatolik yuz berdi');
                 }
             } catch (error) {
                 alert('Xatolik yuz berdi');
+            } finally {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.style.pointerEvents = '';
+                    btn.innerHTML = oldHtml;
+                }
             }
         };
 
@@ -5548,7 +5615,7 @@
                 const data = await response.json();
                 if (response.ok) {
                     alert('So\'rov bekor qilindi');
-                    loadSentRequests();
+                    loadSentRequests(false);
                 } else {
                     alert(data.error || 'Xatolik yuz berdi');
                 }
