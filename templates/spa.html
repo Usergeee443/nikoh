@@ -398,12 +398,18 @@
             #favorites-scroll,
             #tariff-scroll,
             #chats-scroll,
+            #chat-messages,
             #requests-scroll,
             #listings-scroll,
             #settings-scroll,
             #profile-scroll,
             #profile-edit-scroll,
-            #add-listing-scroll {
+            #add-listing-scroll,
+            #guide-scroll,
+            #contact-scroll,
+            #partnership-scroll,
+            #share-scroll,
+            #top-scroll {
                 -webkit-overflow-scrolling: touch;
                 overscroll-behavior-y: contain;
                 touch-action: pan-y;
@@ -463,12 +469,19 @@
             html[data-theme="light"] #feed-profile-modal .glass-card { background: var(--card-bg); border-color: var(--card-border); }
             html[data-theme="light"] .text-red-400 { color: #dc2626 !important; }
             html[data-theme="light"] .shadow-\[0_-10px_40px_rgba\(0\,0\,0\,0\.8\)\] { box-shadow: 0 -10px 40px rgba(0,0,0,0.12); }
-            #app-container { position: relative; min-height: 100vh; }
+            #app-container {
+                position: relative;
+                height: 100dvh;
+                max-height: 100dvh;
+                min-height: 0;
+                overflow: hidden;
+            }
             /* transform ishlatilmaydi — sticky/fixed header viewport bo'yicha to'g'ri ishlashi uchun */
             .page-container {
                 position: absolute;
-                top: 0; left: 0; right: 0;
-                min-height: 100%;
+                top: 0; left: 0; right: 0; bottom: 0;
+                min-height: 0;
+                overflow: hidden;
                 opacity: 0;
                 visibility: hidden;
                 pointer-events: none;
@@ -593,12 +606,13 @@
     </style>
     
     <style>
-        html { height: 100%; overflow-x: hidden; }
+        html { height: 100%; overflow: hidden; }
         body {
             min-height: 100dvh;
             height: 100%;
+            max-height: 100dvh;
             overflow-x: hidden;
-            overflow-y: auto;
+            overflow-y: hidden;
             overscroll-behavior-y: contain;
             -webkit-overflow-scrolling: touch;
         }
@@ -615,12 +629,18 @@
         body.feed-modal-open #favorites-scroll,
         body.feed-modal-open #tariff-scroll,
         body.feed-modal-open #chats-scroll,
+        body.feed-modal-open #chat-messages,
         body.feed-modal-open #requests-scroll,
         body.feed-modal-open #listings-scroll,
         body.feed-modal-open #settings-scroll,
         body.feed-modal-open #profile-scroll,
         body.feed-modal-open #profile-edit-scroll,
-        body.feed-modal-open #add-listing-scroll {
+        body.feed-modal-open #add-listing-scroll,
+        body.feed-modal-open #guide-scroll,
+        body.feed-modal-open #contact-scroll,
+        body.feed-modal-open #partnership-scroll,
+        body.feed-modal-open #share-scroll,
+        body.feed-modal-open #top-scroll {
             overflow: hidden !important;
         }
         main {
@@ -692,7 +712,7 @@
         </div>
     </div>
     <!-- App Container -->
-    <div id="app-container" class="min-h-screen">
+    <div id="app-container">
         <!-- Navigation -->
         <nav class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[92%] max-w-md z-50">
             <div class="glass-card rounded-full p-2 flex items-center justify-between shadow-[0_20px_50px_rgba(0,0,0,0.5)] bg-black/80 border-white/10">
@@ -1487,9 +1507,9 @@
         </div>
 
         <!-- CHAT VIEW PAGE -->
-        <div id="page-chat-view" class="page-container">
-            <div class="relative flex h-screen w-full flex-col max-w-md mx-auto overflow-hidden border-x border-white/5 shadow-2xl">
-                <div class="sticky top-0 z-20 flex items-center justify-between px-4 pt-12 pb-4 bg-background-dark/80 backdrop-blur-xl border-b border-white/5">
+        <div id="page-chat-view" class="page-container flex flex-col h-[100dvh] max-h-[100dvh] overflow-hidden">
+            <div class="relative flex flex-1 min-h-0 w-full flex-col max-w-md mx-auto overflow-hidden border-x border-white/5 shadow-2xl">
+                <div class="shrink-0 z-20 flex items-center justify-between px-4 pt-12 pb-4 bg-background-dark/80 backdrop-blur-xl border-b border-white/5">
                     <div class="flex items-center gap-3">
                         <button onclick="window.showPage('chats')" class="text-white/70 hover:text-white transition-colors">
                             <span class="material-symbols-outlined text-2xl">chevron_left</span>
@@ -1514,7 +1534,7 @@
                         </div>
                     </div>
                 </div>
-                <div id="chat-messages" class="flex-1 overflow-y-auto px-4 py-6 pb-24 space-y-6" style="scrollbar-width: none;">
+                <div id="chat-messages" class="flex-1 min-h-0 overflow-y-auto px-4 py-6 pb-24 space-y-6" style="scrollbar-width: none;">
                     <div class="flex justify-center">
                         <div class="glass-effect bg-white/5 px-4 py-1.5 rounded-full">
                             <p class="text-white/40 text-[10px] font-semibold tracking-widest uppercase">Xabarlashish uchun 7 kun berildi</p>
@@ -1556,9 +1576,12 @@
 
         <!-- PROFILE PAGE -->
         <div id="page-profile" class="page-container flex flex-col h-[100dvh] max-h-[100dvh] overflow-hidden">
+            <header class="shrink-0 z-30 flex items-center justify-center px-5 py-3.5 backdrop-blur-xl bg-background-dark/80 border-b border-white/5">
+                <h1 class="text-lg font-extrabold tracking-tight text-white">Profil</h1>
+            </header>
             <div id="profile-scroll" class="flex-1 min-h-0 overflow-y-auto overflow-x-hidden ios-scroll-hide">
             <!-- Skeleton: faqat avatar, ism, stats yuklanayotganda (soxta ma'lumot ko'rinmasin) -->
-            <div id="profile-skeleton" class="px-6 pt-10 pb-4">
+            <div id="profile-skeleton" class="px-6 pt-5 pb-4">
                 <div class="max-w-md mx-auto flex flex-col items-center">
                     <div class="size-24 rounded-full bg-white/10 animate-pulse mb-3"></div>
                     <div class="h-6 w-40 bg-white/10 rounded animate-pulse mb-2"></div>
@@ -1574,7 +1597,7 @@
             </div>
             <!-- Haqiqiy ma'lumot (avatar, ism, stats) — userData yuklangach ko'rinadi -->
             <div id="profile-content" class="hidden">
-            <div class="px-6 pt-10 pb-3">
+            <div class="px-6 pt-5 pb-3">
                 <div class="max-w-md mx-auto flex flex-col items-center">
                     <div class="relative mb-3">
                         <div class="size-24 rounded-full p-1.5 glass-card border-primary/20 overflow-hidden">
@@ -1707,8 +1730,8 @@
         </div>
 
         <!-- PROFILNI TAHRIRLASH (bo'limlar bo'yicha) -->
-        <div id="page-profile-edit" class="page-container flex flex-col min-h-0">
-            <header class="sticky top-0 z-30 shrink-0 flex items-center justify-between px-6 py-5 backdrop-blur-xl bg-background-dark/80 border-b border-white/5">
+        <div id="page-profile-edit" class="page-container flex flex-col h-[100dvh] max-h-[100dvh] overflow-hidden">
+            <header class="shrink-0 z-30 flex items-center justify-between px-6 py-5 backdrop-blur-xl bg-background-dark/80 border-b border-white/5">
                 <div class="flex items-center gap-3">
                     <button type="button" onclick="window.showPage('profile', { preserveScroll: true })" class="size-10 rounded-full glass-card flex items-center justify-center text-white/80 active:scale-95 transition-transform">
                         <span class="material-symbols-outlined text-[22px]">arrow_back_ios_new</span>
@@ -1842,7 +1865,7 @@
 
         <!-- E'lonlar (barcha e'lonlar — 2+ bo'lganda profildan o'tish) -->
         <div id="page-listings" class="page-container flex flex-col h-[100dvh] max-h-[100dvh] overflow-hidden">
-            <header class="sticky top-0 z-30 flex items-center justify-between px-6 py-5 backdrop-blur-xl bg-background-dark/80 border-b border-white/5">
+            <header class="shrink-0 z-30 flex items-center justify-between px-6 py-5 backdrop-blur-xl bg-background-dark/80 border-b border-white/5">
                 <div class="flex items-center gap-3">
                     <button type="button" onclick="window.showPage('profile')" class="size-10 rounded-full glass-card flex items-center justify-center text-white/80 active:scale-95 transition-transform">
                         <span class="material-symbols-outlined text-[22px]">arrow_back_ios_new</span>
@@ -1860,8 +1883,8 @@
         </div>
 
         <!-- Yangi e'lon qo'shish (aka/opa uchun — asosiy profil tahrirlash bilan bir xil dizayn) -->
-        <div id="page-add-listing" class="page-container flex flex-col min-h-0">
-            <header class="sticky top-0 z-30 shrink-0 flex items-center justify-between px-6 py-5 backdrop-blur-xl bg-background-dark/80 border-b border-white/5">
+        <div id="page-add-listing" class="page-container flex flex-col h-[100dvh] max-h-[100dvh] overflow-hidden">
+            <header class="shrink-0 z-30 flex items-center justify-between px-6 py-5 backdrop-blur-xl bg-background-dark/80 border-b border-white/5">
                 <div class="flex items-center gap-3 min-w-0 flex-1">
                     <button type="button" onclick="window.showPage('profile')" class="size-10 shrink-0 rounded-full glass-card flex items-center justify-center text-white/80 active:scale-95 transition-transform" aria-label="Orqaga">
                         <span class="material-symbols-outlined text-[22px]">arrow_back_ios_new</span>
@@ -2035,7 +2058,7 @@
         </div>
 
         <!-- TOP PAGE (scroll: asosiy qism scroll qiladi, pastki nav ostida qolmaslik uchun) -->
-        <div id="page-top" class="page-container flex flex-col" style="height: 100dvh; max-height: 100dvh; overflow: hidden;">
+        <div id="page-top" class="page-container flex flex-col h-[100dvh] max-h-[100dvh] overflow-hidden">
             <header class="pt-6 pb-3 px-6 shrink-0 z-30 bg-background-dark/95 backdrop-blur-xl border-b border-white/5">
                 <div class="max-w-md mx-auto flex items-center justify-between">
                     <div class="flex items-center gap-3">
@@ -2049,7 +2072,7 @@
                     </div>
                 </div>
             </header>
-            <main class="max-w-md mx-auto flex-1 min-h-0 w-full px-6 py-5 space-y-6 overflow-y-auto overflow-x-hidden ios-scroll-hide" style="padding-bottom: calc(140px + env(safe-area-inset-bottom, 0px)); -webkit-overflow-scrolling: touch;">
+            <main id="top-scroll" class="max-w-md mx-auto flex-1 min-h-0 w-full px-6 py-5 space-y-6 overflow-y-auto overflow-x-hidden ios-scroll-hide" style="padding-bottom: calc(140px + env(safe-area-inset-bottom, 0px)); -webkit-overflow-scrolling: touch;">
                 <div id="top-done-wrap" class="hidden space-y-6">
                     <section class="glass-card rounded-3xl p-5 space-y-4">
                         <div class="flex items-center gap-3">
@@ -2972,6 +2995,7 @@
                 favorites: 'favorites-scroll',
                 requests: 'requests-scroll',
                 chats: 'chats-scroll',
+                'chat-view': 'chat-messages',
                 tariff: 'tariff-scroll',
                 listings: 'listings-scroll',
                 settings: 'settings-scroll',
@@ -2981,7 +3005,8 @@
                 guide: 'guide-scroll',
                 contact: 'contact-scroll',
                 partnership: 'partnership-scroll',
-                share: 'share-scroll'
+                share: 'share-scroll',
+                top: 'top-scroll'
             };
             var id = map[currentPage];
             var el = id ? document.getElementById(id) : null;
@@ -2997,6 +3022,7 @@
                 favorites: 'favorites-scroll',
                 requests: 'requests-scroll',
                 chats: 'chats-scroll',
+                'chat-view': 'chat-messages',
                 tariff: 'tariff-scroll',
                 listings: 'listings-scroll',
                 settings: 'settings-scroll',
@@ -3006,7 +3032,8 @@
                 guide: 'guide-scroll',
                 contact: 'contact-scroll',
                 partnership: 'partnership-scroll',
-                share: 'share-scroll'
+                share: 'share-scroll',
+                top: 'top-scroll'
             };
             return map[page] || null;
         }
