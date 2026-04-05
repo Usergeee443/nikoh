@@ -369,6 +369,17 @@ ID: {payment_request.id}
         traceback.print_exc()
 
 
+def _telegram_escape_html(text):
+    if text is None:
+        return '—'
+    s = str(text)
+    return (
+        s.replace('&', '&amp;')
+        .replace('<', '&lt;')
+        .replace('>', '&gt;')
+    )
+
+
 def send_pending_listing_to_admins(profile_id, flask_app=None):
     """Yangi e'lon yaratilganda adminlarga xabar yuborish (moderatsiya kutilmoqda)"""
     import asyncio
@@ -378,6 +389,12 @@ def send_pending_listing_to_admins(profile_id, flask_app=None):
     if not flask_app:
         logger.error("send_pending_listing_to_admins: Flask app context yo'q")
         return
+    if not Config.TELEGRAM_BOT_TOKEN:
+        logger.error("send_pending_listing_to_admins: TELEGRAM_BOT_TOKEN sozlanmagan")
+        return
+    admin_ids = Config.ADMIN_TELEGRAM_IDS or []
+    if not admin_ids:
+        logger.warning("send_pending_listing_to_admins: ADMIN_TELEGRAM_IDS bo'sh — xabar yuborilmaydi (.env da vergul bilan ID lar)")
 
     async def _send():
         try:
@@ -385,20 +402,20 @@ def send_pending_listing_to_admins(profile_id, flask_app=None):
             with flask_app.app_context():
                 profile = Profile.query.get(profile_id)
                 if not profile or getattr(profile, 'moderation_status', None) != 'pending':
+                    logger.info("send_pending_listing_to_admins: profil %s pending emas yoki topilmadi", profile_id)
                     return
                 u = User.query.get(profile.user_id)
                 author = (u.username or str(u.telegram_id) or '—') if u else '—'
-                message = f"""
-📋 **Yangi e'lon — moderatsiya kutilmoqda**
-
-👤 Ism: {profile.name or '—'}
-📌 Jins: {profile.gender or '—'}
-📍 Hudud: {profile.region or '—'}
-🆔 E'lon ID: {profile.id}
-👤 Foydalanuvchi: {author}
-
-Tasdiqlangandan keyin e'lon feedda ko'rinadi.
-"""
+                # Markdown ishonchsiz (ismidagi _, * va h.k.); HTML + escape
+                message = (
+                    "📋 <b>Yangi e'lon — moderatsiya kutilmoqda</b>\n\n"
+                    f"👤 Ism: {_telegram_escape_html(profile.name)}\n"
+                    f"📌 Jins: {_telegram_escape_html(profile.gender)}\n"
+                    f"📍 Hudud: {_telegram_escape_html(profile.region)}\n"
+                    f"🆔 E'lon ID: {profile.id}\n"
+                    f"👤 Foydalanuvchi: {_telegram_escape_html(author)}\n\n"
+                    "Tasdiqlangandan keyin e'lon feedda ko'rinadi."
+                )
                 keyboard = [
                     [
                         InlineKeyboardButton("✅ Tasdiqlash", callback_data=f"admin_mod_approve_{profile.id}"),
@@ -406,7 +423,6 @@ Tasdiqlangandan keyin e'lon feedda ko'rinadi.
                     ]
                 ]
                 reply_markup = InlineKeyboardMarkup(keyboard)
-                admin_ids = Config.ADMIN_TELEGRAM_IDS or []
                 for admin_id_str in admin_ids:
                     if not admin_id_str:
                         continue
@@ -416,7 +432,7 @@ Tasdiqlangandan keyin e'lon feedda ko'rinadi.
                             chat_id=admin_id,
                             text=message,
                             reply_markup=reply_markup,
-                            parse_mode='Markdown'
+                            parse_mode='HTML'
                         )
                     except Exception as e:
                         logger.error(f"send_pending_listing_to_admins: admin {admin_id_str} ga yuborishda xato: {e}")

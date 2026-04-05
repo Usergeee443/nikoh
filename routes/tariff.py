@@ -50,17 +50,12 @@ def payment_info():
     })
 
 
-@tariff_bp.route('/api/status')
-@login_required
-def get_status():
-    """Foydalanuvchining tarif holatini olish"""
+def _tariff_status_dict(user):
+    """Foydalanuvchi tarif holati (get_status va page-data uchun umumiy)."""
     from datetime import datetime
-    user = User.query.get(session['user_id'])
     now = datetime.utcnow()
-
     resp = {'has_active_tariff': False, 'tariff': None, 'active_top': None}
 
-    # Har qanday aktiv TOP tarifini topish (TOP_30, TOP_7 yoki OLTIN/VIP is_top)
     active_top_tariff = UserTariff.query.filter(
         UserTariff.user_id == user.id,
         UserTariff.is_active == True,
@@ -77,7 +72,7 @@ def get_status():
         }
 
     if not user.has_active_tariff:
-        return jsonify(resp)
+        return resp
 
     active_tariff = user.active_tariff
     is_top_active = active_tariff.is_top and not active_tariff.is_top_expired
@@ -91,7 +86,61 @@ def get_status():
         'top_days_remaining': getattr(active_tariff, 'top_days_remaining', 0) if is_top_active else 0,
         'expires_at': active_tariff.expires_at.isoformat() if active_tariff.expires_at else None
     }
-    return jsonify(resp)
+    return resp
+
+
+@tariff_bp.route('/api/status')
+@login_required
+def get_status():
+    """Foydalanuvchining tarif holatini olish"""
+    user = User.query.get(session['user_id'])
+    return jsonify(_tariff_status_dict(user))
+
+
+def _tariffs_catalog_list():
+    """Sotib olinadigan tariflar ro'yxati (SPA)."""
+    return [
+        {
+            'name': 'KUMUSH',
+            'price': _tariff_price('KUMUSH_TARIFF_PRICE', getattr(Config, 'KUMUSH_TARIFF_PRICE', 50000)),
+            'requests': Config.KUMUSH_TARIFF_REQUESTS,
+            'days': Config.KUMUSH_TARIFF_DAYS,
+            'top_days': Config.KUMUSH_TARIFF_TOP_DAYS,
+            'features': ['Cheksiz ko\'rishlar', 'Asosiy filterlar', 'Silver badge']
+        },
+        {
+            'name': 'OLTIN',
+            'price': _tariff_price('OLTIN_TARIFF_PRICE', getattr(Config, 'OLTIN_TARIFF_PRICE', 100000)),
+            'requests': Config.OLTIN_TARIFF_REQUESTS,
+            'days': Config.OLTIN_TARIFF_DAYS,
+            'top_days': Config.OLTIN_TARIFF_TOP_DAYS,
+            'features': ['Cheksiz ko\'rishlar', 'Poiskda yuqorida turish', 'Gold badge']
+        },
+        {
+            'name': 'VIP',
+            'price': _tariff_price('VIP_TARIFF_PRICE', getattr(Config, 'VIP_TARIFF_PRICE', 250000)),
+            'requests': Config.VIP_TARIFF_REQUESTS,
+            'days': Config.VIP_TARIFF_DAYS,
+            'top_days': Config.VIP_TARIFF_TOP_DAYS,
+            'features': ['Cheksiz ko\'rishlar', 'Poiskda yuqorida turish', 'VIP badge (Special)', 'Shaxsiy menejer 24/7']
+        }
+    ]
+
+
+@tariff_bp.route('/api/page-data')
+@login_required
+def get_tariff_page_data():
+    """Tariflar sahifasi: status + katalog + karta — bitta so'rov (tezroq)."""
+    user = User.query.get(session['user_id'])
+    body = _tariff_status_dict(user)
+    body['tariffs'] = _tariffs_catalog_list()
+    body['payment_info'] = {
+        'card_number': Config.PAYMENT_CARD_NUMBER,
+        'card_name': Config.PAYMENT_CARD_NAME
+    }
+    r = jsonify(body)
+    r.headers['Cache-Control'] = 'private, no-store'
+    return r
 
 
 @tariff_bp.route('/my-tariffs')
@@ -182,34 +231,7 @@ def create_payment_request():
 @login_required
 def get_tariffs():
     """Barcha tariflar ro'yxatini olish"""
-    tariffs = [
-        {
-            'name': 'KUMUSH',
-            'price': _tariff_price('KUMUSH_TARIFF_PRICE', getattr(Config, 'KUMUSH_TARIFF_PRICE', 50000)),
-            'requests': Config.KUMUSH_TARIFF_REQUESTS,
-            'days': Config.KUMUSH_TARIFF_DAYS,
-            'top_days': Config.KUMUSH_TARIFF_TOP_DAYS,
-            'features': ['Cheksiz ko\'rishlar', 'Asosiy filterlar', 'Silver badge']
-        },
-        {
-            'name': 'OLTIN',
-            'price': _tariff_price('OLTIN_TARIFF_PRICE', getattr(Config, 'OLTIN_TARIFF_PRICE', 100000)),
-            'requests': Config.OLTIN_TARIFF_REQUESTS,
-            'days': Config.OLTIN_TARIFF_DAYS,
-            'top_days': Config.OLTIN_TARIFF_TOP_DAYS,
-            'features': ['Cheksiz ko\'rishlar', 'Poiskda yuqorida turish', 'Gold badge']
-        },
-        {
-            'name': 'VIP',
-            'price': _tariff_price('VIP_TARIFF_PRICE', getattr(Config, 'VIP_TARIFF_PRICE', 250000)),
-            'requests': Config.VIP_TARIFF_REQUESTS,
-            'days': Config.VIP_TARIFF_DAYS,
-            'top_days': Config.VIP_TARIFF_TOP_DAYS,
-            'features': ['Cheksiz ko\'rishlar', 'Poiskda yuqorida turish', 'VIP badge (Special)', 'Shaxsiy menejer 24/7']
-        }
-    ]
-    
-    return jsonify({'tariffs': tariffs})
+    return jsonify({'tariffs': _tariffs_catalog_list()})
 
 
 @tariff_bp.route('/payment-instructions')

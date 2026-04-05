@@ -2739,6 +2739,9 @@
         const NIKOH_CACHE_CHATS = 'nikoh_chats';
         const NIKOH_CACHE_REQUESTS = 'nikoh_requests';
         const NIKOH_CACHE_TARIFF = 'nikoh_tariff';
+        const NIKOH_CACHE_TARIFF_MAX_AGE_MS = 30 * 60 * 1000;
+        const NIKOH_CACHE_LISTINGS = 'nikoh_listings';
+        const NIKOH_CACHE_LISTINGS_MAX_AGE_MS = 15 * 60 * 1000;
         const NIKOH_CACHE_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
         const NIKOH_THEME_KEY = 'nikoh_theme';
         const NIKOH_CACHE_REQUESTS_MAX_AGE_MS = 24 * 60 * 60 * 1000;
@@ -2986,6 +2989,10 @@
         let pageDataLoaded = { feed: false, chats: false, favorites: false, profile: false, requests: false, listings: false, tariff: false };
         window.invalidatePageCache = function(pageName) {
             if (pageDataLoaded[pageName] !== undefined) pageDataLoaded[pageName] = false;
+            try {
+                if (pageName === 'listings') localStorage.removeItem(NIKOH_CACHE_LISTINGS);
+                if (pageName === 'tariff') localStorage.removeItem(NIKOH_CACHE_TARIFF);
+            } catch (e) {}
         };
 
         /** Ichki scroll (Asosiy / Sevimli) yoki oyna — sahifa almashganda tepaga */
@@ -3521,7 +3528,7 @@
                 const raw = localStorage.getItem(NIKOH_CACHE_TARIFF);
                 if (raw) {
                     const cached = JSON.parse(raw);
-                    if (cached && cached.t && (Date.now() - cached.t) < 10 * 60 * 1000 && cached.html) {
+                    if (cached && cached.t && (Date.now() - cached.t) < NIKOH_CACHE_TARIFF_MAX_AGE_MS && cached.html) {
                         container.innerHTML = cached.html;
                     }
                     if (cached && cached.subtitle) {
@@ -3534,15 +3541,32 @@
                 container.innerHTML = '<p class="text-white/50 text-center py-8">Yuklanmoqda...</p>';
             }
             try {
-                // Hammasini parallel: status, tariffs, payment-info
-                const [statusRes, tariffsRes, paymentRes] = await Promise.all([
-                    fetch('/tariff/api/status', { credentials: 'same-origin' }),
-                    fetch('/tariff/api/tariffs', { credentials: 'same-origin' }),
-                    fetch('/tariff/api/payment-info', { credentials: 'same-origin' })
-                ]);
-                const statusData = statusRes.ok ? await statusRes.json() : {};
-                const tariffsData = tariffsRes.ok ? await tariffsRes.json() : { tariffs: [] };
-                const paymentInfo = paymentRes.ok ? await paymentRes.json() : {};
+                var statusData = {};
+                var tariffsData = { tariffs: [] };
+                var paymentInfo = {};
+                var bundleRes = await fetch('/tariff/api/page-data', {
+                    credentials: 'same-origin',
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                });
+                if (bundleRes.ok) {
+                    var bundle = await bundleRes.json();
+                    statusData = {
+                        has_active_tariff: !!bundle.has_active_tariff,
+                        tariff: bundle.tariff || null,
+                        active_top: bundle.active_top
+                    };
+                    tariffsData = { tariffs: bundle.tariffs || [] };
+                    paymentInfo = bundle.payment_info || {};
+                } else {
+                    const [statusRes, tariffsRes, paymentRes] = await Promise.all([
+                        fetch('/tariff/api/status', { credentials: 'same-origin', headers: { 'X-Requested-With': 'XMLHttpRequest' } }),
+                        fetch('/tariff/api/tariffs', { credentials: 'same-origin', headers: { 'X-Requested-With': 'XMLHttpRequest' } }),
+                        fetch('/tariff/api/payment-info', { credentials: 'same-origin', headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                    ]);
+                    statusData = statusRes.ok ? await statusRes.json() : {};
+                    tariffsData = tariffsRes.ok ? await tariffsRes.json() : { tariffs: [] };
+                    paymentInfo = paymentRes.ok ? await paymentRes.json() : {};
+                }
                 const hasActive = !!statusData.has_active_tariff;
                 const activeTariff = statusData.tariff || null;
 
@@ -4360,7 +4384,7 @@
                 if (typeof updateRequestsTariffInfo === 'function') updateRequestsTariffInfo();
                 if (currentPage === 'profile' && typeof updateProfileUI === 'function') updateProfileUI();
                 if (currentPage === 'tariff' && typeof loadTariffPageData === 'function') loadTariffPageData().catch(function() {});
-                if (currentPage === 'listings' && typeof loadListingsPageData === 'function') loadListingsPageData();
+                if (currentPage === 'listings' && typeof loadListingsPageData === 'function') loadListingsPageData({ force: true });
                 if (typeof loadProfileListings === 'function') loadProfileListings();
             } catch (e) { console.warn('refreshDependentUIAfterUserData', e); }
         };
@@ -5827,6 +5851,43 @@
 
         window.loadChatsData = loadChatsData;
 
+        function repartitionChatsByExpiry() {
+            try {
+                var c = chatsCache['all'];
+                if (!c || !c.data) return;
+                var now = Date.now();
+                var active = c.data.chats || [];
+                var arch = (c.data.chats_archive || []).slice();
+                var stillActive = [];
+                var moved = [];
+                active.forEach(function(chat) {
+                    var exp = chat.expires_at ? new Date(chat.expires_at).getTime() : null;
+                    if (exp != null && !isNaN(exp) && exp <= now) {
+                        chat.is_expired = true;
+                        chat.is_active = false;
+                        chat.days_remaining = 0;
+                        chat.hours_remaining = 0;
+                        moved.push(chat);
+                    } else {
+                        stillActive.push(chat);
+                    }
+                });
+                if (moved.length === 0) return;
+                c.data.chats = stillActive;
+                c.data.chats_archive = arch.concat(moved);
+                c.data.count = stillActive.length;
+                c.data.archive_count = (c.data.chats_archive || []).length;
+                if (typeof currentPage !== 'undefined' && currentPage === 'chats' && typeof renderChatsFromCache === 'function') {
+                    renderChatsFromCache();
+                }
+            } catch (e) {}
+        }
+        setInterval(function() {
+            if (typeof currentPage !== 'undefined' && currentPage === 'chats') {
+                repartitionChatsByExpiry();
+            }
+        }, 12000);
+
         function createChatCard(chat) {
             const div = document.createElement('div');
             div.className = 'glass-row p-3.5 rounded-[28px] flex items-center gap-4 active:bg-white/5 transition-all cursor-pointer';
@@ -6356,8 +6417,7 @@
         function loadProfileData() {
             if (!userData) { initUserData().then(function() { updateProfileUI(); loadProfileData(); }); return; }
             updateProfileUI();
-            loadListingsPageData().catch(function() {});
-            loadTariffPageData().catch(function() {});
+            loadProfileListings();
         }
 
         let currentProfileEditSection = null;
@@ -7429,14 +7489,18 @@
                     addListingWizardStep = 1;
                     window.newListingDraft = {};
                     window.currentEditingListingId = null;
+                    if (typeof window.invalidatePageCache === 'function') window.invalidatePageCache('listings');
                     if (typeof window.showNotification === 'function') {
                         window.showNotification('E\'loningiz adminga yuborildi. Admin tekshirgach avtomatik aktiv qilinadi.');
                     } else {
                         alert('E\'loningiz adminga yuborildi. Admin tekshirgach avtomatik aktiv qilinadi.');
                     }
+                    var wasListings = (typeof currentPage !== 'undefined' && currentPage === 'listings');
                     window.showPage('listings');
+                    if (wasListings && typeof loadListingsPageData === 'function') {
+                        await loadListingsPageData({ force: true });
+                    }
                     if (typeof loadProfileListings === 'function') loadProfileListings();
-                    if (typeof loadListingsPageData === 'function') loadListingsPageData();
                 } else {
                     alert(data.message || data.error || 'Yuborishda xatolik. Qaytadan urinib ko\'ring.');
                 }
@@ -7548,6 +7612,32 @@
             return '';
         }
 
+        function renderListingsPageInto(listEl, profiles, hasActiveTariff) {
+            if (!listEl) return;
+            listEl.innerHTML = '';
+            var plist = profiles || [];
+            var hat = hasActiveTariff !== false;
+            if (!hat && plist.length > 0) {
+                const banner = document.createElement('div');
+                banner.className = 'glass-card rounded-2xl p-4 mb-4 border border-amber-500/30 bg-amber-500/10';
+                banner.innerHTML = '<p class="text-sm font-bold text-amber-200 mb-1">Tarif muddati tugadi</p><p class="text-xs text-white/70">E\'loningiz hozir feedda ko\'rinmaydi. Yangi tarif sotib olsangiz e\'lonlar qayta ko\'rinadi.</p><a href="#" onclick="window.showPage(\'tariff\'); return false;" class="inline-block mt-2 text-primary font-bold text-sm">Tarif sotib olish →</a>';
+                listEl.appendChild(banner);
+            }
+            plist.forEach(function(p) {
+                const name = p.name || 'E\'lon';
+                const isPrimary = p.is_primary;
+                const modStatus = p.moderation_status || 'pending';
+                const isApproved = modStatus === 'approved';
+                const isPublished = isApproved && (p.is_published !== false);
+                const statusBadge = getListingStatusBadge(modStatus, p.is_active);
+                const subText = modStatus === 'pending' ? 'Kutilmoqda (admin tekshiradi)' : (modStatus === 'rejected' ? 'Bekor qilingan' : (isPrimary ? 'Asosiy profil' : (isPublished ? 'E\'lon qilingan' : 'Qoralama')));
+                const div = document.createElement('div');
+                div.className = 'glass-card rounded-2xl p-4';
+                div.innerHTML = '<div class="flex items-center justify-between"><div class="flex items-center gap-3 flex-1 min-w-0" onclick="window.editListing(' + p.id + ')"><div class="size-10 rounded-xl ' + (isPublished ? 'bg-primary/10 text-primary' : 'bg-white/5 text-white/40') + ' flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-[22px]">' + (isPublished ? 'visibility' : (modStatus === 'pending' ? 'schedule' : 'block')) + '</span></div><div class="min-w-0"><p class="text-sm font-bold text-white truncate">' + name + '</p>' + statusBadge + '<p class="text-[10px] text-white/40">' + subText + '</p></div></div><div class="flex items-center gap-2 shrink-0">' + (isApproved ? '<label class="relative inline-flex items-center cursor-pointer"><input type="checkbox" class="sr-only peer" ' + (isPublished ? 'checked' : '') + ' onchange="window.toggleListingPublish(' + p.id + ', this.checked)"><div class="toggle-pill bg-white/10"><div class="toggle-circle"></div></div></label>' : '') + '<button type="button" onclick="window.editListing(' + p.id + ')" class="size-8 rounded-lg flex items-center justify-center text-white/40 hover:text-white hover:bg-white/10"><span class="material-symbols-outlined text-[20px]">edit</span></button></div></div>';
+                listEl.appendChild(div);
+            });
+        }
+
         async function loadProfileListings() {
             const listEl = document.getElementById('profile-listings-list');
             const rowEl = document.getElementById('profile-listings-row');
@@ -7596,43 +7686,48 @@
             }
         }
 
-        async function loadListingsPageData() {
+        async function loadListingsPageData(options) {
+            var opts = options || {};
+            var force = !!opts.force;
+            var silent = !!opts.silent;
             const listEl = document.getElementById('listings-page-list');
             if (!listEl) return;
-            listEl.innerHTML = '<p class="text-white/50 text-center py-4 text-sm">Yuklanmoqda...</p>';
+            if (!force) {
+                try {
+                    var rawL = localStorage.getItem(NIKOH_CACHE_LISTINGS);
+                    if (rawL) {
+                        var cL = JSON.parse(rawL);
+                        if (cL && cL.t && (Date.now() - cL.t) < NIKOH_CACHE_LISTINGS_MAX_AGE_MS && Array.isArray(cL.profiles)) {
+                            renderListingsPageInto(listEl, cL.profiles, cL.has_active_tariff !== false);
+                            pageDataLoaded.listings = true;
+                        }
+                    }
+                } catch (e) {}
+            }
+            if (!silent && (!listEl.children.length || force)) {
+                listEl.innerHTML = '<p class="text-white/50 text-center py-4 text-sm">Yuklanmoqda...</p>';
+            }
             try {
                 const r = await fetch('/profile/api/listings', { method: 'GET', headers: { 'X-Requested-With': 'XMLHttpRequest' }, credentials: 'same-origin' });
                 if (!r.ok) {
-                    listEl.innerHTML = '<p class="text-white/50 text-center py-4 text-sm">E\'lonlar yuklanmadi.</p>';
+                    if (!listEl.querySelector('.glass-card')) {
+                        listEl.innerHTML = '<p class="text-white/50 text-center py-4 text-sm">E\'lonlar yuklanmadi.</p>';
+                    }
                     return;
                 }
                 const data = await r.json();
                 const profiles = data.profiles || data.listings || [];
                 const hasActiveTariff = data.has_active_tariff !== false;
-                listEl.innerHTML = '';
-                if (!hasActiveTariff && profiles.length > 0) {
-                    const banner = document.createElement('div');
-                    banner.className = 'glass-card rounded-2xl p-4 mb-4 border border-amber-500/30 bg-amber-500/10';
-                    banner.innerHTML = '<p class="text-sm font-bold text-amber-200 mb-1">Tarif muddati tugadi</p><p class="text-xs text-white/70">E\'loningiz hozir feedda ko\'rinmaydi. Yangi tarif sotib olsangiz e\'lonlar qayta ko\'rinadi.</p><a href="#" onclick="window.showPage(\'tariff\'); return false;" class="inline-block mt-2 text-primary font-bold text-sm">Tarif sotib olish →</a>';
-                    listEl.appendChild(banner);
-                }
-                profiles.forEach(p => {
-                    const name = p.name || 'E\'lon';
-                    const isPrimary = p.is_primary;
-                    const modStatus = p.moderation_status || 'pending';
-                    const isApproved = modStatus === 'approved';
-                    const isPublished = isApproved && (p.is_published !== false);
-                    const statusBadge = getListingStatusBadge(modStatus, p.is_active);
-                    const subText = modStatus === 'pending' ? 'Kutilmoqda (admin tekshiradi)' : (modStatus === 'rejected' ? 'Bekor qilingan' : (isPrimary ? 'Asosiy profil' : (isPublished ? 'E\'lon qilingan' : 'Qoralama')));
-                    const div = document.createElement('div');
-                    div.className = 'glass-card rounded-2xl p-4';
-                    div.innerHTML = '<div class="flex items-center justify-between"><div class="flex items-center gap-3 flex-1 min-w-0" onclick="window.editListing(' + p.id + ')"><div class="size-10 rounded-xl ' + (isPublished ? 'bg-primary/10 text-primary' : 'bg-white/5 text-white/40') + ' flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-[22px]">' + (isPublished ? 'visibility' : (modStatus === 'pending' ? 'schedule' : 'block')) + '</span></div><div class="min-w-0"><p class="text-sm font-bold text-white truncate">' + name + '</p>' + statusBadge + '<p class="text-[10px] text-white/40">' + subText + '</p></div></div><div class="flex items-center gap-2 shrink-0">' + (isApproved ? '<label class="relative inline-flex items-center cursor-pointer"><input type="checkbox" class="sr-only peer" ' + (isPublished ? 'checked' : '') + ' onchange="window.toggleListingPublish(' + p.id + ', this.checked)"><div class="toggle-pill bg-white/10"><div class="toggle-circle"></div></div></label>' : '') + '<button type="button" onclick="window.editListing(' + p.id + ')" class="size-8 rounded-lg flex items-center justify-center text-white/40 hover:text-white hover:bg-white/10"><span class="material-symbols-outlined text-[20px]">edit</span></button></div></div>';
-                    listEl.appendChild(div);
-                });
+                renderListingsPageInto(listEl, profiles, hasActiveTariff);
+                try {
+                    localStorage.setItem(NIKOH_CACHE_LISTINGS, JSON.stringify({ t: Date.now(), profiles: profiles, has_active_tariff: hasActiveTariff }));
+                } catch (e) {}
                 pageDataLoaded.listings = true;
             } catch (e) {
                 console.warn('Listings page load error', e);
-                listEl.innerHTML = '<p class="text-white/50 text-center py-4 text-sm">E\'lonlar yuklanmadi.</p>';
+                if (!listEl.querySelector('.glass-card')) {
+                    listEl.innerHTML = '<p class="text-white/50 text-center py-4 text-sm">E\'lonlar yuklanmadi.</p>';
+                }
             }
         }
 
@@ -7646,8 +7741,9 @@
                 });
                 const data = await r.json();
                 if (r.ok && data.success) {
+                    if (typeof window.invalidatePageCache === 'function') window.invalidatePageCache('listings');
                     loadProfileListings();
-                    if (currentPage === 'listings' && typeof loadListingsPageData === 'function') loadListingsPageData();
+                    if (currentPage === 'listings' && typeof loadListingsPageData === 'function') loadListingsPageData({ force: true });
                 } else {
                     if (r.status === 400 && (data.error === 'Tarif kerak' || (data.message && data.message.indexOf('tarif') !== -1))) {
                         if (typeof showRequireProfileTariffModal === 'function') {
@@ -7669,12 +7765,12 @@
                         alert(data.message || data.error || 'Xatolik');
                     }
                     loadProfileListings();
-                    if (currentPage === 'listings' && typeof loadListingsPageData === 'function') loadListingsPageData();
+                    if (currentPage === 'listings' && typeof loadListingsPageData === 'function') loadListingsPageData({ force: true });
                 }
             } catch (e) {
                 alert('Xatolik yuz berdi');
                 loadProfileListings();
-                if (currentPage === 'listings' && typeof loadListingsPageData === 'function') loadListingsPageData();
+                if (currentPage === 'listings' && typeof loadListingsPageData === 'function') loadListingsPageData({ force: true });
             }
         };
 
@@ -7715,9 +7811,11 @@
                 });
                 var data = await r.json().catch(function() { return {}; });
                 if (r.ok && data.success) {
+                    if (typeof window.invalidatePageCache === 'function') window.invalidatePageCache('listings');
                     if (labelEl) labelEl.textContent = checked ? 'E\'lon yoqilgan' : 'E\'lon o\'chiq';
                     if (typeof window.showNotification === 'function') window.showNotification(checked ? '✅ E\'lon yoqildi' : 'E\'lon o\'chirildi');
                     loadProfileListings();
+                    if (currentPage === 'listings' && typeof loadListingsPageData === 'function') loadListingsPageData({ force: true });
                 } else {
                     if (toggleEl) toggleEl.checked = !checked;
                     if (labelEl) labelEl.textContent = (!checked) ? 'E\'lon yoqilgan' : 'E\'lon o\'chiq';
@@ -7769,6 +7867,7 @@
                     data = { error: 'Server noto\'g\'ri javob qaytardi.' };
                 }
                 if (r.ok && data.success) {
+                    if (typeof window.invalidatePageCache === 'function') window.invalidatePageCache('listings');
                     if (typeof window.showNotification === 'function') window.showNotification('✅ Saqlandi');
                     window.currentEditingListingId = data.listing_id || data.id || listingId;
                     document.getElementById('add-listing-delete-section')?.classList.remove('hidden');
@@ -7833,6 +7932,7 @@
                     data = { error: 'Server noto\'g\'ri javob qaytardi. Qaytadan urinib ko\'ring.' };
                 }
                 if (r.ok && data.success) {
+                    if (typeof window.invalidatePageCache === 'function') window.invalidatePageCache('listings');
                     if (typeof window.showNotification === 'function') window.showNotification('✅ E\'lon qilindi!');
                     window.newListingDraft = {};
                     window.currentEditingListingId = null;
@@ -7869,6 +7969,7 @@
                 });
                 const data = await r.json();
                 if (r.ok && data.success) {
+                    if (typeof window.invalidatePageCache === 'function') window.invalidatePageCache('listings');
                     if (typeof window.showNotification === 'function') window.showNotification('E\'lon o\'chirildi');
                     window.newListingDraft = {};
                     window.currentEditingListingId = null;
